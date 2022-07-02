@@ -4,8 +4,8 @@ import { ethers, upgrades } from "hardhat";
 import { BigNumber } from "@ethersproject/bignumber"
 
 import {
-    PPanaUpgradeableERC20,
-    PPanaUpgradeableERC20__factory
+    PPanaERC20,
+    PPanaERC20__factory
   } from '../../types';
 
 
@@ -14,15 +14,14 @@ describe("pPANA Token contract", function() {
     let panaAdmin: SignerWithAddress;
     let buyer1: SignerWithAddress;
     let buyer2: SignerWithAddress;
-    let pPANA: PPanaUpgradeableERC20;
+    let pPANA: PPanaERC20;
 
     beforeEach(
         async function() {
             [ deployer, panaAdmin, buyer1, buyer2 ] = await ethers.getSigners();
 
             // initialize only run once
-            pPANA = await upgrades.deployProxy(new PPanaUpgradeableERC20__factory(deployer), [panaAdmin.address], {initializer: 'initialize'}) as PPanaUpgradeableERC20;
-            await pPANA.deployed();
+            pPANA = await (new PPanaERC20__factory(deployer).deploy(panaAdmin.address));
         }
     );
 

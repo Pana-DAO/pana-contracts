@@ -117,8 +117,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await waitFor(authorityContract.pushGuardian(daoMultisig, true));
     console.log("Setup -- authorityContract.pushGuardian: set guardian on authority");
 
-    // Step 14: Set 30% DAO Rewards on each Bond Issue
-    await waitFor(bondDepo.setRewards(0, "3000"));
+    // Step 14: Set 30% Treasury Rewards on each Bond Issue
+    await waitFor(bondDepo.setRewards(0, 0, "3000"));
     console.log("Setup -- bondDepo.setRewards: set dao rewards");
 
     // Step 15: Set Dao MultiSig as Governor on authority

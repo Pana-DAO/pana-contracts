@@ -203,7 +203,11 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
         * it should be transferred.
         */
       Market memory market = markets[_id];
-
+      
+      uint256 toTreasury = 0;
+      uint256 toRef = 0;
+      uint256 toDAO = 0;
+          
       if (market.quoteTokenIsReserve) {
           // transfer payment from user to this contract
           market.quoteToken.safeTransferFrom(msg.sender, address(this), _amount);
@@ -211,14 +215,13 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
           // get tokenValue from treasury to calculate profit for deposit
           uint256 value = treasury.tokenValue(address(market.quoteToken), _amount);
 
-          // add rewards for DAO and referral and return total reward amount
-          uint256 _reward = 0;
+          // get rewards for DAO, Treasury and referral
           if (value > _payout) {
-            _reward = giveRewards(_payout, _referral, value - _payout);
+            (toRef, toDAO, toTreasury) = giveRewards(_payout, _referral, value - _payout);
           }
 
           // calculate amount to mint
-          uint256 toMint = _payout + _reward;
+          uint256 toMint = _payout + toRef + toDAO + toTreasury;
 
           // calculate profit
           uint256 profit = 0;
@@ -232,12 +235,17 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
           // transfer payment from user to treasury directly
           market.quoteToken.safeTransferFrom(msg.sender, address(treasury), _amount);
           
-          // add rewards for DAO and referral and return total reward amount
-          uint256 _reward = giveRewards(_payout, _referral, type(uint256).max);
+          // get rewards for DAO, Treasury and referral
+          (toRef, toDAO, toTreasury) = giveRewards(_payout, _referral, type(uint256).max);
 
           // mint PANA for payout and reward
-          treasury.mint(address(this), _payout + _reward);
-      }    
+          treasury.mint(address(this), _payout + toRef + toDAO + toTreasury);
+      }
+
+      if (toTreasury > 0) {
+        // Rewards generated for Treasury should be sent to Treasury immediately
+        sendRewardsToTreasury(toTreasury);
+      }
 
       // stake the payout while vesting
       staking.stake(address(this), _payout);

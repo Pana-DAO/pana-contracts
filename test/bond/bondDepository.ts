@@ -42,7 +42,6 @@ const EPOCH_NUMBER = 0;
 const LARGE_APPROVAL = "100000000000000000000000000000000";
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 // Initial mint for DAI (10,000,000)
-const initialMint = "10000000000000000000000000";
 // Setting epoch to 1 for easier testing
 const blocksNeededForQueue = 1;
 
@@ -77,7 +76,7 @@ describe("Pana reserve bond contract", () => {
 
         dai = await (new DAI__factory(deployer)).deploy(chainIds.hardhat);
         
-        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address);
+        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
         await authority.deployed();
         
         pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);
@@ -180,6 +179,14 @@ describe("Pana reserve bond contract", () => {
                     expect(Number(second)).to.equal(1);
                 
                 });
+
+                it("should set correct reward rate",async() => {
+                    await bondDepository.setRewards("1000","500","300");
+                    expect(await bondDepository.daoReward()).to.be.equal("500");
+                    expect(await bondDepository.refReward()).to.be.equal("1000");
+                    expect(await bondDepository.treasuryReward()).to.be.equal("300");
+                });
+
                 it("should close correct bond", async () => {
                 
                     await bondDepository.connect(deployer).create(
@@ -235,6 +242,40 @@ describe("Pana reserve bond contract", () => {
                 
                     expect(Number(depositAmount)).to.equal(Number(balanceBefore.sub(balanceAfter)));
                 });
+
+                it("should return correct reward on bonding",async() => {
+                    await bondDepository.setRewards("0","0","2000");
+                    let payout = await bondDepository.payoutFor(depositAmount,0)
+                    await bondDepository.connect(user1).deposit(
+                        bondID,
+                        depositAmount,
+                        maxPrice,
+                        user1.address,
+                        user2.address
+                    );
+                    
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(payout.mul("2000").div("10000")));
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(payout.mul("2001").div("10000")));
+
+                });
+
+                it("should return correct reward based on reward limit",async ()=> {
+                    await bondDepository.setRewards("0","0","1000000");
+                    let payout = await bondDepository.payoutFor(decimalRepresentation(15),0)
+                    await bondDepository.connect(user1).deposit(
+                        bondID,
+                        decimalRepresentation(15),
+                        maxPrice,
+                        user1.address,
+                        user2.address
+                    );
+                    let tokenValue = await treasury.tokenValue(dai.address,decimalRepresentation(15));
+                    
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(tokenValue.sub(payout.mul("1001").div("1000"))));
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(tokenValue.sub(payout)));
+
+                });
+
                 it("should allow multiple deposits",async () => {
                     await bondDepository.connect(user1).deposit(
                         bondID,
@@ -272,10 +313,10 @@ describe("Pana reserve bond contract", () => {
                         user2.address
                     );
                     let indexes = await bondDepository.indexesFor(user1.address);
-                    let payout=0;
+                    let payout=bigNumberRepresentation(0);
                     for(let i in indexes ){
                         let [pay,] =await bondDepository.pendingFor(user1.address,i)
-                        payout += Number(pay);
+                        payout = payout.add(pay);
                     }
                     await moveTimestamp(vesting);
 

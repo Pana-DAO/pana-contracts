@@ -5,14 +5,16 @@ interface IPanaAuthority {
     /* ========== EVENTS ========== */
     
     event GovernorPushed(address indexed from, address indexed to, bool _effectiveImmediately);
-    event GuardianPushed(address indexed from, address indexed to, bool _effectiveImmediately);    
-    event PolicyPushed(address indexed from, address indexed to, bool _effectiveImmediately);    
-    event VaultPushed(address indexed from, address indexed to, bool _effectiveImmediately);    
+    event GuardianPushed(address indexed from, address indexed to, bool _effectiveImmediately);
+    event PolicyPushed(address indexed from, address indexed to, bool _effectiveImmediately);
+    event VaultPushed(address indexed from, address indexed to, bool _effectiveImmediately);
+    event DistributionVaultPushed(address indexed from, address indexed to, bool _effectiveImmediately); 
 
     event GovernorPulled(address indexed from, address indexed to);
     event GuardianPulled(address indexed from, address indexed to);
     event PolicyPulled(address indexed from, address indexed to);
     event VaultPulled(address indexed from, address indexed to);
+    event DistributionVaultPulled(address indexed from, address indexed to);
 
     /* ========== VIEW ========== */
     
@@ -20,4 +22,5 @@ interface IPanaAuthority {
     function guardian() external view returns (address);
     function policy() external view returns (address);
     function vault() external view returns (address);
+    function distributionVault() external view returns (address);
 }

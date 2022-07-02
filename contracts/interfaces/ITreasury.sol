@@ -8,6 +8,8 @@ interface ITreasury {
         uint256 _profit
     ) external returns (uint256);
 
+    function depositForRedemption(uint _amount, address _token) external returns (uint256 send_);
+
     function withdraw(uint256 _amount, address _token) external;
 
     function tokenValue(address _token, uint256 _amount) external view returns (uint256 value_);

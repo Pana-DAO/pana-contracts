@@ -47,7 +47,8 @@ describe("PanaStaking", () => {
             governor.address,
             guardian.address,
             owner.address,
-            owner.address
+            owner.address,
+            ZERO_ADDRESS
         );
     });
 

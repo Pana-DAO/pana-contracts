@@ -71,7 +71,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Initialize all contracts
             let panaAuthorityContract = await ethers.getContractFactory("PanaAuthority");
-            PanaAuthority = await panaAuthorityContract.deploy(governor.address, guardian.address, policy.address, vault.address);
+            PanaAuthority = await panaAuthorityContract.deploy(governor.address, guardian.address, policy.address, vault.address, ZERO_ADDRESS);
 
             let panaTokenContract = await ethers.getContractFactory("PanaERC20Token");
             PANA = await panaTokenContract.deploy(PanaAuthority.address);

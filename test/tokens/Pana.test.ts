@@ -8,6 +8,8 @@ import {
   PanaAuthority__factory
 } from '../../types';
 
+const ZERO_ADDRESS = ethers.utils.getAddress("0x0000000000000000000000000000000000000000");
+
 describe("Pana-Token-Test", () => {
   let deployer: SignerWithAddress;
   let vault: SignerWithAddress;
@@ -18,7 +20,7 @@ describe("Pana-Token-Test", () => {
   beforeEach(async () => {
     [deployer, vault, bob, alice] = await ethers.getSigners();
 
-    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address);
+    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
     await authority.deployed();
 
     pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);

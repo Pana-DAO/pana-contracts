@@ -56,7 +56,7 @@ describe("sPana", () => {
     stakingFake.attach(stakingAddress.address); 
     treasuryFake = await smock.fake<ITreasury>('ITreasury');
     karshaFake = await smock.fake<Karsha>('Karsha');     
-    const authority = await (new PanaAuthority__factory(initializer)).deploy(initializer.address, initializer.address, initializer.address, initializer.address);
+    const authority = await (new PanaAuthority__factory(initializer)).deploy(initializer.address, initializer.address, initializer.address, initializer.address, ZERO_ADDRESS);
     pana = await (new PanaERC20Token__factory(initializer)).deploy(authority.address);
     sPana = await (new SPana__factory(initializer)).deploy();
     karsha = await (new Karsha__factory(initializer)).deploy(initializer.address,sPana.address);

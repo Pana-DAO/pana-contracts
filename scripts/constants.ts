@@ -9,12 +9,11 @@ export const CONTRACTS: Record<string, string> = {
     bondingCalculator: "PanaBondingCalculator",
     authority: "PanaAuthority",
     DAI: "DAI",
-    aPanaUpgradeable: "APanaUpgradeableERC20",
-    pPanaUpgradeable: "PPanaUpgradeableERC20",
-    pPana: "pPana",
+    pPana: "PPanaERC20",
     pPanaRedeem: "PPanaRedeem",
     slidingWindowOracle: "PanaSlidingWindowOracle",
-    PanaSupplyController: "PanaSupplyController"
+    PanaSupplyController: "PanaSupplyController",
+    stakingPools: "StakingPools"
 };
 
 // Constructor Arguments

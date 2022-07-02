@@ -23,6 +23,8 @@ const decimalRepresentation_1 = (value:any, decimals:any) => {
   return (value*(10**decimals));
 };
 
+const ZERO_ADDRESS = ethers.utils.getAddress("0x0000000000000000000000000000000000000000");
+
 describe("Karsha-transfer-debt", () => {
   let deployer: SignerWithAddress;
   let vault: SignerWithAddress;
@@ -37,7 +39,7 @@ describe("Karsha-transfer-debt", () => {
   let indexDecimal = 18;
   beforeEach(async () => {
     [deployer, vault, bob, alice,initializer,stakingAddress] = await ethers.getSigners();
-    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address);
+    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
     await authority.deployed();
     treasuryFake = await smock.fake<ITreasury>('ITreasury');
     stakingFake = await smock.fake<IStaking>('IStaking');

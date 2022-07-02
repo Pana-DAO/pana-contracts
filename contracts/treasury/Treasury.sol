@@ -23,6 +23,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     /* ========== EVENTS ========== */
 
     event Deposit(address indexed token, uint256 amount, uint256 value);
+    event DepositForRedemption(address indexed token, uint256 amount, uint256 value);
     event Withdrawal(address indexed token, uint256 amount, uint256 value);
     event CreateDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
     event RepayDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
@@ -45,7 +46,8 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         RESERVEDEBTOR,
         REWARDMANAGER,
         SPANA,
-        PANADEBTOR
+        PANADEBTOR,
+        PANAREDEEMER
     }
 
     struct Queue {
@@ -158,6 +160,28 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
                 }
             }
         }
+    }
+
+    /**
+     * @notice allow approved address to deposit reserve token for available PANA. No new PANA is minted.
+     * @param _amount uint256
+     * @param _token address
+     * @return send_ uint256
+     */
+    function depositForRedemption(uint _amount, address _token) external override returns (uint256 send_) {
+        require(permissions[STATUS.RESERVETOKEN][_token], notAccepted);
+        require(permissions[STATUS.PANAREDEEMER][msg.sender], notApproved);
+
+        // redemption is always calculated as 1:100
+        send_ = _amount.mul(1e11).mul(10**IERC20Metadata(address(PANA)).decimals()).div(10**9).div(10**IERC20Metadata(_token).decimals());
+        require(send_ <= PANA.balanceOf(address(this)), "Not enough PANA reserves");
+       
+        // reserves increased according to the current intrinsic value
+        totalReserves = totalReserves.add(tokenValue(_token, _amount));
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(PANA).safeTransfer(msg.sender, send_);
+
+        emit DepositForRedemption(_token, _amount, send_);
     }
 
     /**

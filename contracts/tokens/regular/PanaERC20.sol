@@ -13,6 +13,9 @@ import "../../access/PanaAccessControlled.sol";
 contract PanaERC20Token is ERC20Permit, IPana, PanaAccessControlled {
     using SafeMath for uint256;
 
+    bool public distributionConcluded;
+    uint256 public totalDistributed;
+
     constructor(address _authority) 
     ERC20("Pana DAO", "PANA", 18) 
     ERC20Permit("Pana DAO") 
@@ -20,6 +23,29 @@ contract PanaERC20Token is ERC20Permit, IPana, PanaAccessControlled {
 
     function mint(address account_, uint256 amount_) external override onlyVault {
         _mint(account_, amount_);
+    }
+
+    /**
+     * @notice mints Pana to the distribution vault
+     */
+    function mintForDistribution(uint256 amount_) external onlyGovernor {
+        require(authority.distributionVault() != address(0), "Zero address: distributionVault");
+        require(!distributionConcluded, "Distribution concluded");
+
+        totalDistributed += amount_;
+        _mint(authority.distributionVault(), amount_);
+    }
+
+    /**
+     * @notice concludes token launch Pana distribution.
+     * This effectively turns the possibility to mint Pana via mintForDistribution() off.
+     * distributionConcluded is one-way switch and it cannot be turned on again.
+     */
+    function concludeDistribution() external onlyGovernor {
+        require(!distributionConcluded, "Already concluded");
+
+        distributionConcluded = true;
+        emit DistributionConcluded(totalDistributed);
     }
 
     function burn(uint256 amount) external override {

@@ -115,7 +115,7 @@ describe("Pana reserve bond contract", () => {
 
         dai = await (new DAI__factory(deployer)).deploy(0);
         
-        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address);
+        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
         await authority.deployed();
         
         pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);

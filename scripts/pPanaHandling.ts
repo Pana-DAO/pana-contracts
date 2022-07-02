@@ -6,7 +6,7 @@ import  csv from 'csvtojson'
 
 import {
     PPanaRedeem__factory,
-    PPanaUpgradeableERC20__factory
+    PPanaERC20__factory
 } from "../types";
 
 async function main() {
@@ -23,7 +23,7 @@ async function main() {
     const dao = await ethers.getSigner(daoMultisig);
 
     let pPanaRedeem = await PPanaRedeem__factory.connect(pPanaRedeemDeployment.address, dao);
-    let pPana = await PPanaUpgradeableERC20__factory.connect(pPanaDeployment.address, dao);
+    let pPana = await PPanaERC20__factory.connect(pPanaDeployment.address, dao);
 
     for (let i = 0; i < users.length; i++) {        
         const user = users[i];

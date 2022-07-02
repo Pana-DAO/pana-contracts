@@ -18,6 +18,8 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
 
     address public override vault;
 
+    address public override distributionVault;
+
     address public newGovernor;
 
     address public newGuardian;
@@ -26,6 +28,8 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
 
     address public newVault;
 
+    address public newDistributionVault;
+
 
     /* ========== Constructor ========== */
 
@@ -33,7 +37,8 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
         address _governor,
         address _guardian,
         address _policy,
-        address _vault
+        address _vault,
+        address _distributionVault
     ) PanaAccessControlled( IPanaAuthority(address(this)) ) {
         governor = _governor;
         emit GovernorPushed(address(0), governor, true);
@@ -43,6 +48,8 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
         emit PolicyPushed(address(0), policy, true);
         vault = _vault;
         emit VaultPushed(address(0), vault, true);
+        distributionVault = _distributionVault;
+        emit DistributionVaultPushed(address(0), distributionVault, true);
     }
 
 
@@ -72,6 +79,12 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
         emit VaultPushed(vault, newVault, _effectiveImmediately);
     }
 
+    function pushDistributionVault(address _newDistributionVault, bool _effectiveImmediately) external onlyGovernor {
+        if( _effectiveImmediately ) distributionVault = _newDistributionVault;
+        newDistributionVault = _newDistributionVault;
+        emit DistributionVaultPushed(distributionVault, newDistributionVault, _effectiveImmediately);
+    }
+
 
     /* ========== PENDING ROLE ONLY ========== */
 
@@ -97,5 +110,11 @@ contract PanaAuthority is IPanaAuthority, PanaAccessControlled {
         require(msg.sender == newVault, "!newVault");
         emit VaultPulled(vault, newVault);
         vault = newVault;
+    }
+
+    function pullDistributionVault() external {
+        require(msg.sender == newDistributionVault, "!newDistributionVault");
+        emit DistributionVaultPulled(distributionVault, newDistributionVault);
+        distributionVault = newDistributionVault;
     }
 }
