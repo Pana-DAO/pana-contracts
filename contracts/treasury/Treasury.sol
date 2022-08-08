@@ -85,8 +85,8 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     uint256 public onChainGovernanceTimelock;
 
     // A base (intrinsic) value of PANA token.
-    // Expressed in terms of X PANA per 1 token (i.e. 100.0 = 100 PANA per 1 DAI = 0.01 DAI per 1 PANA).
-    // Base value specified to 9 precision digits (9 digits caps the base price of PANA to 1bln DAI at max)
+    // Expressed in terms of X PANA per 1 token (i.e. 100.0 = 100 PANA per 1 reserve token = 0.01 reserve token per 1 PANA).
+    // Base value specified to 9 precision digits (9 digits caps the base price of PANA to 1bln reserve token at max)
     uint256 public baseValue;
 
     string internal notAccepted = "Treasury: not accepted";
@@ -557,7 +557,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
 
     /**
      * @notice sets PANA token base value
-     * @param _baseValue base value of PANA expressed in terms of X PANA per 1 reserve token (DAI), 9 decimals 
+     * @param _baseValue base value of PANA expressed in terms of X PANA per 1 reserve token, 9 decimals 
      */
     function setBaseValue(uint256 _baseValue) external onlyGovernor {
         baseValue = _baseValue;

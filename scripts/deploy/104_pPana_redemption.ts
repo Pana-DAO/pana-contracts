@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CONTRACTS, DAI_ADDRESS, getDAIAddress} from "../constants";
+import { CONTRACTS, getUSDCAddress} from "../constants";
 import {
 PPanaRedeem__factory
 } from "../../types";
@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployer, daoMultisig } = await getNamedAccounts();
 
     const chainId = await getChainId();
-    const DAI = getDAIAddress(chainId);
+    const USDC = getUSDCAddress(chainId);
 
     const pPanaDeployment = await deployments.get(CONTRACTS.pPana);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
@@ -20,7 +20,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await deploy(CONTRACTS.pPanaRedeem, {
         from: deployer,
         args: [pPanaDeployment.address, panaDeployment.address,
-            DAI, treasuryDeployment.address, daoMultisig],
+            USDC, treasuryDeployment.address, daoMultisig],
         log: true,
         skipIfAlreadyDeployed: true,
     });

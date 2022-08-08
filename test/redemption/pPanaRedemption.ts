@@ -1,8 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import chai, { expect } from "chai";
-import { ethers, upgrades, network } from "hardhat";
-const { BigNumber } = ethers;
-import { smock, MockContract } from "@defi-wonderland/smock";
+import { ethers, network } from "hardhat";
+import { smock } from "@defi-wonderland/smock";
 import {
     PanaERC20Token,
     PanaERC20Token__factory,    
@@ -12,7 +11,7 @@ import {
     PPanaRedeem,
     PPanaRedeem__factory,
     PanaTreasury,
-    DAI
+    USDC
   } from '../../types';
 
 chai.use(smock.matchers);
@@ -41,7 +40,7 @@ describe("PPana redemption", () => {
     let daoMultisig: SignerWithAddress;
     let pana: PanaERC20Token;    
     let treasury: PanaTreasury;    
-    let dai: DAI;
+    let usdc: USDC;
 
     beforeEach(async () => {
         [ deployerOwner, daoMultisig, governor,
@@ -72,32 +71,32 @@ describe("PPana redemption", () => {
         pana.connect(daoMultisig).mint(treasury.address, ethers.utils.parseUnits( String( 10000000 ), "ether" ));
 
 
-        // for DAI
-        let daiTokenContract = await ethers.getContractFactory("DAI");
-        dai = await daiTokenContract.deploy(0) as DAI;
+        // for USDC
+        let usdcTokenContract = await ethers.getContractFactory("USDC");
+        usdc = await usdcTokenContract.deploy(0) as USDC;
         
         // For pPANARedeem
         pPANARedeem = await (new PPanaRedeem__factory(deployerOwner)).deploy(pPANA.address, pana.address, 
-                dai.address, treasury.address, daoMultisig.address);
+                usdc.address, treasury.address, daoMultisig.address);
         await pPANARedeem.deployed();
 
-        // teamMember has dai and pPana
-        // teamMember1 does not have both dai and pPana
+        // teamMember has usdc and pPana
+        // teamMember1 does not have both usdc and pPana
         // teamMember2 has pPana alone.
 
-        await dai.mint(teamMember.address, ethers.utils.parseUnits( String( 5000000 ), "ether" ) );
+        await usdc.mint(teamMember.address, ethers.utils.parseUnits( String( 5000000 ), "mwei" ) );
         await pPANA.connect(daoMultisig).transfer(teamMember.address, ethers.utils.parseUnits( String( 40000000 ), "ether" ));
         await pPANA.connect(daoMultisig).transfer(teamMember2.address, ethers.utils.parseUnits( String( 40000000 ), "ether" )); 
         await pPANA.connect(daoMultisig).addApprovedSeller(teamMember.address);
         
-        await dai.mint(idoParticipant.address, ethers.utils.parseUnits( String( 5000000 ), "ether" ) );
+        await usdc.mint(idoParticipant.address, ethers.utils.parseUnits( String( 5000000 ), "mwei" ) );
         await pPANA.connect(daoMultisig).transfer(idoParticipant.address, ethers.utils.parseUnits( String( 60000 ), "ether" ));
         await pPANA.connect(daoMultisig).transfer(idoParticipant1.address, ethers.utils.parseUnits( String( 50000 ), "ether" ));
         await pPANA.connect(daoMultisig).addApprovedSeller(idoParticipant.address); 
         
         await authority.connect(governor).pushVault(treasury.address, true);
         await treasury.connect(governor).enable(0, pPANARedeem.address, ethers.constants.AddressZero, ethers.constants.AddressZero); 
-        await treasury.connect(governor).enable(2, dai.address, ethers.constants.AddressZero, ethers.constants.AddressZero);
+        await treasury.connect(governor).enable(2, usdc.address, ethers.constants.AddressZero, ethers.constants.AddressZero);
         await treasury.connect(governor).enable(11, pPANARedeem.address, ethers.constants.AddressZero, ethers.constants.AddressZero)
 
         
@@ -110,8 +109,8 @@ describe("PPana redemption", () => {
             expect(await pPANARedeem.owner()).to.equal(daoMultisig.address);
         });
 
-        it("Make sure Team member has pPana and DAI", async () => {
-            expect (await dai.balanceOf(teamMember.address)).to.equal(ethers.utils.parseUnits( String( 5000000 ), "ether" ));
+        it("Make sure Team member has pPana and USDC", async () => {
+            expect (await usdc.balanceOf(teamMember.address)).to.equal(ethers.utils.parseUnits( String( 5000000 ), "mwei" ));
             expect (await pPANA.balanceOf(teamMember.address)).to.equal(ethers.utils.parseUnits( String( 40000000 ), "ether" ));
         });
 
@@ -142,30 +141,30 @@ describe("PPana redemption", () => {
 
             it("Make sure pPana holder is not allowed to call deposit for redemption in treasury", async () => {
                 await expect(
-                    treasury.connect(teamMember).depositForRedemption(ethers.utils.parseUnits( String( 936 ), "ether" ), dai.address)
+                    treasury.connect(teamMember).depositForRedemption(ethers.utils.parseUnits( String( 936 ), "mwei" ), usdc.address)
                 ).to.be.revertedWith("Treasury: not approved");
             });          
 
 
             it("Make sure Team member can lock the pPana for redemption", async () => {
                 const teamMember_pPanaBalance_preExercise = await pPANA.balanceOf(teamMember.address);    
-                const teamMember_DAIBalance_preExercise = await dai.balanceOf(teamMember.address);
+                const teamMember_USDCBalance_preExercise = await usdc.balanceOf(teamMember.address);
 
-                await dai.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
+                await usdc.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "mwei" )); 
                 await pPANA.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
 
                 await pPANARedeem.connect(teamMember).exercise(ethers.utils.parseUnits( String( 936 ), "ether" ));
                 
                 const teamMember_pPanaBalance_postExercise = await pPANA.balanceOf(teamMember.address);
-                const teamMember_DAIBalance_postExercise = await dai.balanceOf(teamMember.address);
+                const teamMember_USDCBalance_postExercise = await usdc.balanceOf(teamMember.address);
 
                 expect(teamMember_pPanaBalance_postExercise).to.equal(teamMember_pPanaBalance_preExercise.sub(ethers.utils.parseUnits( String( 936 ), "ether" )));
-                expect(teamMember_DAIBalance_postExercise).to.equal(teamMember_DAIBalance_preExercise.sub(ethers.utils.parseUnits( String( 936 ), "ether" )));
+                expect(teamMember_USDCBalance_postExercise).to.equal(teamMember_USDCBalance_preExercise.sub(ethers.utils.parseUnits( String( 936 ), "mwei" )));
             });
 
             it("Make sure an error is thrown if team member try to redeem before lock duration", async () => {
     
-                await dai.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
+                await usdc.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "mwei" )); 
                 await pPANA.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
 
                 await pPANARedeem.connect(teamMember).exercise(ethers.utils.parseUnits( String( 936 ), "ether" ));
@@ -185,7 +184,7 @@ describe("PPana redemption", () => {
             it("Make sure Team member can claim the Pana after lock period", async () => {
                 const teamMember_panaBalance_preExercise = await pana.balanceOf(teamMember.address);
     
-                await dai.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
+                await usdc.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "mwei" )); 
                 await pPANA.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
                 await pPANARedeem.connect(teamMember).exercise(ethers.utils.parseUnits( String( 936 ), "ether" ));
 
@@ -201,7 +200,7 @@ describe("PPana redemption", () => {
                 const teamMember_panaBalance_preExercise = await pana.balanceOf(teamMember.address);
                 await treasury.connect(governor).setBaseValue( ethers.utils.parseUnits( String( 121 ), "ether" ) );
     
-                await dai.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
+                await usdc.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "mwei" )); 
                 await pPANA.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
                 await pPANARedeem.connect(teamMember).exercise(ethers.utils.parseUnits( String( 936 ), "ether" ));
 
@@ -238,25 +237,25 @@ describe("PPana redemption", () => {
 
             it("Make sure IDO participant can lock the pPana for redemption", async () => {
                 const idoMember_pPanaBalance_preExercise = await pPANA.balanceOf(idoParticipant.address);    
-                const idoMember_DAIBalance_preExercise = await dai.balanceOf(idoParticipant.address);
+                const idoMember_USDCBalance_preExercise = await usdc.balanceOf(idoParticipant.address);
 
-                await dai.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
+                await usdc.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
                 await pPANA.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
 
                 await pPANARedeem.connect(idoParticipant).exercise(ethers.utils.parseUnits( String( 60000 ), "ether" ));
                 
                 const idoMember_pPanaBalance_postExercise = await pPANA.balanceOf(idoParticipant.address);
-                const idoMember_DAIBalance_postExercise = await dai.balanceOf(idoParticipant.address);
+                const idoMember_USDCBalance_postExercise = await usdc.balanceOf(idoParticipant.address);
 
                 expect(idoMember_pPanaBalance_postExercise).to.equal(idoMember_pPanaBalance_preExercise.sub(ethers.utils.parseUnits( String( 60000 ), "ether" )));
-                expect(idoMember_DAIBalance_postExercise).to.equal(idoMember_DAIBalance_preExercise.sub(ethers.utils.parseUnits( String( 60000 ), "ether" )));
+                expect(idoMember_USDCBalance_postExercise).to.equal(idoMember_USDCBalance_preExercise.sub(ethers.utils.parseUnits( String( 60000 ), "ether" )));
             });
 
             it("Make sure IDO participants cannot redeem if treasury doesn't have enough balance of pana", async () => {
-                await dai.mint(idoParticipant.address, ethers.utils.parseUnits( String( 20000000 ), "ether" ));
+                await usdc.mint(idoParticipant.address, ethers.utils.parseUnits( String( 20000000 ), "ether" ));
                 await pPANA.connect(daoMultisig).transfer(idoParticipant.address, ethers.utils.parseUnits( String( 20000000 ), "ether" ));
                 
-                await dai.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 20000000 ), "ether" )); 
+                await usdc.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 20000000 ), "ether" )); 
                 await pPANA.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 20000000 ), "ether" )); 
                 await expect(
                     pPANARedeem.connect(idoParticipant).exercise(ethers.utils.parseUnits( String( 20000000 ), "ether" ))
@@ -265,7 +264,7 @@ describe("PPana redemption", () => {
 
             it("Make sure an error is thrown if IDO participants try to redeem before lock duration", async () => {
     
-                await dai.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
+                await usdc.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
                 await pPANA.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
 
                 await pPANARedeem.connect(idoParticipant).exercise(ethers.utils.parseUnits( String( 60000 ), "ether" ));
@@ -285,7 +284,7 @@ describe("PPana redemption", () => {
             it("Make sure IDO participants can claim the Pana after lock period", async () => {
                 const idoMember_panaBalance_preExercise = await pana.balanceOf(idoParticipant.address);
     
-                await dai.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
+                await usdc.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
                 await pPANA.connect(idoParticipant).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 60000 ), "ether" )); 
                 await pPANARedeem.connect(idoParticipant).exercise(ethers.utils.parseUnits( String( 60000 ), "ether" ));
 

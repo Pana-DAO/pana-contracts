@@ -11,8 +11,7 @@ import {
     StakingPools,
     StakingPools__factory,
     USDC,
-    USDC__factory,
-
+    USDC__factory
 } from '../../types';
 
 const LARGE_APPROVAL = "100000000000000000000000000000000";
@@ -42,6 +41,9 @@ describe("Pana Launch StakingPool contract", () => {
     let stakingPool : StakingPools;
     let dai : DAI;
     let usdc : USDC;
+    let USDCDecimals : number;
+    let DAIDecimals : number;
+    let PANADecimals : number;
     let authority:PanaAuthority;
     let block: any;
     
@@ -53,34 +55,41 @@ describe("Pana Launch StakingPool contract", () => {
         
         dai = await (new DAI__factory(deployer)).deploy(0);
         usdc = await (new USDC__factory(deployer)).deploy(0);
-        
+        DAIDecimals = await dai.decimals();
+        USDCDecimals = await usdc.decimals();
+
         authority = await (new PanaAuthority__factory(deployer))
             .deploy(deployer.address, deployer.address, deployer.address, vault.address, distributionVault.address);
         await authority.deployed();
         
         pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);
+        PANADecimals = await pana.decimals();
 
-        await usdc.mint(user1.address,decimalRepresentation("20000"));
-        await dai.mint(user1.address,decimalRepresentation("20000"));
-        await usdc.mint(user2.address,decimalRepresentation("10000"));
+        await usdc.mint(user1.address,decimalRepresentation("20000",USDCDecimals));
+        await dai.mint(user1.address,decimalRepresentation("20000",DAIDecimals));
+        await usdc.mint(user2.address,decimalRepresentation("10000",USDCDecimals));
         
         startTime = parseInt(block.timestamp);
         endTime = startTime + 86400;
-        stakingPool = await (new StakingPools__factory(deployer)).deploy(pana.address,
+        stakingPool = await (new StakingPools__factory(deployer)).deploy(pana.address,distributionVault.address,
             decimalRepresentation(18), startTime, endTime, authority.address);
-            
-        await pana.connect(vault).mint(stakingPool.address, decimalRepresentation("500000"));
-        await stakingPool.connect(deployer).add(100,usdc.address);
+        
+        await pana.connect(vault).mint(user1.address,decimalRepresentation("5000",PANADecimals));
+
+        await pana.connect(deployer).mintForDistribution(decimalRepresentation("500000",PANADecimals));
+        await stakingPool.connect(deployer).add(100,usdc.address); // staking pool index for usdc 0
         await usdc.connect(user1).approve(stakingPool.address,LARGE_APPROVAL);
         await usdc.connect(user2).approve(stakingPool.address,LARGE_APPROVAL);
         await dai.connect(user1).approve(stakingPool.address,LARGE_APPROVAL);
         await dai.connect(user2).approve(stakingPool.address,LARGE_APPROVAL);
+        await pana.connect(user1).approve(stakingPool.address,LARGE_APPROVAL);
+        await pana.connect(distributionVault).approve(stakingPool.address,LARGE_APPROVAL);
 
     });
 
     describe("initialization of stakingPool",async() => {
         it("should initialize staking liquidity pools",async() => {
-            await stakingPool.connect(deployer).add(100,dai.address);
+            await stakingPool.connect(deployer).add(100,dai.address); // staking pool index for dai 1
             let [poolAddress, allocPoint, lastRewardTime, accPanaPerShare] = await stakingPool.poolInfo(1);
 
             expect(dai.address).to.be.equal(poolAddress);
@@ -94,6 +103,10 @@ describe("Pana Launch StakingPool contract", () => {
 
         it("should not allow to add duplicate pools",async() => {
             await expect(stakingPool.connect(deployer).add(100,usdc.address)).to.be.revertedWith("Pool already exists!");
+        });
+
+        it("should set the distribution vault(escrow) only by governor",async() => {
+            await expect(stakingPool.connect(user1).setEscrow(user1.address)).to.be.revertedWith("UNAUTHORIZED");
         });
 
         it("should return correct length of pools",async() => {
@@ -132,13 +145,13 @@ describe("Pana Launch StakingPool contract", () => {
             let balanceBefore = await usdc.balanceOf(user1.address);
             let stakedBefore = await usdc.balanceOf(stakingPool.address);
 
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100",USDCDecimals));
             let balanceAfter = await  usdc.balanceOf(user1.address);
             let stakedAfter = await usdc.balanceOf(stakingPool.address);
 
 
-            expect(balanceAfter).to.be.equal(balanceBefore.sub(decimalRepresentation("100")));
-            expect(stakedAfter).to.be.equal(stakedBefore.add(decimalRepresentation("100")));
+            expect(balanceAfter).to.be.equal(balanceBefore.sub(decimalRepresentation("100",USDCDecimals)));
+            expect(stakedAfter).to.be.equal(stakedBefore.add(decimalRepresentation("100",USDCDecimals)));
 
         });
     });
@@ -148,15 +161,15 @@ describe("Pana Launch StakingPool contract", () => {
         it("should mint pana for distribution",async() => {
 
             let panaBalanceBefore = await pana.balanceOf(distributionVault.address);
-            await pana.connect(deployer).mintForDistribution(decimalRepresentation("5000"));
+            await pana.connect(deployer).mintForDistribution(decimalRepresentation("5000",PANADecimals));
             let panaBalanceAfter = await pana.balanceOf(distributionVault.address);
 
-            expect(Number(panaBalanceAfter)).to.be.equal(Number(panaBalanceBefore.add(decimalRepresentation("5000"))));
+            expect(Number(panaBalanceAfter)).to.be.equal(Number(panaBalanceBefore.add(decimalRepresentation("5000",PANADecimals))));
 
         });
 
         it("should mint pana for distribution only by governor",async() => {
-            await expect(pana.connect(user1).mintForDistribution(decimalRepresentation("5000"))).to.be.revertedWith("UNAUTHORIZED");
+            await expect(pana.connect(user1).mintForDistribution(decimalRepresentation("5000",PANADecimals))).to.be.revertedWith("UNAUTHORIZED");
         });
 
         it("should conclude minting pana for distribution ",async() => {
@@ -171,7 +184,7 @@ describe("Pana Launch StakingPool contract", () => {
 
         it("should not allow minting pana for distribution after it's concluded",async() => {
             await pana.connect(deployer).concludeDistribution();
-            await expect(pana.connect(deployer).mintForDistribution(decimalRepresentation("5000"))).to.be.revertedWith("Distribution concluded");
+            await expect(pana.connect(deployer).mintForDistribution(decimalRepresentation("5000",PANADecimals))).to.be.revertedWith("Distribution concluded");
         });
 
     });
@@ -180,7 +193,7 @@ describe("Pana Launch StakingPool contract", () => {
 
     describe("StakingPool launch harvesting pana",async() => {
         beforeEach(async() => {
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("1000"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("1000",USDCDecimals));
         });
 
         it("should return correct amount of pana",async() => {
@@ -199,12 +212,12 @@ describe("Pana Launch StakingPool contract", () => {
 
             let balanceBeforeUser = await usdc.balanceOf(user1.address);
             let stakedBefore = await usdc.balanceOf(stakingPool.address);
-            await stakingPool.connect(user1).withdraw(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).withdraw(0, decimalRepresentation("100",USDCDecimals));
             let balanceAfterUser = await usdc.balanceOf(user1.address);
             let stakedAfter = await usdc.balanceOf(stakingPool.address);
 
-            expect(balanceAfterUser).to.be.equal(balanceBeforeUser.add(decimalRepresentation("100")));
-            expect(stakedAfter).to.be.equal(stakedBefore.sub(decimalRepresentation("100")));
+            expect(balanceAfterUser).to.be.equal(balanceBeforeUser.add(decimalRepresentation("100",USDCDecimals)));
+            expect(stakedAfter).to.be.equal(stakedBefore.sub(decimalRepresentation("100",USDCDecimals)));
 
         });
 
@@ -212,7 +225,7 @@ describe("Pana Launch StakingPool contract", () => {
 
             let balanceBefore = await pana.balanceOf(user1.address);
             moveTimestamp(100); // moving 100 seconds
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100",USDCDecimals));
             let upperBound = panaPerSecond.mul(102); // checking with 102 seconds since time has passed from the point of calling function
             let lowerBound = panaPerSecond.mul(100);
             let balanceAfter = await pana.balanceOf(user1.address);
@@ -226,7 +239,7 @@ describe("Pana Launch StakingPool contract", () => {
 
             let balanceBefore = await pana.balanceOf(user1.address);
             moveTimestamp(100); // moving 100 seconds
-            await stakingPool.connect(user1).withdraw(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).withdraw(0, decimalRepresentation("100",USDCDecimals));
             let upperBound = panaPerSecond.mul(102); // checking with 102 seconds since time has passed from the point of calling function
             let lowerBound = panaPerSecond.mul(100);
             let balanceAfter = await pana.balanceOf(user1.address);
@@ -258,7 +271,7 @@ describe("Pana Launch StakingPool contract", () => {
         });
 
         it("should increase in reward with increase in allocation Point",async() => {
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100",USDCDecimals));
             moveTimestamp(100);
             await stakingPool.set(0,300); // total allocation points 300+300 = 600
             moveTimestamp(100);
@@ -278,20 +291,20 @@ describe("Pana Launch StakingPool contract", () => {
         });
 
         it("should return correct reward pro-rata based on deposit",async() => {
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100"));
-            await stakingPool.connect(user2).deposit(0, decimalRepresentation("300"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100",USDCDecimals));
+            await stakingPool.connect(user2).deposit(0, decimalRepresentation("300",USDCDecimals));
             await moveTimestamp(100);
             await stakingPool.updatePool(0);
 
             let pendingPanaUser1 = await stakingPool.pendingPana(0,user1.address);
             let pendingPanaUser2 = await stakingPool.pendingPana(0,user2.address)
-            let rewardForUser1 = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("100")).div(decimalRepresentation("100")).mul(1);
+            let rewardForUser1 = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("100",USDCDecimals)).div(decimalRepresentation("100",USDCDecimals)).mul(1);
             let rewardForUser1LowerBound = rewardForUser1.add(panaPerSecond.mul(100)
-                .div(400).mul(decimalRepresentation("100")).div(decimalRepresentation("400")).mul(101));
+                .div(400).mul(decimalRepresentation("100",USDCDecimals)).div(decimalRepresentation("400",USDCDecimals)).mul(101));
             let rewardForUser1UpperBound = rewardForUser1.add(panaPerSecond.mul(100)
-                .div(400).mul(decimalRepresentation("100")).div(decimalRepresentation("400")).mul(102));
-            let rewardForUser2LowerBound = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("300")).div(decimalRepresentation("400")).mul(101);
-            let rewardForUser2UpperBound = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("300")).div(decimalRepresentation("400")).mul(102);
+                .div(400).mul(decimalRepresentation("100",USDCDecimals)).div(decimalRepresentation("400",USDCDecimals)).mul(102));
+            let rewardForUser2LowerBound = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("300",USDCDecimals)).div(decimalRepresentation("400",USDCDecimals)).mul(101);
+            let rewardForUser2UpperBound = panaPerSecond.mul(100).div(400).mul(decimalRepresentation("300",USDCDecimals)).div(decimalRepresentation("400",USDCDecimals)).mul(102);
 
             expect(Number(pendingPanaUser1)).to.be.greaterThanOrEqual(Number(rewardForUser1LowerBound));
             expect(Number(pendingPanaUser1)).to.be.lessThanOrEqual(Number(rewardForUser1UpperBound));
@@ -303,15 +316,15 @@ describe("Pana Launch StakingPool contract", () => {
 
         it("should update reward rate based on multiple deposits",async() => {
 
-            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(0, decimalRepresentation("100",USDCDecimals));
             moveTimestamp(100);
-            await stakingPool.connect(user2).deposit(0, decimalRepresentation("100"));
+            await stakingPool.connect(user2).deposit(0, decimalRepresentation("100",USDCDecimals));
             moveTimestamp(100);
             await stakingPool.updatePool(0);
 
             let reward = panaPerSecond.mul(100).div(400);
-            let accPanaPerShareBefore = reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("100"));
-            let accPanaPerShareAfter = accPanaPerShareBefore.add(reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("200")));
+            let accPanaPerShareBefore = reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("100",USDCDecimals));
+            let accPanaPerShareAfter = accPanaPerShareBefore.add(reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("200",USDCDecimals)));
             let accPanaPerShareLowerBound = accPanaPerShareAfter.mul(101);
             let accPanaPerShareUpperBound = accPanaPerShareAfter.mul(102);
 
@@ -323,15 +336,15 @@ describe("Pana Launch StakingPool contract", () => {
         });
 
         it("should increase reward rate with withdrawals",async() => {
-            await stakingPool.connect(user1).deposit(0,decimalRepresentation("200"));
+            await stakingPool.connect(user1).deposit(0,decimalRepresentation("200",USDCDecimals));
             moveTimestamp(100);
-            await stakingPool.connect(user1).withdraw(0,decimalRepresentation("100"));
+            await stakingPool.connect(user1).withdraw(0,decimalRepresentation("100",USDCDecimals));
             moveTimestamp(100)
             await stakingPool.updatePool(0);
 
             let reward = panaPerSecond.mul(100).div(400);
-            let accPanaPerShareBefore = reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("200"));
-            let accPanaPerShareAfter = accPanaPerShareBefore.add(reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("100")));
+            let accPanaPerShareBefore = reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("200",USDCDecimals));
+            let accPanaPerShareAfter = accPanaPerShareBefore.add(reward.mul(decimalRepresentation(1,12)).div(decimalRepresentation("100",USDCDecimals)));
             let accPanaPerShareLowerBound = accPanaPerShareAfter.mul(101);
             let accPanaPerShareUpperBound = accPanaPerShareAfter.mul(102);
 
@@ -343,9 +356,9 @@ describe("Pana Launch StakingPool contract", () => {
 
         it("should return correct pana with  tokens staked in multiple pools",async() => {
 
-            await stakingPool.connect(user1).deposit(0,decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(0,decimalRepresentation("100",USDCDecimals));
 
-            await stakingPool.connect(user1).deposit(1,decimalRepresentation("100"));
+            await stakingPool.connect(user1).deposit(1,decimalRepresentation("100",DAIDecimals));
 
             moveTimestamp(100)
             await stakingPool.massUpdatePools();
@@ -361,6 +374,52 @@ describe("Pana Launch StakingPool contract", () => {
 
             expect(Number(totalPendingPana)).to.be.greaterThanOrEqual(Number(totalRewardLowerBound));
             expect(Number(totalPendingPana)).to.be.lessThanOrEqual(Number(totalRewardUpperBound));
+
+
+        });
+
+        it("should return correct pana reward based on initial liquidity on staking pana",async() => {
+            // add a pana liquidity staking
+            await stakingPool.connect(deployer).add(100, pana.address); // staking pool index for pana is 2
+            // stake 1000 pana tokens
+            await stakingPool.connect(user1).deposit(2, decimalRepresentation("1000",PANADecimals));
+
+            moveTimestamp(100)
+            await stakingPool.updatePool(2);
+
+            let balanceAmount = await stakingPool.pendingPana(2,user1.address);
+            // reward = panaPerSecond * no_of_seconds * AllocPoint / TotalAllocPoint * depositedAmount / panaInSupply
+            // since panaInSupply should be equal to the amount staked - [ depositedAmount / panaInSupply = 1 ]
+
+            let upperBound = panaPerSecond.mul(102).mul(100).div(500);
+            let lowerBound = panaPerSecond.mul(100).mul(100).div(500);
+
+            expect(Number(balanceAmount)).to.be.greaterThanOrEqual(Number(lowerBound));
+            expect(Number(balanceAmount)).to.be.lessThanOrEqual(Number(upperBound));
+
+            
+        });
+
+        it("should return correct pana based on change in streaming rate",async() => {
+            // staking amount 100 in the pool and changing the streaming rate from 18 to 10 pana
+            await stakingPool.connect(user1).deposit(0,decimalRepresentation("100",USDCDecimals));
+            moveTimestamp(100)
+            await stakingPool.updatePool(0);
+
+            await stakingPool.connect(deployer).setPanaPerSecond(decimalRepresentation(10)); 
+
+            moveTimestamp(100)
+            await stakingPool.updatePool(0);
+            let balanceAmount = await stakingPool.pendingPana(0,user1.address);
+                        // reward = panaPerSecond * seconds * allocPoint * totalAllocPoint 
+            let rewardBeforeUpdate = panaPerSecond.mul(101).mul(100).div(400);
+            let updatedPanaPerSecond = decimalRepresentation(10); // updating pana per second from 18 to 10
+            let rewardAfterUpdateUpperBound = rewardBeforeUpdate.add(updatedPanaPerSecond.mul(102).mul(100).div(400));
+            let rewardAfterUpdateLowerBound = rewardBeforeUpdate.add(updatedPanaPerSecond.mul(100).mul(100).div(400));
+
+            expect(Number(balanceAmount)).to.be.greaterThanOrEqual(Number(rewardAfterUpdateLowerBound));
+            expect(Number(balanceAmount)).to.be.lessThanOrEqual(Number(rewardAfterUpdateUpperBound))
+
 
 
         });

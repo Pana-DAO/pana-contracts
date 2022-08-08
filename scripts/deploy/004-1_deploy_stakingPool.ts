@@ -5,7 +5,7 @@ import { CONTRACTS } from "../constants";
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, ethers } = hre;
     const { deploy } = deployments;
-    const { deployer } = await getNamedAccounts();
+    const { deployer, daoMultisig } = await getNamedAccounts();
     const authorityDeployment = await deployments.get(CONTRACTS.authority);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
 
@@ -17,7 +17,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     await deploy(CONTRACTS.stakingPools, {
         from: deployer,
-        args: [panaDeployment.address, 
+        args: [panaDeployment.address,
+            daoMultisig,
             ethers.utils.parseUnits(panaPerSeconds.toString(), 18), 
             startTime, 
             endTime, 
@@ -27,6 +28,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
-func.tags = [CONTRACTS.stakingPools, "launch"];
+func.tags = [CONTRACTS.stakingPools, "core"];
 func.dependencies = [CONTRACTS.authority, CONTRACTS.pana];
 export default func;

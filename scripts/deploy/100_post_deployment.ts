@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { waitFor } from "../txHelper";
-import { CONTRACTS, INITIAL_REWARD_RATE, INITIAL_INDEX, getDAIAddress, INITIAL_BASE_VALUE } from "../constants";
+import { CONTRACTS, INITIAL_REWARD_RATE, INITIAL_INDEX, getUSDCAddress, INITIAL_BASE_VALUE } from "../constants";
 import {
     PanaAuthority__factory,
     Distributor__factory,
@@ -19,9 +19,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployer, daoMultisig, daoPolicy } = await getNamedAccounts();
     const signer = await ethers.provider.getSigner(deployer);
     const chainId = await getChainId();
-    const DAI = getDAIAddress(chainId);
+    const USDC = getUSDCAddress(chainId);
 
-    console.log("DAI Being Used -- " + DAI);
+    console.log("USDC Being Used -- " + USDC);
 
     const authorityDeployment = await deployments.get(CONTRACTS.authority);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
@@ -31,6 +31,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const treasuryDeployment = await deployments.get(CONTRACTS.treasury);
     const stakingDeployment = await deployments.get(CONTRACTS.staking);
     const bondDepoDeployment = await deployments.get(CONTRACTS.bondDepo);
+    const stakingPoolDeployment = await deployments.get(CONTRACTS.stakingPools);
 
     const authorityContract = await PanaAuthority__factory.connect(
         authorityDeployment.address,
@@ -56,9 +57,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await waitFor(treasury.enable(0, daoMultisig, ethers.constants.AddressZero, ethers.constants.AddressZero)); // Allows bonding contract to deposit reserves.
     console.log("Setup -- treasury.enable(0):  DAO wallet enabled to deposit reserves to treasury");
 
-    // Step 3: Add DAI as reserve token for treasury
-    await waitFor(treasury.enable(2, DAI, ethers.constants.AddressZero, ethers.constants.AddressZero)); // Allows DAI to be declared as reserve token.
-    console.log("Setup -- treasury.enable(2):  DAI enabled as reserve token for treasury");
+    // Step 3: Add USDC as reserve token for treasury
+    await waitFor(treasury.enable(2, USDC, ethers.constants.AddressZero, ethers.constants.AddressZero)); // Allows USDC to be declared as reserve token.
+    console.log("Setup -- treasury.enable(2): USDC enabled as reserve token for treasury");
 
     // Step 4: Set bonding contract as LP depositor to treasury
     await waitFor(treasury.enable(4, bondDepo.address, ethers.constants.AddressZero, ethers.constants.AddressZero)); // Allows bonding contract to deposit LP reserves.
@@ -114,8 +115,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await waitFor(authorityContract.pushGuardian(daoMultisig, true));
     console.log("Setup -- authorityContract.pushGuardian: set guardian on authority");
 
-    await waitFor(authorityContract.pushGuardian(daoMultisig, true));
-    console.log("Setup -- authorityContract.pushGuardian: set guardian on authority");
+    await waitFor(authorityContract.pushDistributionVault(daoMultisig, true));
+    console.log("Setup -- authorityContract.pushDistributionVault: set dist vault as staking pools contract on authority");
 
     // Step 14: Set 30% Treasury Rewards on each Bond Issue
     await waitFor(bondDepo.setRewards(0, 0, "3000"));

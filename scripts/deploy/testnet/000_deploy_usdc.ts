@@ -9,7 +9,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    await deploy(CONTRACTS.DAI, {
+    await deploy(CONTRACTS.USDC, {
         from: deployer,
         args: [0],
         log: true,
@@ -18,4 +18,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 export default func;
-func.tags = [CONTRACTS.DAI, "testnet"];
+func.tags = [CONTRACTS.USDC, "testnet"];

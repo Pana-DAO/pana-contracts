@@ -5,7 +5,7 @@ const { BigNumber } = ethers;
 import {
     PanaStaking__factory,
     PanaTreasury__factory,
-    DAI__factory
+    USDC__factory
 } from "../types";
 
 const ZERO_ADDRESS = ethers.utils.getAddress("0x0000000000000000000000000000000000000000");
@@ -14,30 +14,30 @@ const ZERO_ADDRESS = ethers.utils.getAddress("0x00000000000000000000000000000000
 async function main() {
     
     /* SET THIS PARAMS TO RUN SCRIPT */
-    const DAI_TO_DEPOSIT = 20;
+    const USDC_TO_DEPOSIT = 20;
     
     const { daoMultisig } = await getNamedAccounts();
 
 
-    const daiDeployment = await deployments.get(CONTRACTS.DAI);
+    const usdcDeployment = await deployments.get(CONTRACTS.USDC);
     const treasuryDeployment = await deployments.get(CONTRACTS.treasury);
     const dao = await ethers.getSigner(daoMultisig);
 
-    let dai = DAI__factory.connect(daiDeployment.address, dao);
+    let usdc = USDC__factory.connect(usdcDeployment.address, dao);
     let treasury = PanaTreasury__factory.connect(treasuryDeployment.address, dao);
 
-    console.log("DAI Address - " + daiDeployment.address);
+    console.log("USDC Address - " + usdcDeployment.address);
     console.log("Treasury Address - " + treasuryDeployment.address);
 
-    let daiValue = ethers.utils.parseUnits(DAI_TO_DEPOSIT.toString(), 18);
+    let usdcValue = ethers.utils.parseUnits(USDC_TO_DEPOSIT.toString(), 18);
 
-    //Setting profit such way that, 1 Pana minted for 1 DAI, rest goes to excess reserve
-    let profit = ethers.utils.parseUnits(((DAI_TO_DEPOSIT * 100) - DAI_TO_DEPOSIT).toString(), 18);
+    //Setting profit such way that, 1 Pana minted for 1 USDC, rest goes to excess reserve
+    let profit = ethers.utils.parseUnits(((USDC_TO_DEPOSIT * 100) - USDC_TO_DEPOSIT).toString(), 18);
 
-    console.log("DAI Deposited - " + DAI_TO_DEPOSIT);
+    console.log("USDC Deposited - " + USDC_TO_DEPOSIT);
 
-    await dai.approve(treasuryDeployment.address, daiValue);
-    let tx = await treasury.deposit(daiValue, daiDeployment.address, profit);
+    await usdc.approve(treasuryDeployment.address, usdcValue);
+    let tx = await treasury.deposit(usdcValue, usdcDeployment.address, profit);
 
     console.log("Transaction - " + tx.hash);
 

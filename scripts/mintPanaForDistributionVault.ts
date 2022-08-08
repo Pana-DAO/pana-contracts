@@ -10,7 +10,7 @@ import {
 async function main() {
     
     /* SET THIS PARAMS TO RUN SCRIPT */
-    const PANA_TO_BE_MINTED = 1000; //secs from now, after which first rebase will start.
+    const PANA_TO_BE_MINTED = 46656000;
 
     const { daoMultisig } = await getNamedAccounts();
     

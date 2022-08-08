@@ -1,16 +1,15 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { doesNotMatch } from "assert";
-import { expect, use } from "chai";
-import exp from "constants";
-import { BigNumber , Contract, providers  } from "ethers";
-import { zeroPad } from "ethers/lib/utils";
+import { expect } from "chai";
+import { BigNumber , Contract  } from "ethers";
 import { ethers, network } from "hardhat";
 import {
     PanaERC20Token,
     PanaERC20Token__factory,
     PanaAuthority__factory,
+    USDC,
     DAI,
     DAI__factory,
+    USDC__factory,
     Karsha__factory,
     SPana__factory,
     Karsha,
@@ -50,8 +49,9 @@ const getNormalValue  = function(number:any,decimals:number=18){
     return Number(BigInt(number)/BigInt((10**(decimals))));
 };
 
-const panaIntrinsicVal = (value: any, PANADecimals: number, tokDecimals: number) => {
-    return value*100*((10 ** PANADecimals )/( 10 ** tokDecimals ));
+const BASE_VALUE = 100
+const panaIntrinsicValBigNumber = (value: any, PANADecimals: number, tokDecimals: number) => {
+    return bigNumberRepresentation(value.toString()).mul(BASE_VALUE).mul(bigNumberRepresentation(10 ** PANADecimals ).div(bigNumberRepresentation( 10 ** tokDecimals )));
 };
 
 const ONE = ethers.BigNumber.from(1);
@@ -91,7 +91,7 @@ describe("Pana reserve bond contract", () => {
     let rewardManager: SignerWithAddress;
     let reserveDepositor: SignerWithAddress;
     let pana: PanaERC20Token;
-    let dai : DAI;
+    let USDC : USDC;
     let karsha: Karsha;
     let sPana: SPana;
     let distributor: Distributor
@@ -103,9 +103,11 @@ describe("Pana reserve bond contract", () => {
     let LP: Contract;
     let slidingWindow: PanaSlidingWindowOracle;
     let uniswapRouter: UniswapV2Router02;
-    let DAIDepositedToLP:BigNumber,PanaDepositedToLP:BigNumber;
+    let USDCDepositedToLP:BigNumber,PanaDepositedToLP:BigNumber;
     let bondingCalculator : PanaBondingCalculator;  
     let block: any;
+    let USDCDecimals :number;
+    let PANADecimals: number;
     
     // contract deployment
     beforeEach(async () => {
@@ -113,7 +115,7 @@ describe("Pana reserve bond contract", () => {
         
         block = await network.provider.send("eth_getBlockByNumber", ["latest", false]);
 
-        dai = await (new DAI__factory(deployer)).deploy(0);
+        USDC = await (new USDC__factory(deployer)).deploy(0);
         
         authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
         await authority.deployed();
@@ -135,24 +137,25 @@ describe("Pana reserve bond contract", () => {
             uniswapRouter = await (new UniswapV2Router02__factory(deployer)).deploy(lpfactory.address,ZERO_ADDRESS);
             bondingCalculator = await new PanaBondingCalculator__factory(deployer).deploy(pana.address);        
             
-            await lpfactory.createPair(dai.address,pana.address);
+            await lpfactory.createPair(USDC.address,pana.address);
             
             // alternate method to deploy
-            // LP = await new Contract( await lpfactory.getPair(dai.address,pana.address),JSON.stringify(IUniswapV2Pair__factory.abi),deployer ).connect(deployer);
+            // LP = await new Contract( await lpfactory.getPair(USDC.address,pana.address),JSON.stringify(IUniswapV2Pair__factory.abi),deployer ).connect(deployer);
             
             slidingWindow = await( new PanaSlidingWindowOracle__factory(deployer).deploy(lpfactory.address,3600,2));
             
-            LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(dai.address,pana.address));
-            let DAIDecimals = await dai.decimals();
+            LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(USDC.address,pana.address));
+            USDCDecimals = await USDC.decimals();
+            PANADecimals = await pana.decimals();
             
-            // price = 4/100 = 0.04 dai/pana
-            PanaDepositedToLP = decimalRepresentation("100000", DAIDecimals); // 100000 pana 
-            DAIDepositedToLP = decimalRepresentation("4000", DAIDecimals); // 5000 DAI 
+            // price = 4/100 = 0.04 USDC/pana
+            PanaDepositedToLP = decimalRepresentation("100000", PANADecimals); // 100000 pana 
+            USDCDepositedToLP = decimalRepresentation("4000", USDCDecimals); // 4000 USDC 
             
             await pana.connect(vault).mint(deployer.address,PanaDepositedToLP);
-            await dai.connect(deployer).mint(deployer.address,DAIDepositedToLP);
+            await USDC.connect(deployer).mint(deployer.address,USDCDepositedToLP);
             // await pana.connect(vault).mint(user1.address,PanaDepositedToLP);
-            // await dai.connect(deployer).mint(user1.address,DAIDepositedToLP);
+            // await USDC.connect(deployer).mint(user1.address,USDCDepositedToLP);
             
             // Needed to spend deployer's PANA
             await sPana.setIndex("1000000000000000000"); // index = 1
@@ -171,8 +174,8 @@ describe("Pana reserve bond contract", () => {
             await treasury.enable("4", deployer.address,ZERO_ADDRESS, ZERO_ADDRESS);
             await treasury.enable("4", bondDepository.address,ZERO_ADDRESS, ZERO_ADDRESS);
 
-            // toggle DAI as reserve token
-            await treasury.enable("2", dai.address,ZERO_ADDRESS, ZERO_ADDRESS);
+            // toggle USDC as reserve token
+            await treasury.enable("2", USDC.address,ZERO_ADDRESS, ZERO_ADDRESS);
             // await treasury.enable("2", LP.address,ZERO_ADDRESS, ZERO_ADDRESS);
             await treasury.enable("5", LP.address,bondingCalculator.address,ZERO_ADDRESS);
 
@@ -209,147 +212,149 @@ describe("Pana reserve bond contract", () => {
             beforeEach(async()=>{
                 conclusion = parseInt(block.timestamp) + 86400; // 1 day
                 
-                await dai.connect(deployer).approve(uniswapRouter.address,LARGE_APPROVAL);
+                await USDC.connect(deployer).approve(uniswapRouter.address,LARGE_APPROVAL);
                 await pana.connect(deployer).approve(uniswapRouter.address,LARGE_APPROVAL);
-                await dai.connect(user1).approve(uniswapRouter.address,LARGE_APPROVAL);
+                await USDC.connect(user1).approve(uniswapRouter.address,LARGE_APPROVAL);
                 await pana.connect(user1).approve(uniswapRouter.address,LARGE_APPROVAL);
                 
-                await uniswapRouter.connect(deployer).addLiquidity(dai.address,pana.address,              
-                    DAIDepositedToLP,PanaDepositedToLP,BigNumber.from("12500000000000000")
-                    ,BigNumber.from("12500000000000000"),                
+                await uniswapRouter.connect(deployer).addLiquidity(USDC.address,pana.address,              
+                    USDCDepositedToLP,PanaDepositedToLP,BigNumber.from("0")
+                    ,BigNumber.from("0"),                
                     deployer.address,
                     conclusion);
-                    
                     //
-                    await slidingWindow.update(dai.address,pana.address);
-                    await moveTimestamp(1800);
-                    
-                    
-                    await dai.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
-                });
+                await slidingWindow.update(USDC.address,pana.address);
+                await moveTimestamp(1800);
+                
+                
+                await USDC.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
+            });
                 
                 // bond market creation
                 
-                describe("Deposition functions for naked dai bond", ()=>{
+            describe("Deposition functions for naked USDC bond", ()=>{
+                
+                beforeEach(async()=>{
+                    // minting tokens for user and treasury
+                    await USDC.addAuth(deployer.address);
+                    await USDC.connect(deployer).mint(deployer.address,    decimalRepresentation("10000000",USDCDecimals));
+                    await USDC.connect(deployer).approve(treasury.address, decimalRepresentation("10000000",USDCDecimals));
+                    await treasury.connect(deployer).deposit(decimalRepresentation("1000000",USDCDecimals),
+                    USDC.address,panaIntrinsicValBigNumber("99000000",PANADecimals,USDCDecimals));
+                    await USDC.mint(user1.address,decimalRepresentation(100000,USDCDecimals));
+                    await USDC.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
+                    await bondDepository.connect(deployer).create(
+                        USDC.address,
+                        [capacity,initialPrice,buffer],
+                        [false,true,false,true],
+                        [vesting,conclusion] ,
+                        [depositInterval,tune]);
+                    });
                     
-                    beforeEach(async()=>{
-                        // minting tokens for user and treasury
-                        await dai.addAuth(deployer.address);
-                        await dai.connect(deployer).mint(deployer.address,    decimalRepresentation("10000000"));
-                        await dai.connect(deployer).approve(treasury.address, decimalRepresentation("10000000"));
-                        await treasury.connect(deployer).deposit(decimalRepresentation("1000000"),
-                        dai.address,decimalRepresentation("99000000"));
-                        await dai.mint(user1.address,decimalRepresentation(100000));
-                        await dai.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
+                    
+                    it("should add bond",async()=>{
+                        expect(await bondDepository.isLive(bondID)).to.be.equal(true);
+                    });
+                    it("should set sliding window oracle in depository",async()=>{
+                        expect( await bondDepository.priceOracle()).to.be.equal(slidingWindow.address);
+                    });
+                    it("should return correct price from oracle",async()=>{
+                        
+                        let OraclePrice = await bondDepository.getOraclePrice(0);
+                        // price = (tokenA * decimalsB) / (tokenB * decimalsA) * 10**18
+                        let tokenPrice = USDCDepositedToLP.mul(decimalRepresentation(1)).mul(decimalRepresentation(1,PANADecimals-USDCDecimals)).div(PanaDepositedToLP);
+                        
+                        let upperbound = Number(tokenPrice) * 1.0001;
+                        let lowerbound = Number(tokenPrice) * 0.0997;
+                        expect(Number(OraclePrice)).to.be.lessThanOrEqual(upperbound);
+                        expect(Number(OraclePrice)).to.be.greaterThanOrEqual(lowerbound);
+                        
+                    });
+                    it("should return correct market price when negative discount",async()=>{
+                        
+                        // assuming initial price as 1 USDC for 1 pana
                         await bondDepository.connect(deployer).create(
-                            dai.address,
-                            [capacity,initialPrice,buffer],
+                            USDC.address,
+                            [capacity,decimalRepresentation(1),buffer],
                             [false,true,false,true],
                             [vesting,conclusion] ,
                             [depositInterval,tune]);
+                            
+                            let OraclePrice = await bondDepository.getOraclePrice(0);
+                            // amount = AmtUSDC(6) * (36) / USDCDecimals(6)
+                            //payout = amount / price
+                            let expectedPayout = Number(decimalRepresentation(1,36)) /Number(OraclePrice); 
+                        
+                            expect(Number( await bondDepository.marketPrice(1))).to.be.greaterThan(Number(OraclePrice));
+                            let [Payout,,] =await bondDepository.connect(user1).callStatic.deposit(
+                                    1,decimalRepresentation(1,USDCDecimals),decimalRepresentation(1),user1.address,user2.address);
+                            
+                            expect(expectedPayout).to.be.equal(Number(Payout));
+                            
                         });
                         
-                        
+                    });
+
+                    describe("Deposition functions for naked Lp bond", ()=>{
+
+                        beforeEach(async()=>{
+                    
+                            // await LP.addAuth(deployer.address);
+                            await USDC.connect(deployer).mint(deployer.address,    decimalRepresentation("10000000",USDCDecimals));
+                            // await LP.connect(deployer).approve(treasury.address, decimalRepresentation("10000000"));
+
+                            await USDC.connect(deployer).approve(treasury.address, decimalRepresentation("10000000",USDCDecimals));
+                            await treasury.connect(deployer).deposit(decimalRepresentation("1000000",USDCDecimals),
+                            USDC.address,panaIntrinsicValBigNumber("99000000",PANADecimals,USDCDecimals));
+                            // await LP.mint(user1.address,decimalRepresentation(100000));
+                            await LP.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
+                            
+                            await bondDepository.connect(deployer).create(
+                                LP.address,
+                                [capacity,decimalRepresentation(1),buffer],
+                                [false,true,true,true],
+                                [vesting,conclusion] ,
+                                [depositInterval,tune]);
+                            });
                         it("should add bond",async()=>{
-                            expect(await bondDepository.isLive(bondID)).to.be.equal(true);
+                            expect(await bondDepository.isLive(0)).to.be.equal(true);
                         });
-                        it("should set sliding window oracle in depository",async()=>{
+                        it("should set sliding window in depository",async()=>{
                             expect( await bondDepository.priceOracle()).to.be.equal(slidingWindow.address);
                         });
                         it("should return correct price from oracle",async()=>{
-                            
+                        
                             let OraclePrice = await bondDepository.getOraclePrice(0);
-                            let lpPrice = DAIDepositedToLP.mul(decimalRepresentation(1)).div(PanaDepositedToLP);
-                            
+                            let NumberofLP = sqrt(USDCDepositedToLP.mul(PanaDepositedToLP));
+                            let lpPrice =  NumberofLP.mul(decimalRepresentation(1,18)).div(PanaDepositedToLP).div(2);
+
                             let upperbound = Number(lpPrice) * 1.0001;
-                            let lowerbound = Number(lpPrice) * 0.0997;
+                            let lowerbound = Number(lpPrice) * 0.9997;
                             expect(Number(OraclePrice)).to.be.lessThanOrEqual(upperbound);
                             expect(Number(OraclePrice)).to.be.greaterThanOrEqual(lowerbound);
                             
                         });
                         it("should return correct market price when negative discount",async()=>{
                             
-                            // assuming initial price as 1 dai for 1 pana
+                            // assuming initial price as 1 USDC for 1 pana
                             await bondDepository.connect(deployer).create(
-                                dai.address,
+                                LP.address,
                                 [capacity,decimalRepresentation(1),buffer],
-                                [false,true,false,true],
+                                [false,true,true,true],
                                 [vesting,conclusion] ,
                                 [depositInterval,tune]);
                                 
                                 let OraclePrice = await bondDepository.getOraclePrice(0);
-                                let expectedPayout = Number(decimalRepresentation(1,36)) /Number(OraclePrice) 
+                                let expectedPayout = Number(decimalRepresentation(1,USDCDecimals+PANADecimals)) /Number(OraclePrice);  // amout = 10**(usdcDecimal+panadecimals)
                             
                                 expect(Number( await bondDepository.marketPrice(1))).to.be.greaterThan(Number(OraclePrice));
-                                let [Payout,,] =await bondDepository.connect(user1).callStatic.
-                                deposit(1,decimalRepresentation(1),decimalRepresentation(1),user1.address,user2.address);
+                                let [Payout,,] =await bondDepository.connect(deployer).callStatic.
+                                deposit(1,decimalRepresentation(1,USDCDecimals),decimalRepresentation(1),deployer.address,user2.address);
                                 
                                 expect(expectedPayout).to.be.equal(Number(Payout));
                                 
                             });
-                            
-                        });
-
-                        describe("Deposition functions for naked Lp bond", ()=>{
-
-                            beforeEach(async()=>{
-                        
-                                // await LP.addAuth(deployer.address);
-                                await dai.connect(deployer).mint(deployer.address,    decimalRepresentation("10000000"));
-                                // await LP.connect(deployer).approve(treasury.address, decimalRepresentation("10000000"));
-
-                                await dai.connect(deployer).approve(treasury.address, decimalRepresentation("10000000"));
-                                await treasury.connect(deployer).deposit(decimalRepresentation("1000000"),
-                                dai.address,decimalRepresentation("99000000"));
-                                // await LP.mint(user1.address,decimalRepresentation(100000));
-                                await LP.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
-                              
-                                await bondDepository.connect(deployer).create(
-                                    LP.address,
-                                    [capacity,decimalRepresentation(1),buffer],
-                                    [false,true,true,true],
-                                    [vesting,conclusion] ,
-                                    [depositInterval,tune]);
-                                });
-                            it("should add bond",async()=>{
-                                expect(await bondDepository.isLive(0)).to.be.equal(true);
-                            });
-                            it("should set sliding window in depository",async()=>{
-                                expect( await bondDepository.priceOracle()).to.be.equal(slidingWindow.address);
-                            });
-                            it("should return correct price from oracle",async()=>{
-                            
-                                let OraclePrice = await bondDepository.getOraclePrice(0);
-                                let NumberofLP = sqrt(DAIDepositedToLP.mul(PanaDepositedToLP)).mul(100);
-                                let lpPrice =  PanaDepositedToLP.mul(2).mul(decimalRepresentation(1)).div(NumberofLP);
-
-                                let upperbound = Number(lpPrice) * 1.0001;
-                                let lowerbound = Number(lpPrice) * 0.9997;
-                                expect(Number(OraclePrice)).to.be.lessThanOrEqual(upperbound);
-                                expect(Number(OraclePrice)).to.be.greaterThanOrEqual(lowerbound);
-                                
-                            });
-                            it("should return correct market price when negative discount",async()=>{
-                                
-                                // assuming initial price as 1 dai for 1 pana
-                                await bondDepository.connect(deployer).create(
-                                    LP.address,
-                                    [capacity,decimalRepresentation(1),buffer],
-                                    [false,true,true,true],
-                                    [vesting,conclusion] ,
-                                    [depositInterval,tune]);
-                                    
-                                    let OraclePrice = await bondDepository.getOraclePrice(0);
-                                    let expectedPayout = Number(decimalRepresentation(1,36)) /Number(OraclePrice) 
-                                
-                                    expect(Number( await bondDepository.marketPrice(1))).to.be.greaterThan(Number(OraclePrice));
-                                    let [Payout,,] =await bondDepository.connect(deployer).callStatic.
-                                    deposit(1,decimalRepresentation(1),decimalRepresentation(1),deployer.address,user2.address);
-                                    
-                                    expect(expectedPayout).to.be.equal(Number(Payout));
-                                    
-                                });
-                        });
-                        
                     });
+                    
                 });
+            });

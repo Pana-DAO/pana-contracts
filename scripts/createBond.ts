@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { ethers, deployments, getNamedAccounts, getUnnamedAccounts } from "hardhat";
-import { CONTRACTS, DAI_ADDRESS, EPOCH_LENGTH_IN_BLOCKS, FIRST_EPOCH_NUMBER, getDAIAddress, getPANADAILPToken } from "./constants";
+import { CONTRACTS, EPOCH_LENGTH_IN_BLOCKS, FIRST_EPOCH_NUMBER, getPANAUSDCLPToken } from "./constants";
 const { BigNumber } = ethers;
 import {
     PanaBondDepository__factory
@@ -22,11 +22,11 @@ async function main() {
     const TUNE_INTERVAL = 86400; // 1 day
 
     const QUOTE_IS_LP = true;
-    let tokenAddress = getPANADAILPToken((await ethers.provider.getNetwork()).chainId.toString());
+    let tokenAddress = getPANAUSDCLPToken((await ethers.provider.getNetwork()).chainId.toString());
 
-    // ====== IF NAKED (DAI) BOND THEN UNCOMMENT THIS
+    // ====== IF NAKED (USDC) BOND THEN UNCOMMENT THIS
     // const QUOTE_IS_LP = false;
-    // let tokenAddress = getDAIAddress((await ethers.provider.getNetwork()).chainId.toString());
+    // let tokenAddress = getUSDCAddress((await ethers.provider.getNetwork()).chainId.toString());
 
     const { daoMultisig } = await getNamedAccounts();
     

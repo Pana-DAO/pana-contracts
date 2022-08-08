@@ -6,8 +6,8 @@ import {
     PanaERC20Token,
     PanaERC20Token__factory,
     PanaAuthority__factory,
-    DAI,
-    DAI__factory,
+    USDC,
+    USDC__factory,
     Karsha__factory,
     SPana__factory,
     Karsha,
@@ -46,6 +46,11 @@ const decimalRepresentation = (value:any, decimals:number=18) => {
     return bigNumberRepresentation(value.toString()).mul(bigNumberRepresentation(10).pow(decimals));
 };
 
+const BASE_VALUE = 100;
+const panaIntrinsicValBigNumber = (value: any, PANADecimals: number, tokDecimals: number) => {
+    return bigNumberRepresentation(value.toString()).mul(BASE_VALUE).mul(bigNumberRepresentation(10 ** PANADecimals ).div(bigNumberRepresentation( 10 ** tokDecimals )));
+};
+
 const ONE = ethers.BigNumber.from(1);
 const TWO = ethers.BigNumber.from(2);
 const sqrt= (value:any)=> {
@@ -77,7 +82,7 @@ describe("Pana reserve Supply control", () => {
     let user1: SignerWithAddress;
     let user2: SignerWithAddress;
     let pana: PanaERC20Token;
-    let dai : DAI;
+    let usdc : USDC;
     let karsha: Karsha;
     let sPana: SPana;
     let distributor: Distributor
@@ -89,11 +94,11 @@ describe("Pana reserve Supply control", () => {
     let LP : Contract;
     let slidingWindow : PanaSlidingWindowOracle;
     let uniswapRouter : UniswapV2Router02;
-    let DAIDeposited : BigNumber;
+    let USDCDeposited : BigNumber;
     let PanaDeposited : BigNumber;
     let bondingCalculator : PanaBondingCalculator;
     let supplyControl : PanaSupplyController;
-    let DAIDecimals : number;
+    let USDCDecimals : number;
     let PANADecimals: number;
     let block: any;
     
@@ -103,7 +108,7 @@ describe("Pana reserve Supply control", () => {
        
         block = await network.provider.send("eth_getBlockByNumber", ["latest", false]);
         
-        dai = await (new DAI__factory(deployer)).deploy(0);
+        usdc = await (new USDC__factory(deployer)).deploy(0);
         
         authority = await (new PanaAuthority__factory(deployer))
                         .deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
@@ -127,26 +132,26 @@ describe("Pana reserve Supply control", () => {
         uniswapRouter = await (new UniswapV2Router02__factory(deployer)).deploy(lpfactory.address, ZERO_ADDRESS);
         bondingCalculator = await new PanaBondingCalculator__factory(deployer).deploy(pana.address);        
         
-        await lpfactory.createPair(dai.address, pana.address);
+        await lpfactory.createPair(usdc.address, pana.address);
         
         slidingWindow = await( new PanaSlidingWindowOracle__factory(deployer).deploy(lpfactory.address, 3600, 2));
         
-        LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(dai.address, pana.address));
+        LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(usdc.address, pana.address));
 
         supplyControl = await new PanaSupplyController__factory(deployer)
                             .deploy(pana.address, LP.address, uniswapRouter.address, treasury.address, authority.address);
         
-        DAIDecimals = await dai.decimals();
+        USDCDecimals = await usdc.decimals();
         PANADecimals = await pana.decimals();
         PanaDeposited = decimalRepresentation("1000000", PANADecimals); // 1,000,000 pana 
-        DAIDeposited = decimalRepresentation("500000", DAIDecimals); // 50,000 DAI 
+        USDCDeposited = decimalRepresentation("500000", USDCDecimals); // 50,000 USDC 
         
         // to add liquidity
         await pana.connect(vault).mint(deployer.address,PanaDeposited);
-        await dai.connect(deployer).mint(deployer.address,DAIDeposited);
-        await dai.connect(deployer).mint(deployer.address,decimalRepresentation("1000000"));
+        await usdc.connect(deployer).mint(deployer.address,USDCDeposited);
+        await usdc.connect(deployer).mint(deployer.address,decimalRepresentation("1000000",USDCDecimals));
         await pana.connect(vault).mint(user1.address,PanaDeposited);
-        await dai.connect(deployer).mint(user1.address,DAIDeposited);
+        await usdc.connect(deployer).mint(user1.address,USDCDeposited);
         await pana.connect(vault).mint(treasury.address,decimalRepresentation("50000"));
         await pana.connect(vault).mint(user2.address,decimalRepresentation("950000"));
         
@@ -169,8 +174,8 @@ describe("Pana reserve Supply control", () => {
         await treasury.enable("4", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
         await treasury.enable("4", bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
         
-        // enable DAI as reserve token
-        await treasury.enable("2", dai.address, ZERO_ADDRESS, ZERO_ADDRESS);
+        // enable USDC as reserve token
+        await treasury.enable("2", usdc.address, ZERO_ADDRESS, ZERO_ADDRESS);
 
         // enable LP as liquidity token
         await treasury.enable("5", LP.address, bondingCalculator.address, supplyControl.address);
@@ -280,6 +285,7 @@ describe("Pana reserve Supply control", () => {
         let tune = 60*60*4; // 4 hours
         let buffer = 100e5;
         let conclusion:number;
+        let depositAmount = decimalRepresentation("1", 6); // using a small amount in 6 decimals
         
         const getPanaReserve = async ()=>{
             let [amt1, amt2] = await LP.getReserves();
@@ -308,40 +314,41 @@ describe("Pana reserve Supply control", () => {
 
             beforeEach( async() => {
                 // to add liquidity
-                await dai.connect(deployer).approve(uniswapRouter.address, LARGE_APPROVAL);
+                await usdc.connect(deployer).approve(uniswapRouter.address, LARGE_APPROVAL);
                 await pana.connect(deployer).approve(uniswapRouter.address, LARGE_APPROVAL);
-                await dai.connect(user1).approve(uniswapRouter.address, LARGE_APPROVAL);
+                await usdc.connect(user1).approve(uniswapRouter.address, LARGE_APPROVAL);
                 await pana.connect(user1).approve(uniswapRouter.address, LARGE_APPROVAL);
                 
                 // to add bonding
-                await dai.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
-                await dai.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
+                await usdc.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
+                await usdc.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
                 await LP.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
                 await LP.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
-                await dai.connect(deployer).approve(treasury.address, LARGE_APPROVAL);
+                await usdc.connect(deployer).approve(treasury.address, LARGE_APPROVAL);
 
-                await treasury.connect(deployer).deposit(decimalRepresentation("1000000"),
-                    dai.address, decimalRepresentation("99000000"));
+                await treasury.connect(deployer).deposit(decimalRepresentation("10000",USDCDecimals),
+                    usdc.address, panaIntrinsicValBigNumber("990000",PANADecimals,USDCDecimals));
 
                 conclusion = parseInt(block.timestamp) + 86400; // 1 day
 
                 // Add liquidity to the pool
-                // Sets price at 1 DAI = 10 PANA
+                // Sets price at 1 USDC = 10 PANA
                 let res = await uniswapRouter.connect(deployer)
                     .addLiquidity(
-                        dai.address, 
+                        usdc.address, 
                         pana.address, 
-                        decimalRepresentation("90000"),
-                        decimalRepresentation("900000"), 
+                        decimalRepresentation("90000",USDCDecimals),
+                        decimalRepresentation("900000",PANADecimals), 
                         0, 
                         0, 
                         deployer.address, 
                         conclusion
                     );
 
-                await LP.connect(deployer).transfer(treasury.address, decimalRepresentation("10000"));
-                
-                await slidingWindow.update(dai.address, pana.address);
+                let totalLPbalance = await LP.balanceOf(deployer.address);
+                // transfering half of LP tokens acquired from adding liquidity by deployer
+                await LP.connect(deployer).transfer(treasury.address, totalLPbalance.div(2));
+                await slidingWindow.update(usdc.address, pana.address);
 
                 await moveTimestamp(1800);
 
@@ -349,13 +356,13 @@ describe("Pana reserve Supply control", () => {
                 
                 await bondDepository.connect(deployer).create(
                     LP.address,
-                    [capacity, decimalRepresentation(1,18), buffer],
+                    [capacity, decimalRepresentation(1,11), buffer], // initial price is set to 11 decimals since the price of LP is in 11 decimals
                     [false, true, true, true],
                     [vesting, conclusion] ,
                     [depositInterval, tune]);
                 
                 await bondDepository.connect(deployer).create(
-                    dai.address,
+                    usdc.address,
                     [capacity, initialPrice, buffer],
                     [false, true, false, true],
                     [vesting, conclusion] ,
@@ -365,16 +372,16 @@ describe("Pana reserve Supply control", () => {
             it("Should enable bonding by user", async () => {
                 let balanceBefore = await LP.balanceOf(deployer.address);
                 await bondDepository.connect(deployer)
-                        .deposit(0, decimalRepresentation(1), decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
                 let balanceAfter = await LP.balanceOf(deployer.address);
-                expect(balanceAfter).to.equal(balanceBefore.sub(decimalRepresentation(1)));
+                expect(balanceAfter).to.equal(balanceBefore.sub(depositAmount));
             });
             
             it("Should return correct target supply", async() => {
                 let lastTotalSupply = await pana.totalSupply();
                 let lastPanaPool = await getPanaReserve();
                 await bondDepository.connect(deployer)
-                        .deposit(0, decimalRepresentation(1), decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();
                 let target = lastPanaPool.add(lossratio.mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getTargetSupply());            
@@ -384,7 +391,7 @@ describe("Pana reserve Supply control", () => {
                 let lastPanaPool = await getPanaReserve();
                 let lastTotalSupply = await pana.totalSupply();
                 await bondDepository.connect(deployer)
-                        .deposit(0, decimalRepresentation(1), decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();            
                 let target = lastPanaPool.add((lossratio.sub(cf)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getSupplyFloor());
@@ -394,7 +401,7 @@ describe("Pana reserve Supply control", () => {
                 let lastPanaPool = await getPanaReserve();            
                 let lastTotalSupply = await pana.totalSupply();
                 await bondDepository.connect(deployer)
-                        .deposit(0, decimalRepresentation(1), decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();
                 let target = lastPanaPool.add((lossratio.add(cc)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getSupplyCeiling());
@@ -405,7 +412,7 @@ describe("Pana reserve Supply control", () => {
                 let panaInPool = await getPanaReserve();
 
                 await bondDepository.connect(deployer)
-                        .deposit(0, decimalRepresentation(1), decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0,depositAmount, decimalRepresentation(1), deployer.address, user1.address);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
@@ -421,7 +428,7 @@ describe("Pana reserve Supply control", () => {
             it("Should return correct supply control amount on burning", async() => {
                 // reserve supply is increased -> pana burn from pool
                 await uniswapRouter.connect(user1)
-                        .swapExactTokensForTokens(decimalRepresentation("100"), 0, [pana.address, dai.address], user1.address, conclusion);
+                        .swapExactTokensForTokens(decimalRepresentation("100"), 0, [pana.address, usdc.address], user1.address, conclusion);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
@@ -445,7 +452,7 @@ describe("Pana reserve Supply control", () => {
 
                 beforeEach( async() => {
 
-                    await slidingWindow.update(dai.address, pana.address);
+                    await slidingWindow.update(usdc.address, pana.address);
                     await moveTimestamp(1800);
                     await supplyControl.connect(deployer).enableSupplyControl();
                     lpBalance = await LP.balanceOf(treasury.address);
@@ -455,12 +462,11 @@ describe("Pana reserve Supply control", () => {
 
                 it("Should check if correct amount is added on bonding", async() => {
 
-                    // bond with dai token
+                    // bond with usdc token
                     // increase in Total supply
                     let startingRatio = await getSupplyRatio();
-
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("1000"), decimalRepresentation(1), user1.address, user2.address);
+                            .deposit(1, decimalRepresentation("1000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
 
                     // Increase in total supply leads to decrease in loss ratio
                     // Thus,Treasury should add pana to pool
@@ -479,13 +485,13 @@ describe("Pana reserve Supply control", () => {
                 });
 
                 it("Should check if correct amount is added on swapping liquidity", async() => {
-                    // swapping DAI in with pana out
+                    // swapping USDC in with pana out
                     let startingRatio = await  getSupplyRatio();
 
                     await uniswapRouter.connect(user1)
-                            .swapExactTokensForTokens(decimalRepresentation("100"), 
+                            .swapExactTokensForTokens(decimalRepresentation("100",USDCDecimals), 
                                                         0, 
-                                                        [dai.address, pana.address], 
+                                                        [usdc.address, pana.address], 
                                                         user1.address, 
                                                         conclusion
                                                     );
@@ -512,17 +518,17 @@ describe("Pana reserve Supply control", () => {
                     let panaInpool = await getPanaReserve();
                     let ts = await pana.totalSupply();
 
-                    // bonding with dai to increase total supply
+                    // bonding with usdc to increase total supply
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("1000"), decimalRepresentation(1), user1.address, user1.address);
+                            .deposit(1, decimalRepresentation("1000",USDCDecimals), decimalRepresentation(1), user1.address, user1.address);
 
-                    // adding DAI and pana to liquidity pool
+                    // adding USDC and pana to liquidity pool
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
-                                            dai.address,
+                                            usdc.address,
                                             pana.address,
-                                            decimalRepresentation("100"),
-                                            decimalRepresentation("1000") ,
+                                            decimalRepresentation("100",USDCDecimals),
+                                            decimalRepresentation("1000",PANADecimals) ,
                                             0,
                                             0, 
                                             user1.address, 
@@ -550,7 +556,7 @@ describe("Pana reserve Supply control", () => {
                 it("Should not add if treasury doesnt have enough supply", async() => {
 
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("40000"), decimalRepresentation(1), user1.address, user2.address);
+                            .deposit(1, decimalRepresentation("40000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
 
                     let ratioAfterBond = await getSupplyRatio();
                     let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.getSupplyControlAmount();
@@ -582,10 +588,10 @@ describe("Pana reserve Supply control", () => {
                     panaBalance = await pana.balanceOf(treasury.address); 
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
-                                    dai.address, 
+                                    usdc.address, 
                                     pana.address, 
-                                    decimalRepresentation("1000"), 
-                                    decimalRepresentation("1000") ,
+                                    decimalRepresentation("1000",USDCDecimals), 
+                                    decimalRepresentation("1000",PANADecimals) ,
                                     0,
                                     0,
                                     user1.address, 
@@ -595,10 +601,10 @@ describe("Pana reserve Supply control", () => {
 
                 it("Should check if correct amount is burnt on bonding", async() => {
 
-                    // bond with dai token
+                    // bond with usdc token
                     // increase in Total supply
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("100"), decimalRepresentation(1), user1.address, user2.address);
+                            .deposit(1, decimalRepresentation("100",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
 
                     let ratioAfterBond = await getSupplyRatio();
 
@@ -618,12 +624,12 @@ describe("Pana reserve Supply control", () => {
 
                 it("Should check if correct amount is burnt on swapping liquidity", async() => {
 
-                    // swapping DAI in with pana out
+                    // swapping pana in with usdc out
                     await uniswapRouter.connect(user1)
                             .swapExactTokensForTokens(
                                 decimalRepresentation("100"),
                                 0,
-                                [pana.address, dai.address],
+                                [pana.address, usdc.address],
                                 user1.address,
                                 conclusion
                             );
@@ -661,10 +667,10 @@ describe("Pana reserve Supply control", () => {
 
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
-                                dai.address,
+                                usdc.address,
                                 pana.address, 
-                                decimalRepresentation("100000"), 
-                                decimalRepresentation("100000") ,
+                                decimalRepresentation("200000",USDCDecimals), 
+                                decimalRepresentation("900000",PANADecimals) ,
                                 0,
                                 0, 
                                 user1.address, 
@@ -696,17 +702,17 @@ describe("Pana reserve Supply control", () => {
 
                     let panaInpool = await getPanaReserve();
                     let ts = await pana.totalSupply();
-                    // bonding with dai to increase total supply = 4500 Pana  
+                    // bonding with usdc to increase total supply = 4500 Pana  
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("450",), decimalRepresentation(1), user1.address, user1.address);
+                            .deposit(1, decimalRepresentation("450",USDCDecimals), decimalRepresentation(1), user1.address, user1.address);
 
-                    // adding DAI and pana to liquidity pool = 1000 pana
+                    // adding USDC and pana to liquidity pool = 1000 pana
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
-                                            dai.address,
+                                            usdc.address,
                                             pana.address,
-                                            decimalRepresentation("100"),
-                                            decimalRepresentation("1000") ,
+                                            decimalRepresentation("100",USDCDecimals),
+                                            decimalRepresentation("1000",PANADecimals) ,
                                             0,
                                             0, 
                                             user1.address, 

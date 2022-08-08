@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { CONTRACTS, TREASURY_TIMELOCK } from "../constants";
-//import { DAI, FRAX, PanaERC20Token, PanaTreasury } from "../types";
+//import { FRAX, PanaERC20Token, PanaTreasury } from "../types";
 import { PanaTreasury__factory } from "../../types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "../libraries/SafeERC20.sol";
+import "../interfaces/IERC20Metadata.sol";
 import "../interfaces/IpPana.sol";
 import "../interfaces/IPana.sol";
 import "../interfaces/ITreasury.sol";
@@ -20,7 +21,7 @@ contract PPanaRedeem {
     IpPana internal immutable pPANA; // pPANA token
     ITreasury internal immutable treasury; // the purchaser of quote tokens
 
-    address internal immutable DAI;
+    address internal immutable reserveToken; // the token that is expected to be supplied for pPana redemption
     address internal immutable dao; 
 
     struct Term {
@@ -36,7 +37,7 @@ contract PPanaRedeem {
 
     mapping(address => address) public walletChange;
 
-    constructor(address _pPANA, address _PANA, address _dai, address _treasury, address _dao) {
+    constructor(address _pPANA, address _PANA, address _reserveToken, address _treasury, address _dao) {
         require(_dao != address(0), "Zero address: DAO");
         dao = _dao;
         owner = _dao;
@@ -44,8 +45,8 @@ contract PPanaRedeem {
         pPANA = IpPana(_pPANA);
         require(_PANA != address(0), "Zero address: PANA");
         PANA = IPana(_PANA);
-        require(_dai != address(0), "Zero address: DAI");
-        DAI = _dai;
+        require(_reserveToken != address(0), "Zero address: Reserve token");
+        reserveToken = _reserveToken;
         require(_treasury != address(0), "Zero address: Treasury");
         treasury = ITreasury(_treasury);      
     }
@@ -70,18 +71,26 @@ contract PPanaRedeem {
         require(info.locked == 0, "Account has locked or unclaimed pana");
         require(info.max - info.exercised >= _amount, "Exercised over max");
 
+        uint tokenDecimals = IERC20Metadata(reserveToken).decimals();
+        uint ppanaDecimals = IERC20Metadata(address(pPANA)).decimals();
+
+        uint tokenAmount = _amount * (10 ** tokenDecimals) / (10 ** ppanaDecimals);
+
+        // recalculate pPANA amount to avoid value loss due to rounding
+        uint ppanaAmount = tokenAmount * (10 ** ppanaDecimals) / (10 ** tokenDecimals);
+       
         terms[msg.sender].lockExpiry = block.timestamp + info.lockDuration;
-        terms[msg.sender].exercised = info.exercised + _amount;
+        terms[msg.sender].exercised = info.exercised + ppanaAmount;
 
-        IERC20(DAI).safeTransferFrom(msg.sender, address(this), _amount);
-        pPANA.burnFrom(msg.sender, _amount);
+        IERC20(reserveToken).safeTransferFrom(msg.sender, address(this), tokenAmount);
+        pPANA.burnFrom(msg.sender, ppanaAmount);
 
-        IERC20(DAI).approve(address(treasury), _amount);
-        uint panaRedeemed = treasury.depositForRedemption(_amount, DAI);
+        IERC20(reserveToken).approve(address(treasury), tokenAmount);
+        uint panaRedeemed = treasury.depositForRedemption(tokenAmount, reserveToken);
 
         terms[msg.sender].locked = panaRedeemed;
 
-        emit Exercised(msg.sender, _amount);
+        emit Exercised(msg.sender, ppanaAmount);
     }
 
     // Allow wallet owner to claim Pana after the lock duration is over

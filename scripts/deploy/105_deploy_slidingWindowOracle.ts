@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CONTRACTS, DAI_ADDRESS, getDEXFactoryAddress} from "../constants";
+import { CONTRACTS, getDEXFactoryAddress} from "../constants";
 import {
 PanaSlidingWindowOracle__factory
 } from "../../types";

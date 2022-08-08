@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 import { ethers, deployments, getNamedAccounts, getUnnamedAccounts } from "hardhat";
-import { CONTRACTS, DAI_ADDRESS, EPOCH_LENGTH_IN_BLOCKS, FIRST_EPOCH_NUMBER, getDAIAddress, getPANADAILPToken } from "./constants";
+import { CONTRACTS, EPOCH_LENGTH_IN_BLOCKS, FIRST_EPOCH_NUMBER, getUSDCAddress, getPANAUSDCLPToken } from "./constants";
 const { BigNumber } = ethers;
 import {
     PanaTreasury__factory
@@ -10,7 +10,7 @@ import {
 async function main() {
     
     // Address of the LP token
-    let tokenAddress = getPANADAILPToken((await ethers.provider.getNetwork()).chainId.toString());
+    let tokenAddress = getPANAUSDCLPToken((await ethers.provider.getNetwork()).chainId.toString());
 
     const { daoMultisig } = await getNamedAccounts();
     

@@ -1,14 +1,13 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
-import { expect, use } from "chai";
-import { BigNumber,  BytesLike, Signer } from "ethers";
+import { expect } from "chai";
 import { ethers, network } from "hardhat";
 
 import {
     PanaERC20Token,
     PanaERC20Token__factory,
     PanaAuthority__factory,
-    DAI,
-    DAI__factory,
+    USDC,
+    USDC__factory,
     Karsha__factory,
     SPana__factory,
     Karsha,
@@ -22,6 +21,7 @@ import {
     PanaBondDepository__factory,
     PanaBondDepository,
     PanaAuthority,
+    USDC1Decimal,
 } from '../../types';
 
 const moveTimestamp = async(seconds:any)=>   {
@@ -32,16 +32,16 @@ const bigNumberRepresentation = (number:any) => {
     return ethers.BigNumber.from(number.toString());
 };
 const decimalRepresentation = (value:any, decimals:number=18) => {
-    return bigNumberRepresentation(BigInt(value*(10**decimals)));
+    return bigNumberRepresentation(value.toString()).mul(bigNumberRepresentation(10).pow(decimals));
 };
-const getNormalValue  = function(number:any,decimals:number=18){                
-    return Number(BigInt(number)/BigInt((10**(decimals))));
+const getNormalValue  = function(number:any,decimals:number=18){
+    return bigNumberRepresentation(number).div(10**(decimals));
 };
 const EPOCH_LENGTH = 60*60*1;
 const EPOCH_NUMBER = 0;
 const LARGE_APPROVAL = "100000000000000000000000000000000";
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-// Initial mint for DAI (10,000,000)
+// Initial mint for USDC (10,000,000)
 // Setting epoch to 1 for easier testing
 const blocksNeededForQueue = 1;
 
@@ -60,7 +60,7 @@ describe("Pana reserve bond contract", () => {
     let user1: SignerWithAddress;
     let user2: SignerWithAddress;
     let pana: PanaERC20Token;
-    let dai : DAI;
+    let usdc : USDC;
     let karsha: Karsha;
     let sPana: SPana;
     let distributor: Distributor
@@ -68,13 +68,15 @@ describe("Pana reserve bond contract", () => {
     let treasury:PanaTreasury;
     let bondDepository:PanaBondDepository;
     let authority:PanaAuthority;
+    var USDCDecimals: number;
+    let PANADecimals : number;
     
     beforeEach(async () => {
         [deployer, vault, user1, user2] = await ethers.getSigners();
         
         block = await network.provider.send("eth_getBlockByNumber", ["latest", false]);
 
-        dai = await (new DAI__factory(deployer)).deploy(chainIds.hardhat);
+        usdc = await (new USDC__factory(deployer)).deploy(chainIds.hardhat);
         
         authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
         await authority.deployed();
@@ -90,6 +92,8 @@ describe("Pana reserve bond contract", () => {
         karsha.migrate(staking.address,sPana.address);
         bondDepository = await new PanaBondDepository__factory(deployer).deploy(
             authority.address,pana.address,karsha.address,staking.address,treasury.address);
+        USDCDecimals = await usdc.decimals();
+        PANADecimals = await pana.decimals();
             
             // Needed to spend deployer's PANA
             await sPana.setIndex("1000000000000000000"); // index = 1
@@ -106,8 +110,8 @@ describe("Pana reserve bond contract", () => {
             await treasury.enable('0',bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
             // toggle liquidity depositor
             await treasury.enable("4", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
-            // toggle DAI as reserve token
-            await treasury.enable("2", dai.address,ZERO_ADDRESS, ZERO_ADDRESS);
+            // toggle USDC as reserve token
+            await treasury.enable("2", usdc.address,ZERO_ADDRESS, ZERO_ADDRESS);
             await treasury.initialize();
 
             await treasury.setBaseValue("100000000000");
@@ -124,8 +128,8 @@ describe("Pana reserve bond contract", () => {
             expect(await authority.governor()).to.be.equal(deployer.address);
         });
         it("should initialize tokens", async()=>{
-            expect(await dai.symbol()).to.be.equal("DAI");
-            expect(await dai.decimals()).to.be.equal(18);
+            expect(await usdc.symbol()).to.be.equal("USDC");
+            expect(await usdc.decimals()).to.be.equal(6);
             expect(await pana.symbol()).to.be.equal("PANA");
             expect(await pana.decimals()).to.be.equal(18);
             expect(await karsha.symbol()).to.be.equal("KARSHA");
@@ -136,28 +140,32 @@ describe("Pana reserve bond contract", () => {
         // bond parameters
         let bondID = 0;
         let capacity = decimalRepresentation(2500000);
-        let initialPrice = decimalRepresentation(0.015);
+        let initialPrice = decimalRepresentation(15,15); //initial price for bond as 0.015
         let vesting = 60*60*4 // 4 hours
         let depositInterval = 60*60*2; // 2 hours
         let tune=60*60*1; // 4 hours
         let buffer = 100e5;
         describe("Deposition functions", ()=>{
+            let depositAmount : any;
+            let maxPrice :any;
             
             beforeEach(async()=>{
+                depositAmount = decimalRepresentation("100",USDCDecimals);
+                maxPrice = decimalRepresentation("15",16);
                 // minting tokens for user and treasury
-                await dai.addAuth(deployer.address);
-                await dai.connect(deployer).mint(deployer.address,    decimalRepresentation(10000000));
-                await dai.connect(deployer).approve(treasury.address, decimalRepresentation(10000000));
-                await treasury.connect(deployer).deposit(decimalRepresentation(1000000),
-                dai.address,decimalRepresentation(99000000));
-                await dai.mint(user1.address,decimalRepresentation(100000));
-                await dai.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
+                await usdc.addAuth(deployer.address);
+                await usdc.connect(deployer).mint(deployer.address,    decimalRepresentation(10000000,USDCDecimals));
+                await usdc.connect(deployer).approve(treasury.address, decimalRepresentation(10000000,USDCDecimals));
+                await treasury.connect(deployer).deposit(decimalRepresentation(1000000,USDCDecimals),
+                usdc.address,decimalRepresentation(99000000));
+                await usdc.mint(user1.address,decimalRepresentation(100000,USDCDecimals));
+                await usdc.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
                 
                 conclusion =  parseInt(block.timestamp)  + 86400;
                 
                 // bond market creation
                 await bondDepository.connect(deployer).create(
-                    dai.address,
+                    usdc.address,
                     [capacity,initialPrice,buffer],
                     [false,true,false,true],
                     [vesting,conclusion] ,
@@ -170,7 +178,7 @@ describe("Pana reserve bond contract", () => {
                 it("should add multiple bonds",async()=>{
                 
                     await bondDepository.connect(deployer).create(
-                        dai.address, [capacity,initialPrice,buffer],
+                        usdc.address, [capacity,initialPrice,buffer],
                         [false,true,false,true],
                         [100,conclusion],[depositInterval,tune]);
                 
@@ -190,7 +198,7 @@ describe("Pana reserve bond contract", () => {
                 it("should close correct bond", async () => {
                 
                     await bondDepository.connect(deployer).create(
-                        dai.address, [capacity,initialPrice,buffer],[false,true,false,true],
+                        usdc.address, [capacity,initialPrice,buffer],[false,true,false,true],
                         [100,conclusion],[depositInterval,tune]);
                 
                     await bondDepository.close(0);
@@ -213,14 +221,12 @@ describe("Pana reserve bond contract", () => {
                 });
                 
                 it("should provide correct payout for price",async()=>{
-                    let amount = decimalRepresentation(10000)
+                    let amount = decimalRepresentation(10000,USDCDecimals)
                     let price = await bondDepository.marketPrice(bondID);
                     let expectedPayout = Number(amount) / Number(price);
                     expect(Number(await bondDepository.payoutFor(amount, 0))).to.be.greaterThanOrEqual(expectedPayout);
                 });
                 
-                let depositAmount = decimalRepresentation(100);
-                let maxPrice = decimalRepresentation(0.15);
                 
                 it("should create a deposit for user", async () => {
                     await bondDepository.connect(user1).deposit(
@@ -234,11 +240,11 @@ describe("Pana reserve bond contract", () => {
                 });
                 
                 it("should deposit correct amount",async()=>{
-                    let balanceBefore = await dai.balanceOf(user1.address);
+                    let balanceBefore = await usdc.balanceOf(user1.address);
                 
                     await bondDepository.connect(user1).deposit(
                         0,depositAmount,maxPrice,user1.address,user2.address);
-                    let balanceAfter = await dai.balanceOf(user1.address);
+                    let balanceAfter = await usdc.balanceOf(user1.address);
                 
                     expect(Number(depositAmount)).to.equal(Number(balanceBefore.sub(balanceAfter)));
                 });
@@ -254,25 +260,25 @@ describe("Pana reserve bond contract", () => {
                         user2.address
                     );
                     
-                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(payout.mul("2000").div("10000")));
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThanOrEqual(Number(payout.mul("2000").div("10000")));
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(payout.mul("2001").div("10000")));
 
                 });
 
                 it("should return correct reward based on reward limit",async ()=> {
                     await bondDepository.setRewards("0","0","1000000");
-                    let payout = await bondDepository.payoutFor(decimalRepresentation(15),0)
+                    let payout = await bondDepository.payoutFor(decimalRepresentation(15,USDCDecimals),0)
                     await bondDepository.connect(user1).deposit(
                         bondID,
-                        decimalRepresentation(15),
+                        decimalRepresentation(15,USDCDecimals),
                         maxPrice,
                         user1.address,
                         user2.address
                     );
-                    let tokenValue = await treasury.tokenValue(dai.address,decimalRepresentation(15));
+                    let tokenValue = await treasury.tokenValue(usdc.address,decimalRepresentation(15,USDCDecimals));
                     
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(tokenValue.sub(payout.mul("1001").div("1000"))));
-                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(tokenValue.sub(payout)));
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThanOrEqual(Number(tokenValue.sub(payout)));
 
                 });
 
@@ -340,7 +346,7 @@ describe("Pana reserve bond contract", () => {
                    
                     let [, controlVariable, , ,] = await bondDepository.terms(bondID);
                    
-                    let amountCV = decimalRepresentation(1000);                
+                    let amountCV = decimalRepresentation(1000,USDCDecimals);                
                     await bondDepository.connect(user1).deposit(bondID, amountCV, maxPrice, user1.address, user2.address);
                     
                     await moveTimestamp(tune)
@@ -354,7 +360,7 @@ describe("Pana reserve bond contract", () => {
                 
                 it("should not allow deposit more than max payout",async()=>{
                     
-                    let maxAmount = decimalRepresentation(50000); // 5000 (0.015 * 2500000 / 12 + 0.5%)
+                    let maxAmount = decimalRepresentation(50000,USDCDecimals); // 5000 (0.015 * 2500000 / 12 + 0.5%)
                     await expect(bondDepository.connect(user1).deposit(
                         bondID,
                         maxAmount,
@@ -398,7 +404,7 @@ describe("Pana reserve bond contract", () => {
                 it("should decay maxpayout after tune interval",async()=>{
                     let [,,,,,maxPayout,,] = await bondDepository.markets(bondID);
                     let price = await bondDepository.marketPrice(bondID);
-                    let maxAmount = bigNumberRepresentation((getNormalValue(maxPayout) * Number(price)) * 0.0997);
+                    let maxAmount = (maxPayout).div(decimalRepresentation(1,30)).mul(price).mul(997).div(1000); 
                     await bondDepository.connect(user1).deposit(
                         bondID,
                         maxAmount, // amount for max payout

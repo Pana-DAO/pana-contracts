@@ -102,7 +102,7 @@ contract PanaSlidingWindowOracle {
         amountOut = priceAverage.mul(amountIn).decode144();
     }
 
-    // returns the amount out corresponding to the amount in for a given token using the moving average over the time
+    // returns the amount out (in token out decimals) corresponding to the amount in for a given token using the moving average over the time
     // range [now - [windowSize, windowSize - periodSize * 2], now]
     // update must have been called for the bucket corresponding to timestamp `now - windowSize`
     function consult(address tokenIn, uint amountIn, address tokenOut) external view returns (uint amountOut) {

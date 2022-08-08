@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CONTRACTS, getDEXRouterAddress, getPANADAILPToken } from "../constants";
+import { CONTRACTS, getDEXRouterAddress, getPANAUSDCLPToken } from "../constants";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, getChainId } = hre;
@@ -11,7 +11,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const authorityDeployment = await deployments.get(CONTRACTS.authority);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
     const treasuryDeployment = await deployments.get(CONTRACTS.treasury);
-    const pairContractAddress = getPANADAILPToken(chainId);
+    const pairContractAddress = getPANAUSDCLPToken(chainId);
     
     const uniswapRouter = getDEXRouterAddress(chainId);
 

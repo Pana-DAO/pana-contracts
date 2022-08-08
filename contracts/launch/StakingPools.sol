@@ -54,12 +54,16 @@ contract StakingPools is PanaAccessControlled {
     // The block time when Pana mining stops.
     uint256 public endTime;
 
+    // Escrow that holds rewards
+    address public escrow;
+
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
         address _pana,
+        address _escrow,
         uint256 _panaPerSecond,
         uint256 _startTime,
         uint256 _endTime,
@@ -67,6 +71,7 @@ contract StakingPools is PanaAccessControlled {
     ) PanaAccessControlled(IPanaAuthority(_authority)) {
         require(_pana != address(0), "Zero address: PANA");
         PANA = IERC20(_pana);
+        escrow = _escrow;
         panaPerSecond = _panaPerSecond;
         startTime = _startTime;
         endTime = _endTime;
@@ -83,6 +88,11 @@ contract StakingPools is PanaAccessControlled {
         for (uint256 _pid = 0; _pid < length; _pid++) {
             require(poolInfo[_pid].token != _token, "Pool already exists!");
         }
+    }
+
+    // Sets new escrow address
+    function setEscrow(address _escrow) external onlyGovernor {
+        escrow = _escrow;
     }
 
     // Add a new pool.
@@ -215,7 +225,7 @@ contract StakingPools is PanaAccessControlled {
         user.rewardDebt = user.amount * pool.accPanaPerShare / 1e12;
 
         if(pending > 0) {
-            PANA.safeTransfer(msg.sender, pending);
+            PANA.safeTransferFrom(escrow, msg.sender, pending);
         }
         pool.token.safeTransferFrom(address(msg.sender), address(this), _amount);
 
@@ -237,7 +247,7 @@ contract StakingPools is PanaAccessControlled {
         user.rewardDebt = user.amount * pool.accPanaPerShare / 1e12;
 
         if(pending > 0) {
-            PANA.safeTransfer(msg.sender, pending);
+            PANA.safeTransferFrom(escrow, msg.sender, pending);
         }
         pool.token.safeTransfer(address(msg.sender), _amount);
         
@@ -269,7 +279,7 @@ contract StakingPools is PanaAccessControlled {
         }
 
         if (totalPending > 0) {
-            PANA.safeTransfer(msg.sender, totalPending);
+            PANA.safeTransferFrom(escrow, msg.sender, totalPending);
         }
     }
 

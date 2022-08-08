@@ -11,8 +11,8 @@ import {
   PanaERC20Token,
   PanaERC20Token__factory,
   PanaAuthority__factory,
-  DAI,
-  DAI__factory,
+  USDC,
+  USDC__factory,
   Karsha__factory,
   SPana__factory,
   Karsha,
@@ -44,7 +44,7 @@ const INITIAL_REWARD_RATE = bigNumberRepresentation("5000");
 
 let block: any;
 
-const dai_to_be_deposited = bigNumberRepresentation("100000000000000000000");
+const usdc_to_be_deposited = bigNumberRepresentation("100000000");
 const chainIds = {
   hardhat: 31337,
   mumbai: 80001
@@ -55,7 +55,7 @@ describe("sPana Validate Rebase", () => {
   let bob: SignerWithAddress;
   let alice: SignerWithAddress;
   let pana: PanaERC20Token;
-  let dai : DAI;
+  let usdc : USDC;
   let karsha: Karsha;
   let sPana: SPana;
   let distributor: Distributor
@@ -77,7 +77,7 @@ describe("sPana Validate Rebase", () => {
     
     block = await network.provider.send("eth_getBlockByNumber", ["latest", false]);  
 
-    dai = await (new DAI__factory(deployer)).deploy(chainIds.hardhat);
+    usdc = await (new USDC__factory(deployer)).deploy(chainIds.hardhat);
 
     const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
     await authority.deployed();
@@ -118,8 +118,8 @@ describe("sPana Validate Rebase", () => {
     await treasury.enable("0", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
     await treasury.enable("0", bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
     
-    // toggle DAI as reserve token
-    await treasury.enable("2", dai.address, ZERO_ADDRESS, ZERO_ADDRESS);
+    // toggle USDC as reserve token
+    await treasury.enable("2", usdc.address, ZERO_ADDRESS, ZERO_ADDRESS);
 
     // toggle liquidity depositor
     await treasury.enable("4", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
@@ -138,29 +138,29 @@ describe("sPana Validate Rebase", () => {
 
     await distributor.addRecipient(staking.address, INITIAL_REWARD_RATE);
 
-    await dai.addAuth(deployer.address);
-    await dai.connect(deployer).mint(deployer.address, '370500000000000000000000');
-    await dai.connect(deployer).approve(treasury.address, '370500000000000000000000');
+    await usdc.addAuth(deployer.address);
+    await usdc.connect(deployer).mint(deployer.address, '370500000000');
+    await usdc.connect(deployer).approve(treasury.address, '370500000000');
     
     await treasury.connect(deployer).deposit(
-            '10000000000000000000', 
-            dai.address,0 );  
+            '10000000', 
+            usdc.address,0 );  
 
 
   });
   it("initilize rebase", async () => {
     const conclusion = 86400 + parseInt(block.timestamp); // 1 day
 
-    await bondDepository.create(dai.address,
+    await bondDepository.create(usdc.address,
       ["250000000000000000000000", "500000000000000000", "100000"],
       [false,true, false, true],
       [1800, conclusion],
       [21600, 1800]); 
  
     moveTimestamp(15);  
-    await dai.mint(bob.address, dai_to_be_deposited);
-    await dai.connect(bob).approve(bondDepository.address, dai_to_be_deposited);
-    await bondDepository.connect(bob).deposit(0, '1000000000000000000', "100000000000000000000", bob.address, ZERO_ADDRESS);
+    await usdc.mint(bob.address, usdc_to_be_deposited);
+    await usdc.connect(bob).approve(bondDepository.address, usdc_to_be_deposited);
+    await bondDepository.connect(bob).deposit(0, '1000000', "100000000000000000000", bob.address, ZERO_ADDRESS);
     initialIndex=(await sPana.index());
     initialPanaTotalSupply =(await pana.totalSupply()); 
     initialStakingBalanceTotalSupply =await pana.balanceOf(staking.address);

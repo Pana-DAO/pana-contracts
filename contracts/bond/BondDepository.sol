@@ -498,12 +498,8 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
 
       uint256 tokenDecimals = IERC20Metadata(token).decimals();
 
-      // X Pana/Karsha per 1 token
-      // Passing amount = 10**18 to the consult function
-      // works only for pairing of Pana with other 18 decimal tokens.
-      // In case of pairing with different decimal tokens relevant
-      // adjustments need to be made.
-      uint256 tokenPrice = priceOracle.consult(token, 10**18, token1);
+      // tokenPrice is in PANA decimals
+      uint256 tokenPrice = priceOracle.consult(token, 10 ** tokenDecimals, token1);
 
       // total reserves calculated in Pana/Karsha
       uint256 totalReserves = reserve1 + reserve0 * tokenPrice / (10 ** tokenDecimals);
@@ -512,18 +508,25 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
       uint256 oraclePrice = pair.totalSupply() * 1e18 / totalReserves;
 
       if (token1 == address(karsha)) {
-        //adjust karsha price to pana per current index
+        // adjust karsha price to pana per current index
         oraclePrice = oraclePrice / staking.index();
       }
 
       return oraclePrice;
     }
     else {
-      // Passing amount = 10**18 to the consult function
-      // works only for pairing of Pana with other 18 decimal tokens.
-      // In case of pairing with different decimal tokens relevant
-      // adjustments need to be made.
-      return priceOracle.consult(address(pana), 10**18, address(market.quoteToken)); 
+      uint256 quoteDecimals = IERC20Metadata(address(market.quoteToken)).decimals();
+
+      // TWAP oracle returns price in terms of tokenOut but we need it in PANA decimals
+      uint256 decimals = IERC20Metadata(address(pana)).decimals();
+      if (decimals > quoteDecimals) {
+        decimals += decimals - quoteDecimals;
+      }
+      else {
+        decimals -= quoteDecimals - decimals;
+      }
+
+      return priceOracle.consult(address(pana), 10 ** decimals, address(market.quoteToken));
     }
   }
 

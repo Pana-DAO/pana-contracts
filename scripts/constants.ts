@@ -8,7 +8,7 @@ export const CONTRACTS: Record<string, string> = {
     bondDepo: "PanaBondDepository",
     bondingCalculator: "PanaBondingCalculator",
     authority: "PanaAuthority",
-    DAI: "DAI",
+    USDC: "USDC",
     pPana: "PPanaERC20",
     pPanaRedeem: "PPanaRedeem",
     slidingWindowOracle: "PanaSlidingWindowOracle",
@@ -30,20 +30,20 @@ export const INITIAL_MINT = "6000000000000000";
 export const BOUNTY_AMOUNT = "0";
 export const INITIAL_BASE_VALUE = "100000000000";
 
-export const DAI_ADDRESS = {
-    mainnet: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
-    goerli: "0x327459343E34F4c2Cc3fE6678ea8cA3Cf22fBfC8",
-    arbitrumTest: "0x327459343E34F4c2Cc3fE6678ea8cA3Cf22fBfC8"
+export const USDC_ADDRESS = {
+    mainnet: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+    goerli: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
+    arbitrumTest: "0x91700A0a45bef3Ef488eC11792aE3b3199e0dC4e"
 }
 
-export function getDAIAddress(chainId: string) : string{
+export function getUSDCAddress(chainId: string) : string{
     switch (chainId) {
         case "5": //goerli
-            return DAI_ADDRESS.goerli;
+            return USDC_ADDRESS.goerli;
         case "421611": //arbitrum test
-            return DAI_ADDRESS.arbitrumTest;
+            return USDC_ADDRESS.arbitrumTest;
         default: //arbitrum
-            return DAI_ADDRESS.mainnet
+            return USDC_ADDRESS.mainnet
     }
 }
 
@@ -71,13 +71,13 @@ export function getDEXRouterAddress(chainId: string) : string{
     }
 }
 
-export function getPANADAILPToken(chainId: string) : string{
+export function getPANAUSDCLPToken(chainId: string) : string{
     //This is for Sushi
     switch (chainId) {
         case "5": //goerli
             return "0xE9aFf8206804AEA476432850e33B51cC1c3Ef6b0";
         case "421611": //arbitrum test
-            return "0x34E372dB783de192D78e99452ae0d94DFe8ab040";
+            return "0x75C78C8F779dE09687629E158Ad4f33EE35b5eE1";
         default: //arbitrum
             return "";
     }
