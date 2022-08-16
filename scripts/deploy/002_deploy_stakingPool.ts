@@ -9,11 +9,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const authorityDeployment = await deployments.get(CONTRACTS.authority);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
 
-    const panaPerSeconds = 18;
+    const panaPerSeconds = 0.5787037037037;
 
-    let currentTimeStamp = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-    const startTime = currentTimeStamp;
-    const endTime = currentTimeStamp + 31536000 // in seconds, +1 year from start time
+    //let currentTimeStamp = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+    const startTime = 1660579200; //15th Aug, 2022, 4 PM GMT (12 pm EST)
+    const endTime = 1665849600; //15th Oct, 2022, 4 PM GMT (12 pm EST)
 
     await deploy(CONTRACTS.stakingPools, {
         from: deployer,
@@ -28,6 +28,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
-func.tags = [CONTRACTS.stakingPools, "core"];
+func.tags = [CONTRACTS.stakingPools, "tokenlaunch"];
 func.dependencies = [CONTRACTS.authority, CONTRACTS.pana];
 export default func;

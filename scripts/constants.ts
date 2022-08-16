@@ -82,3 +82,22 @@ export function getPANAUSDCLPToken(chainId: string) : string{
             return "";
     }
 }
+
+export const STAKING_POOLS = [
+    { allocationPoint: 100, tokenAddress: '0x369eB8197062093a20402935D3a707b4aE414E9D', token: 'PANA' },
+    { allocationPoint: 400, tokenAddress: '0x300fDD222687db8686EA51847Db43fa988b518E0', token: 'PANA/USDC LP' },
+    { allocationPoint: 10, tokenAddress: '0xba5DdD1f9d7F570dc94a51479a000E3BCE967196', token: 'AAVE' },
+    { allocationPoint: 10, tokenAddress: '0x99C409E5f62E4bd2AC142f17caFb6810B8F0BAAE', token: 'BIFI' },
+    { allocationPoint: 10, tokenAddress: '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978', token: 'CRV' },
+    { allocationPoint: 10, tokenAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', token: 'DAI' },
+    { allocationPoint: 10, tokenAddress: '0x6C2C06790b3E3E3c38e12Ee22F8183b37a13EE55', token: 'DPX' },
+    { allocationPoint: 10, tokenAddress: '0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a', token: 'GMX' },
+    { allocationPoint: 10, tokenAddress: '0x8D9bA570D6cb60C7e3e0F31343Efe75AB8E65FB1', token: 'GOHM' },
+    { allocationPoint: 10, tokenAddress: '0x10393c20975cF177a3513071bC110f7962CD67da', token: 'JONES' },
+    { allocationPoint: 10, tokenAddress: '0x6694340fc020c5E6B96567843da2df01b2CE1eb6', token: 'STG' },
+    { allocationPoint: 10, tokenAddress: '0xd4d42F0b6DEF4CE0383636770eF773390d85c61A', token: 'SUSHI' },
+    { allocationPoint: 10, tokenAddress: '0x080F6AEd32Fc474DD5717105Dba5ea57268F46eb', token: 'SYN' },
+    { allocationPoint: 10, tokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', token: 'USDC' },
+    { allocationPoint: 10, tokenAddress: '0xa684cd057951541187f288294a1e1C2646aA2d24', token: 'VSTA' },
+    { allocationPoint: 10, tokenAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1', token: 'WETH' }
+]

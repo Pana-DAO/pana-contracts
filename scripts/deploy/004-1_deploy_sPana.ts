@@ -14,5 +14,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
-func.tags = [CONTRACTS.pana, "staking", "tokens", "core"];
+func.tags = [CONTRACTS.sPana, "core"];
 export default func;

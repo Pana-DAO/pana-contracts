@@ -19,7 +19,8 @@ const chainIds = {
     hardhat: 31337,
     mumbai: 80001,
     goerli: 5,
-    arbitrumTest: 421611
+    arbitrumTest: 421611,
+    arbitrum: 42161
 };
 
 // Ensure that we have all the environment variables we need.
@@ -49,14 +50,6 @@ const config: HardhatUserConfig = {
             // //},
             chainId: chainIds.hardhat,
         },
-        mumbai: {
-            url: `https://polygon-mumbai.infura.io/v3/${infuraKey}`,
-            gas: 2100000,
-            gasPrice: 8000000000,
-            accounts:
-            privateKey !== undefined ? [privateKey] : [],
-            chainId: chainIds.mumbai
-        },
         goerli: {
             url: `https://goerli.infura.io/v3/${infuraKey}`,
             gas: 2100000,
@@ -67,11 +60,19 @@ const config: HardhatUserConfig = {
         },
         arbitrumTest: {
             url: `https://arbitrum-rinkeby.infura.io/v3/${infuraKey}`,
+            gas: 25e6,
+            gasPrice: 20e9,
+            accounts:
+            privateKey !== undefined ? [privateKey] : [],
+            chainId: chainIds.arbitrumTest
+        },
+        arbitrum: {
+            url: `https://arbitrum-mainnet.infura.io/v3/${infuraKey}`,
             gas: 210000000,
             gasPrice: 800000000000,
             accounts:
             privateKey !== undefined ? [privateKey] : [],
-            chainId: chainIds.arbitrumTest
+            chainId: chainIds.arbitrum
         }
     },
     paths: {
@@ -177,19 +178,16 @@ const config: HardhatUserConfig = {
             default: 0,
         },
         daoMultisig: {
-            "localhost": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
             "hardhat": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-            "matic": "0x9Ce4A045EA9069C1C866bc8B685174f0e1BA0014",
-            "mumbai": "0xde9eB6AB368290D17eb207206e2a067C65D98F15",
             "goerli": "0xEA4a42aDa46484A6CB92f86b525a4251ae0fd843",
-            "arbitrumTest": "0xde9eB6AB368290D17eb207206e2a067C65D98F15"
+            "arbitrumTest": "0xde9eB6AB368290D17eb207206e2a067C65D98F15",
+            "arbitrum": "0xa178776D7B05931e31b2b955Dd97436F08046cFe"
         },
         daoPolicy: {
             "hardhat": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-            "matic": "0x9Ce4A045EA9069C1C866bc8B685174f0e1BA0014",
-            "mumbai": "0xde9eB6AB368290D17eb207206e2a067C65D98F15",
             "goerli": "0x5a178Dd4F7e74252711c17eb12F4Edd41F292F07",
-            "arbitrumTest": "0xde9eB6AB368290D17eb207206e2a067C65D98F15"
+            "arbitrumTest": "0xde9eB6AB368290D17eb207206e2a067C65D98F15",
+            "arbitrum": "0x4500822509E1DcB1BD155dbb2797d152418BB761"
         }
     },
     typechain: {

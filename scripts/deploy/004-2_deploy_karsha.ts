@@ -17,6 +17,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     });
 };
 
-func.tags = [CONTRACTS.karsha, "migration", "tokens", "core"];
+func.tags = [CONTRACTS.karsha, "core"];
 
 export default func;
