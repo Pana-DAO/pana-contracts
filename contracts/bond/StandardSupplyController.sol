@@ -191,10 +191,9 @@ contract PanaSupplyController is ISupplyContoller, PanaAccessControlled {
 
     /**
      * @notice burns Pana from the pool using SLP
-     * @param _pana uint256 - amount of pana to burn
      * @param _slp uint256 - amount of slp to burn
     */
-    function burn(uint256 _pana, uint256 _slp) external override supplyControlCallerOnly {
+    function burn(uint256 _slp) external override supplyControlCallerOnly {
         
         IUniswapV2Pair(pair).approve(router, _slp);
 

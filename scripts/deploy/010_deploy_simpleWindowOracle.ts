@@ -1,9 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { CONTRACTS, getDEXFactoryAddress} from "../constants";
-import {
-PanaSlidingWindowOracle__factory
-} from "../../types";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, getChainId } = hre;
@@ -13,16 +10,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const chainId = await getChainId();
     const uniswapFactory = getDEXFactoryAddress(chainId);
 
-    const windowSize = 86400;
-    const granuality = 24;
-
-    await deploy(CONTRACTS.slidingWindowOracle, {
+    await deploy(CONTRACTS.priceOracle, {
         from: deployer,
-        args: [uniswapFactory, windowSize, granuality],
+        args: [uniswapFactory],
         log: true,
         skipIfAlreadyDeployed: true,
     });
 };
 
-func.tags = [CONTRACTS.slidingWindowOracle, "misc"];
+func.tags = [CONTRACTS.priceOracle, "core"];
 export default func;

@@ -10,4 +10,6 @@ interface IUniswapV2Pair is IUniswapV2ERC20 {
     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
     function mint(address to) external returns (uint liquidity);
     function sync() external;
+    function price0CumulativeLast() external view returns (uint);
+    function price1CumulativeLast() external view returns (uint);
 }

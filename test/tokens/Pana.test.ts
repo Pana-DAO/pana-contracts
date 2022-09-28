@@ -15,12 +15,13 @@ describe("Pana-Token-Test", () => {
   let vault: SignerWithAddress;
   let bob: SignerWithAddress;
   let alice: SignerWithAddress;
+  let distributeAuth: SignerWithAddress;
   let pana: PanaERC20Token;
 
   beforeEach(async () => {
-    [deployer, vault, bob, alice] = await ethers.getSigners();
+    [deployer, vault, bob, alice,distributeAuth] = await ethers.getSigners();
 
-    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
+    const authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, distributeAuth.address);
     await authority.deployed();
 
     pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);
@@ -43,6 +44,16 @@ describe("Pana-Token-Test", () => {
       let supplyBefore = await pana.totalSupply();
       await pana.connect(vault).mint(bob.address, 100);
       expect(supplyBefore.add(100)).to.equal(await pana.totalSupply());
+    });
+    it("added to distribution", async () => {
+      let supplyBefore = await pana.balanceOf(distributeAuth.address);
+      await pana.connect(deployer).mintForDistribution(100);
+      expect(supplyBefore.add(100)).to.equal(await pana.balanceOf(distributeAuth.address));
+    });
+    it("after concule distribution not allowing minint", async () => {
+      let supplyBefore = await pana.balanceOf(distributeAuth.address);
+      await pana.connect(deployer).concludeDistribution();
+      await expect(pana.connect(deployer).mintForDistribution(100)).to.be.revertedWith("Distribution concluded");      
     });
   });
 

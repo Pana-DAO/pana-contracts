@@ -23,6 +23,7 @@ contract PanaStaking is PanaAccessControlled {
 
     event DistributorSet(address distributor);
     event WarmupSet(uint256 warmup);
+    event StakingMigrated(uint256 amount);
 
     /* ========== DATA STRUCTURES ========== */
 
@@ -45,7 +46,9 @@ contract PanaStaking is PanaAccessControlled {
     IDistributor public distributor;
 
     bool private _allowedExternalStaking;
-    address public bondDepositor;
+    mapping(address => bool) public approvedDepositor;
+
+    address public stakingMigrator;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -79,7 +82,7 @@ contract PanaStaking is PanaAccessControlled {
     ) external returns (uint256) {
         // check if external staking is not allowed, only bond depositor should be able to stake it.
         if (!_allowedExternalStaking) {
-            require(msg.sender == bondDepositor, "External Staking is not allowed");
+            require(approvedDepositor[msg.sender], "External Staking is not allowed - Only approved depositor allowed");
         }
         
         rebase();
@@ -118,6 +121,7 @@ contract PanaStaking is PanaAccessControlled {
      * @return uint256
      */
     function rebase() public returns (uint256) {
+        require(firstEpochSet == true, "Epoch not Initialized");
         uint256 bounty;
         if (epoch.end <= block.timestamp) {
             sPANA.rebase(epoch.distribute, epoch.number);
@@ -140,14 +144,42 @@ contract PanaStaking is PanaAccessControlled {
         return bounty;
     }
 
-    // Set Depositor Contract after creating Contract
-    function setBondDepositor(address _bondDepositor) external onlyGovernor {
-        bondDepositor = _bondDepositor;
+    // Set Depositor Contract
+    function addApprovedDepositor(address _depositor) external onlyGovernor {
+        require(_depositor != address(0), "Zero address: _depositor");
+        approvedDepositor[_depositor] = true;
+    }
+
+    // Remove Depositor Contract
+    function removeApprovedDepositor(address _depositor) external onlyGovernor {
+        require(_depositor != address(0), "Removal: Invalid Depositor");
+        require(approvedDepositor[_depositor], "Already set to false");
+        approvedDepositor[_depositor] = false;
     }
     
     // Allow External Staking directly using PANA
     function allowExternalStaking(bool allow) external onlyGovernor {
         _allowedExternalStaking = allow;
+    }
+
+
+    /**
+     * @notice allow approved address to withdraw Pana
+     */
+    function migrate() external {
+        require(stakingMigrator == msg.sender, "Not Approved");
+        uint256 _amount = PANA.balanceOf(address(this));
+        PANA.safeTransfer(msg.sender, _amount);
+        emit StakingMigrated(_amount);
+    }
+
+    /**
+     * @notice set Staking Contract migrator
+     * @param _migrator address
+     */
+    function setStakingMigrator(address _migrator) external onlyGovernor {
+        require(_migrator != address(0), "Zero address: Staking Migrator");
+        stakingMigrator = _migrator;
     }
 
     /* ========== INTERNAL FUNCTIONS ========== */
@@ -180,6 +212,13 @@ contract PanaStaking is PanaAccessControlled {
      */
     function secondsToNextEpoch() external view returns (uint256) {
         return epoch.end.sub(block.timestamp);
+    }
+
+    /**
+     * @notice staked Karsha in terms of Pana
+     */
+    function stakingSupply() external view returns (uint256) {
+        return KARSHA.balanceFrom(IERC20(address(KARSHA)).totalSupply());
     }
 
     /* ========== MANAGERIAL FUNCTIONS ========== */

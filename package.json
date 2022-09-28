@@ -65,6 +65,7 @@
     "deploy:goerli": "hardhat --network goerli deploy --tags core",
     "deploy:goerli:misc": "hardhat --network goerli deploy --tags misc",
     "deploy:arbitrumTest": "hardhat --network arbitrumTest deploy --tags core",
+    "deploy:arbitrum": "hardhat --network arbitrum deploy --tags core",
     "deploy:arbitrumTest:misc": "hardhat --network arbitrumTest deploy --tags misc",
     "etherscan:goerli": "hardhat --network goerli etherscan-verify --license AGPL-3.0",
     "etherscan:arbitrumTest": "hardhat --network arbitrumTest etherscan-verify --license AGPL-3.0",

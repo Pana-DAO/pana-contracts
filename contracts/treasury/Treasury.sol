@@ -22,38 +22,32 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
 
     /* ========== EVENTS ========== */
 
-    event Deposit(address indexed token, uint256 amount, uint256 value);
-    event DepositForRedemption(address indexed token, uint256 amount, uint256 value);
-    event Withdrawal(address indexed token, uint256 amount, uint256 value);
-    event CreateDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
-    event RepayDebt(address indexed debtor, address indexed token, uint256 amount, uint256 value);
+    event Deposit(address indexed token, uint256 amount, uint256 payout);
+    event DepositForRedemption(address indexed token, uint256 amount, uint256 send);
     event Managed(address indexed token, uint256 amount);
-    event ReservesAudited(uint256 indexed totalReserves);
     event Minted(address indexed caller, address indexed recipient, uint256 amount);
     event PermissionQueued(STATUS indexed status, address queued);
     event Permissioned(address addr, STATUS indexed status, bool result);
+    event MintedForNFTTreasury(uint256 amount, address treasury);
 
     /* ========== DATA STRUCTURES ========== */
 
     enum STATUS {
         RESERVEDEPOSITOR,
-        RESERVESPENDER,
         RESERVETOKEN,
         RESERVEMANAGER,
         LIQUIDITYDEPOSITOR,
         LIQUIDITYTOKEN,
         LIQUIDITYMANAGER,
-        RESERVEDEBTOR,
         REWARDMANAGER,
         SPANA,
-        PANADEBTOR,
-        PANAREDEEMER
+        PANAREDEEMER,
+        NFTTREASURY
     }
 
     struct Queue {
         STATUS managing;
         address toPermit;
-        address calculator;
         address supplyController;
         uint256 timelockEnd;
         bool nullify;
@@ -67,14 +61,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
 
     mapping(STATUS => address[]) public registry;
     mapping(STATUS => mapping(address => bool)) public permissions;
-    mapping(address => address) public bondCalculator;
     mapping(address => address) public supplyController;
-
-    mapping(address => uint256) public debtLimit;
-
-    uint256 public totalReserves;
-    uint256 public totalDebt;
-    uint256 public panaDebt;
 
     Queue[] public permissionQueue;
     uint256 public immutable blocksNeededForQueue;
@@ -84,15 +71,14 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
 
     uint256 public onChainGovernanceTimelock;
 
-    // A base (intrinsic) value of PANA token.
-    // Expressed in terms of X PANA per 1 token (i.e. 100.0 = 100 PANA per 1 reserve token = 0.01 reserve token per 1 PANA).
-    // Base value specified to 9 precision digits (9 digits caps the base price of PANA to 1bln reserve token at max)
-    uint256 public baseValue;
+    // Percentage of PANA balance available for redemption.
+    // Percentage specified to 4 precision digits. 100 = 1% = 0.01
+    uint256 public redemptionLimit;
 
     string internal notAccepted = "Treasury: not accepted";
     string internal notApproved = "Treasury: not approved";
     string internal invalidToken = "Treasury: invalid token";
-    string internal insufficientReserves = "Treasury: insufficient reserves";
+    string internal noValuation = "Treasury: asset is not a reserve token";
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -115,14 +101,14 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
      * @notice allow approved address to deposit an asset for PANA
      * @param _amount uint256
      * @param _token address
-     * @param _profit uint256
+     * @param _payout uint256
      * @return send_ uint256
      */
     function deposit(
         uint256 _amount,
         address _token,
-        uint256 _profit
-    ) external override returns (uint256 send_) {
+        uint256 _payout
+    ) external override returns (uint256) {
         if (permissions[STATUS.RESERVETOKEN][_token]) {
             require(permissions[STATUS.RESERVEDEPOSITOR][msg.sender], notApproved);
         } else if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {
@@ -132,34 +118,18 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         }
 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        PANA.mint(msg.sender, _payout);
 
-        uint256 value = tokenValue(_token, _amount);
-        // mint PANA needed and store amount of rewards for distribution
-        send_ = value.sub(_profit);
-        PANA.mint(msg.sender, send_);
-
-        totalReserves = totalReserves.add(value);
-
-        emit Deposit(_token, _amount, value);
+        emit Deposit(_token, _amount, _payout);
 
         if(permissions[STATUS.LIQUIDITYTOKEN][_token] 
             && supplyController[_token] != address(0)
-                && ISupplyContoller(supplyController[_token]).supplyControlEnabled()
-                    && ISupplyContoller(supplyController[_token]).paramsSet()) {
-            (uint256 pana, uint256 slp, bool burn) = ISupplyContoller(supplyController[_token]).getSupplyControlAmount();
-
-            if(pana > 0) {
-                if(burn && (IERC20(_token).balanceOf(address(this)) >= slp)) {
-                    // Burn PANA, send SLPs to supplyController
-                    IERC20(_token).safeTransfer(supplyController[_token], slp);
-                    ISupplyContoller(supplyController[_token]).burn(pana, slp);
-                } else if(IERC20(PANA).balanceOf(address(this)) >= pana) {
-                    // Add PANA, send PANA to supplyController
-                    IERC20(PANA).safeTransfer(supplyController[_token], pana);
-                    ISupplyContoller(supplyController[_token]).add(pana);
-                }
-            }
+            && ISupplyContoller(supplyController[_token]).supplyControlEnabled()
+            && ISupplyContoller(supplyController[_token]).paramsSet()) {
+                _updateSupplyRatio(_token);
         }
+
+        return _payout;
     }
 
     /**
@@ -173,11 +143,9 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         require(permissions[STATUS.PANAREDEEMER][msg.sender], notApproved);
 
         // redemption is always calculated as 1:100
-        send_ = _amount.mul(1e11).mul(10**IERC20Metadata(address(PANA)).decimals()).div(10**9).div(10**IERC20Metadata(_token).decimals());
-        require(send_ <= PANA.balanceOf(address(this)), "Not enough PANA reserves");
+        send_ = tokenValue(_token, _amount);
+        require(send_ <= availableForRedemption(), "Not enough PANA reserves");
        
-        // reserves increased according to the current intrinsic value
-        totalReserves = totalReserves.add(tokenValue(_token, _amount));
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         IERC20(PANA).safeTransfer(msg.sender, send_);
 
@@ -185,22 +153,59 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     }
 
     /**
-     * @notice allow approved address to burn PANA for reserves
-     * @param _amount uint256
-     * @param _token address
+     * @notice  executes loss ratio management
+     * @dev     this function is for internal usage, it expects all required checks to be performed before a call
+     * @param   _lpToken a target liquidity token
      */
-    function withdraw(uint256 _amount, address _token) external override {
-        require(permissions[STATUS.RESERVETOKEN][_token], notAccepted); // Only reserves can be used for redemptions
-        require(permissions[STATUS.RESERVESPENDER][msg.sender], notApproved);
+    function _updateSupplyRatio(address _lpToken) internal {
+        ISupplyContoller controller = ISupplyContoller(supplyController[_lpToken]);
 
-        uint256 value = tokenValue(_token, _amount);
-        PANA.burnFrom(msg.sender, value);
+        (uint256 pana, uint256 slp, bool burn) = controller.getSupplyControlAmount();
+        if (pana > 0) {
+            if (burn) {
+                // send LP tokens to supplyController and burn liquidity
+                uint256 toBurn = IERC20(_lpToken).balanceOf(address(this));
+                if (toBurn > slp) {
+                    toBurn = slp;
+                }
 
-        totalReserves = totalReserves.sub(value);
+                IERC20(_lpToken).safeTransfer(address(controller), toBurn);
+                controller.burn(toBurn);
+            } else {
+                // send PANA to supplyController and add liquidity
+                uint256 toAdd = IERC20(PANA).balanceOf(address(this));
+                if (toAdd > pana) {
+                    toAdd = pana;
+                }
 
-        IERC20(_token).safeTransfer(msg.sender, _amount);
+                IERC20(PANA).safeTransfer(address(controller), toAdd);
+                controller.add(toAdd);
+            }
+        }
+    }
 
-        emit Withdrawal(_token, _amount, value);
+    /**
+     * @notice  externally called version of _updateSupplyRatio
+     * @dev     performs additional configuration checks and reverts if any condition fails
+     * @param   _lpToken a target liquidity token
+     */
+    function updateSupplyRatio(address _lpToken) external {
+        require(permissions[STATUS.LIQUIDITYTOKEN][_lpToken], "Not an LP token");
+        require(supplyController[_lpToken] != address(0), "Supply controller is not configured");
+        require(ISupplyContoller(supplyController[_lpToken]).supplyControlEnabled(), "Supply controller is not enabled");
+        require(ISupplyContoller(supplyController[_lpToken]).paramsSet(), "Supply controller is not initialized");
+
+        _updateSupplyRatio(_lpToken);
+    }
+    
+    /**
+     * @notice allow approved Assurance/Parametrics Insurance NFT Treasury to mint Pana from Master Treasury.
+     * @param _amount uint256 amount of Pana to mint
+     */
+    function mintForNFTTreasury(uint256 _amount) external {
+        require(permissions[STATUS.NFTTREASURY][msg.sender], notApproved);
+        PANA.mint(msg.sender, _amount);
+        emit MintedForNFTTreasury(_amount, msg.sender);
     }
 
     /**
@@ -214,163 +219,40 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         } else {
             require(permissions[STATUS.RESERVEMANAGER][msg.sender], notApproved);
         }
-        if (permissions[STATUS.RESERVETOKEN][_token] || permissions[STATUS.LIQUIDITYTOKEN][_token]) {
-            uint256 value = tokenValue(_token, _amount);
-            require(value <= excessReserves(), insufficientReserves);
-            totalReserves = totalReserves.sub(value);
-        }
+
         IERC20(_token).safeTransfer(msg.sender, _amount);
         emit Managed(_token, _amount);
     }
 
     /**
-     * @notice mint new PANA using excess reserves
+     * @notice mint new PANA
      * @param _recipient address
      * @param _amount uint256
      */
     function mint(address _recipient, uint256 _amount) external override {
         require(permissions[STATUS.REWARDMANAGER][msg.sender], notApproved);
-        updateReserves();
-        require(_amount <= excessReserves(), insufficientReserves);
         PANA.mint(_recipient, _amount);
         emit Minted(msg.sender, _recipient, _amount);
     }
 
     /**
-     * DEBT: The debt functions allow approved addresses to borrow treasury assets
-     * or PANA from the treasury, using sPANA as collateral. This might allow an
-     * sPANA holder to provide PANA liquidity without taking on the opportunity cost
-     * of unstaking, or alter their backing without imposing risk onto the treasury.
-     * Many of these use cases are yet to be defined, but they appear promising.
-     * However, we urge the community to think critically and move slowly upon
-     * proposals to acquire these permissions.
+     * @notice sets new PANA redemption limit
+     * @param _limit percentage (as a decimal with 4 precision digits) of PANA balance available for redemption
      */
-
-    /**
-     * @notice allow approved address to borrow reserves
-     * @param _amount uint256
-     * @param _token address
-     */
-    function incurDebt(uint256 _amount, address _token) external override {
-        uint256 value;
-        if (_token == address(PANA)) {
-            require(permissions[STATUS.PANADEBTOR][msg.sender], notApproved);
-            value = _amount;
-        } else {
-            require(permissions[STATUS.RESERVEDEBTOR][msg.sender], notApproved);
-            require(permissions[STATUS.RESERVETOKEN][_token], notAccepted);
-            value = tokenValue(_token, _amount);
-        }
-        require(value != 0, invalidToken);
-
-        sPANA.changeDebt(value, msg.sender, true);
-        require(sPANA.debtBalances(msg.sender) <= debtLimit[msg.sender], "Treasury: exceeds limit");
-        totalDebt = totalDebt.add(value);
-
-        if (_token == address(PANA)) {
-            PANA.mint(msg.sender, value);
-            panaDebt = panaDebt.add(value);
-        } else {
-            totalReserves = totalReserves.sub(value);
-            IERC20(_token).safeTransfer(msg.sender, _amount);
-        }
-        emit CreateDebt(msg.sender, _token, _amount, value);
-    }
-
-    /**
-     * @notice allow approved address to repay borrowed reserves with reserves
-     * @param _amount uint256
-     * @param _token address
-     */
-    function repayDebtWithReserve(uint256 _amount, address _token) external override {
-        require(permissions[STATUS.RESERVEDEBTOR][msg.sender], notApproved);
-        require(permissions[STATUS.RESERVETOKEN][_token], notAccepted);
-        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        uint256 value = tokenValue(_token, _amount);
-        sPANA.changeDebt(value, msg.sender, false);
-        totalDebt = totalDebt.sub(value);
-        totalReserves = totalReserves.add(value);
-        emit RepayDebt(msg.sender, _token, _amount, value);
-    }
-
-    /**
-     * @notice allow approved address to repay borrowed reserves with PANA
-     * @param _amount uint256
-     */
-    function repayDebtWithPANA(uint256 _amount) external {
-        require(permissions[STATUS.RESERVEDEBTOR][msg.sender] || permissions[STATUS.PANADEBTOR][msg.sender], notApproved);
-        PANA.burnFrom(msg.sender, _amount);
-        sPANA.changeDebt(_amount, msg.sender, false);
-        totalDebt = totalDebt.sub(_amount);
-        panaDebt = panaDebt.sub(_amount);
-        emit RepayDebt(msg.sender, address(PANA), _amount, _amount);
-    }
-
-    /* ========== MANAGERIAL FUNCTIONS ========== */
-
-    /**
-     * @notice takes inventory of all tracked assets
-     * @notice always consolidate to recognized reserves before audit
-     */
-    function auditReserves() external onlyGovernor {
-        uint256 reserves;
-        address[] memory reserveToken = registry[STATUS.RESERVETOKEN];
-        for (uint256 i = 0; i < reserveToken.length; i++) {
-            if (permissions[STATUS.RESERVETOKEN][reserveToken[i]]) {
-                reserves = reserves.add(tokenValue(reserveToken[i], IERC20(reserveToken[i]).balanceOf(address(this))));
-            }
-        }
-        address[] memory liquidityToken = registry[STATUS.LIQUIDITYTOKEN];
-        for (uint256 i = 0; i < liquidityToken.length; i++) {
-            if (permissions[STATUS.LIQUIDITYTOKEN][liquidityToken[i]]) {
-                reserves = reserves.add(tokenValue(liquidityToken[i], IERC20(liquidityToken[i]).balanceOf(address(this))));
-            }
-        }
-        totalReserves = reserves;
-        emit ReservesAudited(reserves);
-    }
-
-    /**
-     * @notice takes inventory of all tracked assets
-     * @notice always consolidate to recognized reserves before audit
-     */
-    function updateReserves() internal {
-        uint256 reserves;
-        address[] memory reserveToken = registry[STATUS.RESERVETOKEN];
-        for (uint256 i = 0; i < reserveToken.length; i++) {
-            if (permissions[STATUS.RESERVETOKEN][reserveToken[i]]) {
-                reserves = reserves.add(tokenValue(reserveToken[i], IERC20(reserveToken[i]).balanceOf(address(this))));
-            }
-        }
-        address[] memory liquidityToken = registry[STATUS.LIQUIDITYTOKEN];
-        for (uint256 i = 0; i < liquidityToken.length; i++) {
-            if (permissions[STATUS.LIQUIDITYTOKEN][liquidityToken[i]]) {
-                reserves = reserves.add(tokenValue(liquidityToken[i], IERC20(liquidityToken[i]).balanceOf(address(this))));
-            }
-        }
-        totalReserves = reserves;
-        emit ReservesAudited(reserves);
-    }
-
-    /**
-     * @notice set max debt for address
-     * @param _address address
-     * @param _limit uint256
-     */
-    function setDebtLimit(address _address, uint256 _limit) external onlyGovernor {
-        debtLimit[_address] = _limit;
+    function setRedemptionLimit(uint256 _limit) external onlyGovernor {
+        require(_limit <= 10000, "Limit cannot exceed 100 percent");
+        redemptionLimit = _limit;
     }
 
     /**
      * @notice enable permission from queue
      * @param _status STATUS
      * @param _address address
-     * @param _calculator address
+     * @param _supplyController address
      */
     function enable(
         STATUS _status,
         address _address,
-        address _calculator,
         address _supplyController
     ) external onlyGovernor {
         require(timelockEnabled == false, "Use queueTimelock");
@@ -380,7 +262,6 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
             permissions[_status][_address] = true;
 
             if (_status == STATUS.LIQUIDITYTOKEN) {
-                bondCalculator[_address] = _calculator;
                 supplyController[_address] = _supplyController;
             }
 
@@ -425,12 +306,11 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
      * @notice queue address to receive permission
      * @param _status STATUS
      * @param _address address
-     * @param _calculator address
+     * @param _supplyController address
      */
     function queueTimelock(
         STATUS _status,
         address _address,
-        address _calculator,
         address _supplyController
     ) external onlyGovernor {
         require(_address != address(0));
@@ -441,7 +321,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
             timelock = block.number.add(blocksNeededForQueue.mul(2));
         }
         permissionQueue.push(
-            Queue({managing: _status, toPermit: _address, calculator: _calculator, supplyController: _supplyController, timelockEnd: timelock, nullify: false, executed: false})
+            Queue({managing: _status, toPermit: _address, supplyController: _supplyController, timelockEnd: timelock, nullify: false, executed: false})
         );
         emit PermissionQueued(_status, _address);
     }
@@ -466,7 +346,6 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
             permissions[info.managing][info.toPermit] = true;
 
             if (info.managing == STATUS.LIQUIDITYTOKEN) {
-                bondCalculator[info.toPermit] = info.calculator;
                 supplyController[info.toPermit] = info.supplyController;
             }
             (bool registered, ) = indexInRegistry(info.toPermit, info.managing);
@@ -522,44 +401,36 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     /* ========== VIEW FUNCTIONS ========== */
 
     /**
-     * @notice returns excess reserves not backing tokens
-     * @return uint
-     */
-    function excessReserves() public view override returns (uint256) {
-        return totalReserves.sub(PANA.totalSupply().sub(totalDebt));
-    }
-
-    /**
-     * @notice returns PANA valuation of asset
+     * @notice returns PANA valuation of asset as 1:100
+     * The protocol has no intrinsic valuation for external tokens
+     * This function values any given asset at 100 PANA
+     * Only to be used for valuation of RESERVE TOKENS
+     * Not to be used to valuate LP tokens
      * @param _token address
      * @param _amount uint256
      * @return value_ uint256
      */
     function tokenValue(address _token, uint256 _amount) public view override returns (uint256 value_) {
-        require(baseValue != 0, "Base value is not set");
+        require(permissions[STATUS.RESERVETOKEN][_token], noValuation);
 
-        if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {
-            value_ = IBondingCalculator(bondCalculator[_token]).valuation(_token, _amount, baseValue);
-        }
-        else {
-            value_ = _amount.mul(baseValue).mul(10**IERC20Metadata(address(PANA)).decimals()).div(10**9).div(10**IERC20Metadata(_token).decimals());
-        }
+        value_ = _amount.mul(1e11).mul(10**IERC20Metadata(address(PANA)).decimals())
+                            .div(10**9).div(10**IERC20Metadata(_token).decimals());
     }
 
     /**
-     * @notice returns supply metric that cannot be manipulated by debt
+     * @notice returns supply metric
      * @dev use this any time you need to query supply
      * @return uint256
      */
     function baseSupply() external view override returns (uint256) {
-        return PANA.totalSupply() - panaDebt;
+        return PANA.totalSupply();
     }
 
     /**
-     * @notice sets PANA token base value
-     * @param _baseValue base value of PANA expressed in terms of X PANA per 1 reserve token, 9 decimals 
+     * @notice returns current amount of PANA available for redemption
+     * @return uint256
      */
-    function setBaseValue(uint256 _baseValue) external onlyGovernor {
-        baseValue = _baseValue;
+    function availableForRedemption() public view returns (uint256) {
+        return PANA.balanceOf(address(this)).mul(redemptionLimit).div(10**4);
     }
 }

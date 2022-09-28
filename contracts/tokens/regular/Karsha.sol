@@ -7,8 +7,9 @@ import "../../libraries/Address.sol";
 import "../../interfaces/IsPana.sol";
 import "../../interfaces/IKarsha.sol";
 import "../../types/ERC20.sol";
+import "../../access/PanaAccessControlled.sol";
 
-contract Karsha is IKarsha, ERC20 {
+contract Karsha is IKarsha, ERC20, PanaAccessControlled {
 
     /* ========== DEPENDENCIES ========== */
 
@@ -17,8 +18,8 @@ contract Karsha is IKarsha, ERC20 {
 
     /* ========== MODIFIERS ========== */
 
-    modifier onlyApproved() {
-        require(msg.sender == approved, "Only approved");
+    modifier onlyStaking() {
+        require(msg.sender == staking, "Only Staking");
         _;
     }
 
@@ -38,8 +39,7 @@ contract Karsha is IKarsha, ERC20 {
     /* ========== STATE VARIABLES ========== */
 
     IsPana public sPANA;
-    address public approved; // minter
-    bool public migrated;
+    address public staking; // minter
 
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
@@ -47,33 +47,17 @@ contract Karsha is IKarsha, ERC20 {
 
     /* ========== CONSTRUCTOR ========== */
 
-    constructor(address _migrator, address _sPana)
+    constructor(address _staking, address _sPana, address _authority)
         ERC20("Karsha", "KARSHA", 18)
+        PanaAccessControlled(IPanaAuthority(_authority))
     {
-        require(_migrator != address(0), "Zero address: Migrator");
-        approved = _migrator;
         require(_sPana != address(0), "Zero address: sPANA");
         sPANA = IsPana(_sPana);
     }
 
-    /* ========== MUTATIVE FUNCTIONS ========== */
-
-    /**
-     * @notice transfer mint rights from migrator to staking
-     * @notice can only be done once, at the time of contract migration
-     * @param _staking address
-     * @param _sPana address
-     */
-    function migrate(address _staking, address _sPana) external override onlyApproved {
-        require(!migrated, "Migrated");
-        migrated = true;
-
-        require(_staking != approved, "Invalid argument");
-        require(_staking != address(0), "Zero address found");
-        approved = _staking;
-
-        require(_sPana != address(0), "Zero address found");
-        sPANA = IsPana(_sPana);
+    function setStaking(address _newStaking) external onlyGovernor {
+        require(_newStaking != address(0), "Zero address found: Staking");
+        staking = _newStaking;
     }
 
     /**
@@ -89,7 +73,7 @@ contract Karsha is IKarsha, ERC20 {
         @param _to address
         @param _amount uint
      */
-    function mint(address _to, uint256 _amount) external override onlyApproved {
+    function mint(address _to, uint256 _amount) external override onlyStaking {
         _mint(_to, _amount);
     }
 
@@ -98,10 +82,8 @@ contract Karsha is IKarsha, ERC20 {
         @param _from address
         @param _amount uint
      */
-    function burn(address _from, uint256 _amount) external override onlyApproved {
+    function burn(address _from, uint256 _amount) external override onlyStaking {
         require(balanceOf(_from) >= _amount, "ERC20: burn amount exceeds balance");
-         // Check transfer amount of Karsha is not exceeding debt user has with protocol
-        require(sPANA.debtBalances(_from) <= balanceOfPANA(_from).sub(balanceFrom(_amount)), "KARSHA: insufficient balance due to debt");
         _burn(_from, _amount);
     }
 
@@ -112,8 +94,6 @@ contract Karsha is IKarsha, ERC20 {
      */
     function transfer(address _to, uint256 _amount) public override(IKarsha,ERC20) returns (bool){
         require(balanceOf(msg.sender) >= _amount, "ERC20: transfer amount exceeds balance");                 
-        // Check transfer amount of Karsha is not exceeding debt user has with protocol
-        require(sPANA.debtBalances(msg.sender) <= balanceOfPANA(msg.sender).sub(balanceFrom(_amount)), "KARSHA: insufficient balance due to debt"); 
         return super.transfer(_to,_amount);
     }
 
@@ -125,8 +105,6 @@ contract Karsha is IKarsha, ERC20 {
      */
     function transferFrom(address sender, address recipient, uint256 amount) public override(IKarsha,ERC20) returns (bool) {
         require(balanceOf(sender) >= amount, "ERC20: transfer amount exceeds balance");  
-        // Check transfer amount of Karsha is not exceeding debt user has with protocol
-        require(sPANA.debtBalances(sender) <= balanceOfPANA(sender).sub(balanceFrom(amount)), "KARSHA: insufficient balance due to debt"); 
         return super.transferFrom(sender,recipient,amount);
     }
 

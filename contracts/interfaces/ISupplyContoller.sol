@@ -23,7 +23,7 @@ interface ISupplyContoller {
 
     function getSupplyControlAmount() external view returns (uint256 _pana, uint256 _slp, bool _burn);
 
-    function burn(uint256 _pana, uint256 _slp) external;
+    function burn(uint256 _slp) external;
 
     function add(uint256 _pana) external;
 }

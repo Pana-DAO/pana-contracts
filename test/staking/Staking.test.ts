@@ -12,6 +12,7 @@ import {
     PanaStaking__factory,
     PanaAuthority,
     PanaAuthority__factory,
+    Karsha,
 } from "../../types";
 
 chai.use(smock.matchers);
@@ -167,6 +168,27 @@ describe("PanaStaking", () => {
 
                 expect(karshaFake.mint).to.be.calledWith(alice.address, indexedAmount);
             });
+
+            it("should return correct staked Supply on staking", async () => {
+                const amount = 1000;
+                const indexedAmount = 10000;
+
+                panaFake.transferFrom
+                    .whenCalledWith(alice.address, staking.address, amount)
+                    .returns(true);
+                karshaFake.balanceTo.whenCalledWith(amount).returns(indexedAmount);
+                karshaFake.balanceFrom.whenCalledWith(indexedAmount).returns(amount);
+                karshaFake.totalSupply.returns(indexedAmount);
+
+
+                // Allow External Staking
+                await staking.connect(governor).allowExternalStaking(true);
+
+                await staking.connect(alice).stake(alice.address, amount);
+
+                expect(await staking.stakingSupply()).to.be.equal(amount);
+
+            }); 
 
         });
 

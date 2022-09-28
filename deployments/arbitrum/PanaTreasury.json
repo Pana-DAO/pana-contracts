@@ -1,0 +1,1198 @@
+{
+  "address": "0xf4414eeb85Da1932889997d13edA5B5ed137C19d",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pana",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_timelock",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_authority",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IPanaAuthority",
+          "name": "authority",
+          "type": "address"
+        }
+      ],
+      "name": "AuthorityUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "payout",
+          "type": "uint256"
+        }
+      ],
+      "name": "Deposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "send",
+          "type": "uint256"
+        }
+      ],
+      "name": "DepositForRedemption",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Managed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Minted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "treasury",
+          "type": "address"
+        }
+      ],
+      "name": "MintedForNFTTreasury",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "queued",
+          "type": "address"
+        }
+      ],
+      "name": "PermissionQueued",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "result",
+          "type": "bool"
+        }
+      ],
+      "name": "Permissioned",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "PANA",
+      "outputs": [
+        {
+          "internalType": "contract IPana",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "authority",
+      "outputs": [
+        {
+          "internalType": "contract IPanaAuthority",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "availableForRedemption",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "baseSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "blocksNeededForQueue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_payout",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        }
+      ],
+      "name": "depositForRedemption",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "send_",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "_status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "_toDisable",
+          "type": "address"
+        }
+      ],
+      "name": "disable",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "disableTimelock",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "_status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_supplyController",
+          "type": "address"
+        }
+      ],
+      "name": "enable",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "execute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "_status",
+          "type": "uint8"
+        }
+      ],
+      "name": "indexInRegistry",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initialized",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "manage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "mintForNFTTreasury",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "nullify",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "onChainGovernanceTimelock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "permissionQueue",
+      "outputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "managing",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "toPermit",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "supplyController",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timelockEnd",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "nullify",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "permissions",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "_status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_supplyController",
+          "type": "address"
+        }
+      ],
+      "name": "queueTimelock",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "redemptionLimit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum PanaTreasury.STATUS",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "registry",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sPANA",
+      "outputs": [
+        {
+          "internalType": "contract IsPana",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IPanaAuthority",
+          "name": "_newAuthority",
+          "type": "address"
+        }
+      ],
+      "name": "setAuthority",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRedemptionLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "supplyController",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "timelockEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "value_",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_lpToken",
+          "type": "address"
+        }
+      ],
+      "name": "updateSupplyRatio",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x25947415ac29f9eb76d9a1a0ce6ab4d7b5ab3396779e22c8c5658cc8c5f50ece",
+  "receipt": {
+    "to": null,
+    "from": "0x02A3babda298d348Dea69DA98B2F6a7F4Df31e42",
+    "contractAddress": "0xf4414eeb85Da1932889997d13edA5B5ed137C19d",
+    "transactionIndex": 1,
+    "gasUsed": "12451902",
+    "logsBloom": "0x00000000000000000000000000000100000000000000000000000000000000000000000000000000000210000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000",
+    "blockHash": "0x40e59c6f5fd19c58cb655a4348396d0ca85b6acdea83514a2b61d387eb216862",
+    "transactionHash": "0x25947415ac29f9eb76d9a1a0ce6ab4d7b5ab3396779e22c8c5658cc8c5f50ece",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 26958637,
+        "transactionHash": "0x25947415ac29f9eb76d9a1a0ce6ab4d7b5ab3396779e22c8c5658cc8c5f50ece",
+        "address": "0xf4414eeb85Da1932889997d13edA5B5ed137C19d",
+        "topics": [
+          "0x2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad",
+          "0x000000000000000000000000cc654fbb3c1b12be82d36bc9c7e1ce075a422f80"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x40e59c6f5fd19c58cb655a4348396d0ca85b6acdea83514a2b61d387eb216862"
+      }
+    ],
+    "blockNumber": 26958637,
+    "cumulativeGasUsed": "12451902",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x369eB8197062093a20402935D3a707b4aE414E9D",
+    0,
+    "0xcc654fbB3C1B12Be82D36Bc9C7E1CE075A422F80"
+  ],
+  "solcInputHash": "f1c5ba0c2b23c01374f9df221a4721e8",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.5+commit.eb77ed08\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_pana\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_timelock\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_authority\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IPanaAuthority\",\"name\":\"authority\",\"type\":\"address\"}],\"name\":\"AuthorityUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"payout\",\"type\":\"uint256\"}],\"name\":\"Deposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"send\",\"type\":\"uint256\"}],\"name\":\"DepositForRedemption\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Managed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Minted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"treasury\",\"type\":\"address\"}],\"name\":\"MintedForNFTTreasury\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"status\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"queued\",\"type\":\"address\"}],\"name\":\"PermissionQueued\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"status\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"result\",\"type\":\"bool\"}],\"name\":\"Permissioned\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"PANA\",\"outputs\":[{\"internalType\":\"contract IPana\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"authority\",\"outputs\":[{\"internalType\":\"contract IPanaAuthority\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"availableForRedemption\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"baseSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"blocksNeededForQueue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_payout\",\"type\":\"uint256\"}],\"name\":\"deposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"depositForRedemption\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"send_\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"_status\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"_toDisable\",\"type\":\"address\"}],\"name\":\"disable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"disableTimelock\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"_status\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_supplyController\",\"type\":\"address\"}],\"name\":\"enable\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"execute\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"},{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"_status\",\"type\":\"uint8\"}],\"name\":\"indexInRegistry\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"manage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"mintForNFTTreasury\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"nullify\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"onChainGovernanceTimelock\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"permissionQueue\",\"outputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"managing\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"toPermit\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"supplyController\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"timelockEnd\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"nullify\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"executed\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"permissions\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"_status\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"_address\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_supplyController\",\"type\":\"address\"}],\"name\":\"queueTimelock\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"redemptionLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum PanaTreasury.STATUS\",\"name\":\"\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"registry\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"sPANA\",\"outputs\":[{\"internalType\":\"contract IsPana\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IPanaAuthority\",\"name\":\"_newAuthority\",\"type\":\"address\"}],\"name\":\"setAuthority\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_limit\",\"type\":\"uint256\"}],\"name\":\"setRedemptionLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"supplyController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"timelockEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"tokenValue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"value_\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_lpToken\",\"type\":\"address\"}],\"name\":\"updateSupplyRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"availableForRedemption()\":{\"returns\":{\"_0\":\"uint256\"}},\"baseSupply()\":{\"details\":\"use this any time you need to query supply\",\"returns\":{\"_0\":\"uint256\"}},\"deposit(uint256,address,uint256)\":{\"params\":{\"_amount\":\"uint256\",\"_payout\":\"uint256\",\"_token\":\"address\"},\"returns\":{\"_0\":\"send_ uint256\"}},\"depositForRedemption(uint256,address)\":{\"params\":{\"_amount\":\"uint256\",\"_token\":\"address\"},\"returns\":{\"send_\":\"uint256\"}},\"disable(uint8,address)\":{\"params\":{\"_status\":\"STATUS\",\"_toDisable\":\"address\"}},\"enable(uint8,address,address)\":{\"params\":{\"_address\":\"address\",\"_status\":\"STATUS\",\"_supplyController\":\"address\"}},\"execute(uint256)\":{\"params\":{\"_index\":\"uint256\"}},\"indexInRegistry(address,uint8)\":{\"returns\":{\"_0\":\"(bool, uint256)\"}},\"manage(address,uint256)\":{\"params\":{\"_amount\":\"uint256\",\"_token\":\"address\"}},\"mint(address,uint256)\":{\"params\":{\"_amount\":\"uint256\",\"_recipient\":\"address\"}},\"mintForNFTTreasury(uint256)\":{\"params\":{\"_amount\":\"uint256 amount of Pana to mint\"}},\"nullify(uint256)\":{\"params\":{\"_index\":\"uint256\"}},\"queueTimelock(uint8,address,address)\":{\"params\":{\"_address\":\"address\",\"_status\":\"STATUS\",\"_supplyController\":\"address\"}},\"setRedemptionLimit(uint256)\":{\"params\":{\"_limit\":\"percentage (as a decimal with 4 precision digits) of PANA balance available for redemption\"}},\"tokenValue(address,uint256)\":{\"params\":{\"_amount\":\"uint256\",\"_token\":\"address\"},\"returns\":{\"value_\":\"uint256\"}},\"updateSupplyRatio(address)\":{\"details\":\"performs additional configuration checks and reverts if any condition fails\",\"params\":{\"_lpToken\":\"a target liquidity token\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"availableForRedemption()\":{\"notice\":\"returns current amount of PANA available for redemption\"},\"baseSupply()\":{\"notice\":\"returns supply metric\"},\"deposit(uint256,address,uint256)\":{\"notice\":\"allow approved address to deposit an asset for PANA\"},\"depositForRedemption(uint256,address)\":{\"notice\":\"allow approved address to deposit reserve token for available PANA. No new PANA is minted.\"},\"disable(uint8,address)\":{\"notice\":\"disable permission from address\"},\"disableTimelock()\":{\"notice\":\"disables timelocked functions\"},\"enable(uint8,address,address)\":{\"notice\":\"enable permission from queue\"},\"execute(uint256)\":{\"notice\":\"enable queued permission\"},\"indexInRegistry(address,uint8)\":{\"notice\":\"check if registry contains address\"},\"initialize()\":{\"notice\":\"enables timelocks after initilization\"},\"manage(address,uint256)\":{\"notice\":\"allow approved address to withdraw assets\"},\"mint(address,uint256)\":{\"notice\":\"mint new PANA\"},\"mintForNFTTreasury(uint256)\":{\"notice\":\"allow approved Assurance/Parametrics Insurance NFT Treasury to mint Pana from Master Treasury.\"},\"nullify(uint256)\":{\"notice\":\"cancel timelocked action\"},\"queueTimelock(uint8,address,address)\":{\"notice\":\"queue address to receive permission\"},\"setRedemptionLimit(uint256)\":{\"notice\":\"sets new PANA redemption limit\"},\"tokenValue(address,uint256)\":{\"notice\":\"returns PANA valuation of asset as 1:100 The protocol has no intrinsic valuation for external tokens This function values any given asset at 100 PANA Only to be used for valuation of RESERVE TOKENS Not to be used to valuate LP tokens\"},\"updateSupplyRatio(address)\":{\"notice\":\"externally called version of _updateSupplyRatio\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/treasury/Treasury.sol\":\"PanaTreasury\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":800},\"remappings\":[]},\"sources\":{\"contracts/access/PanaAccessControlled.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.7.5;\\n\\nimport \\\"../interfaces/IPanaAuthority.sol\\\";\\n\\nabstract contract PanaAccessControlled {\\n\\n    /* ========== EVENTS ========== */\\n\\n    event AuthorityUpdated(IPanaAuthority indexed authority);\\n\\n    string UNAUTHORIZED = \\\"UNAUTHORIZED\\\"; // save gas\\n\\n    /* ========== STATE VARIABLES ========== */\\n\\n    IPanaAuthority public authority;\\n\\n\\n    /* ========== Constructor ========== */\\n\\n    constructor(IPanaAuthority _authority) {\\n        authority = _authority;\\n        emit AuthorityUpdated(_authority);\\n    }\\n    \\n\\n    /* ========== MODIFIERS ========== */\\n    \\n    modifier onlyGovernor() {\\n        require(msg.sender == authority.governor(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    modifier onlyGuardian() {\\n        require(msg.sender == authority.guardian(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    modifier onlyPolicy() {\\n        require(msg.sender == authority.policy(), UNAUTHORIZED);\\n        _;\\n    }\\n\\n    modifier onlyVault() {\\n        require(msg.sender == authority.vault(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    /* ========== GOV ONLY ========== */\\n    \\n    function setAuthority(IPanaAuthority _newAuthority) external onlyGovernor {\\n        authority = _newAuthority;\\n        emit AuthorityUpdated(_newAuthority);\\n    }\\n}\\n\",\"keccak256\":\"0x034e5499a57b5a80ba7315a07b54a800876e4e9143ec38855118dc2ff0af9311\",\"license\":\"AGPL-3.0-only\"},\"contracts/interfaces/IBondingCalculator.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IBondingCalculator {\\n    function valuation( address pair_, uint amount_, uint256 _baseValue ) external view returns ( uint _value );\\n}\",\"keccak256\":\"0x09addbf72bc50d0614d505ca6902735ed9a5c396eac9fd857e45329c6a1c55dd\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IERC20 {\\n  /**\\n   * @dev Returns the amount of tokens in existence.\\n   */\\n  function totalSupply() external view returns (uint256);\\n\\n  /**\\n   * @dev Returns the amount of tokens owned by `account`.\\n   */\\n  function balanceOf(address account) external view returns (uint256);\\n\\n  /**\\n   * @dev Moves `amount` tokens from the caller's account to `recipient`.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * Emits a {Transfer} event.\\n   */\\n  function transfer(address recipient, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Returns the remaining number of tokens that `spender` will be\\n   * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n   * zero by default.\\n   *\\n   * This value changes when {approve} or {transferFrom} are called.\\n   */\\n  function allowance(address owner, address spender) external view returns (uint256);\\n\\n  /**\\n   * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n   * that someone may use both the old and the new allowance by unfortunate\\n   * transaction ordering. One possible solution to mitigate this race\\n   * condition is to first reduce the spender's allowance to 0 and set the\\n   * desired value afterwards:\\n   * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n   *\\n   * Emits an {Approval} event.\\n   */\\n  function approve(address spender, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Moves `amount` tokens from `sender` to `recipient` using the\\n   * allowance mechanism. `amount` is then deducted from the caller's\\n   * allowance.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * Emits a {Transfer} event.\\n   */\\n  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n   * another (`to`).\\n   *\\n   * Note that `value` may be zero.\\n   */\\n  event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n  /**\\n   * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n   * a call to {approve}. `value` is the new allowance.\\n   */\\n  event Approval(address indexed owner, address indexed spender, uint256 value);\\n}\\n\",\"keccak256\":\"0xa142440b0e1c51ece24b6d074ac883b34e1f33a2472773eeaaf4871875904d09\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IERC20Metadata.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\nimport \\\"./IERC20.sol\\\";\\n\\ninterface IERC20Metadata is IERC20 {\\n\\n    function name() external view returns (string memory);\\n\\n    function symbol() external view returns (string memory);\\n\\n    function decimals() external view returns (uint8);\\n}\",\"keccak256\":\"0x6dfa58ba4a241b2201f3ecb3ba26345ce4dd66f0a553f18b2a284341f5aacd72\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IPana.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\nimport \\\"./IERC20.sol\\\";\\n\\ninterface IPana is IERC20 {\\n  event DistributionConcluded(uint256 totalDistributed);\\n\\n  function mint(address account_, uint256 amount_) external;\\n\\n  function burn(uint256 amount) external;\\n\\n  function burnFrom(address account_, uint256 amount_) external;\\n}\\n\",\"keccak256\":\"0x6d091828bfd47a3a7d13391b23381229761cfc67431c2d9df3a6ce5fde9013e4\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IPanaAuthority.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IPanaAuthority {\\n    /* ========== EVENTS ========== */\\n    \\n    event GovernorPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event GuardianPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event PolicyPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event VaultPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event DistributionVaultPushed(address indexed from, address indexed to, bool _effectiveImmediately); \\n\\n    event GovernorPulled(address indexed from, address indexed to);\\n    event GuardianPulled(address indexed from, address indexed to);\\n    event PolicyPulled(address indexed from, address indexed to);\\n    event VaultPulled(address indexed from, address indexed to);\\n    event DistributionVaultPulled(address indexed from, address indexed to);\\n\\n    /* ========== VIEW ========== */\\n    \\n    function governor() external view returns (address);\\n    function guardian() external view returns (address);\\n    function policy() external view returns (address);\\n    function vault() external view returns (address);\\n    function distributionVault() external view returns (address);\\n}\",\"keccak256\":\"0xc49dc603c39b5cbd2e18e02176ef489bd89dde552495236e9798ae49a9f2e875\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/ISupplyContoller.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface ISupplyContoller {\\n        \\n    /* ========== EVENTS ========== */\\n    event SetSupplyControlParams(uint256 totalSupply, uint256 old_lossRatio, uint256 old_cf, uint256 old_cc, \\n                            uint256 old_mslp, uint256 lossRatio, uint256 cf, uint256 cc, \\n                                uint256 mslp);\\n    event Burnt(uint256 totalSupply, uint256 panaInPool, uint256 slp, uint256 panaResidue, uint256 tokenResidue);\\n    event Supplied(uint256 totalSupply, uint256 panaInPool, uint256 slp, \\n                    uint256 panaSupplied, uint256 panaResidue, uint256 tokenResidue);\\n    \\n    function supplyControlEnabled() external view returns (bool);\\n\\n    function paramsSet() external view returns (bool);\\n\\n    function setSupplyControlParams(uint256 _lossRatio, uint256 _cf, uint256 _cc, uint256 _mslp) external;\\n\\n    function enableSupplyControl() external;\\n\\n    function disableSupplyControl() external;\\n\\n    function getSupplyControlAmount() external view returns (uint256 _pana, uint256 _slp, bool _burn);\\n\\n    function burn(uint256 _slp) external;\\n\\n    function add(uint256 _pana) external;\\n}\",\"keccak256\":\"0x5ce73fb857591e9098909a423cc0d5c5af428bb91e518ca488c430ab68aecca5\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/ITreasury.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface ITreasury {\\n    function deposit(\\n        uint256 _amount,\\n        address _token,\\n        uint256 _payout\\n    ) external returns (uint256);\\n\\n    function depositForRedemption(uint _amount, address _token) external returns (uint256 send_);\\n\\n    function tokenValue(address _token, uint256 _amount) external view returns (uint256 value_);\\n\\n    function mint(address _recipient, uint256 _amount) external;\\n\\n    function manage(address _token, uint256 _amount) external;\\n\\n    function baseSupply() external view returns (uint256);\\n}\\n\",\"keccak256\":\"0x32c6b5dc61e7dad246c0abc23ed009df87d9a43eab0a53252466b90d9751fe73\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IsPana.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\nimport \\\"./IERC20.sol\\\";\\n\\ninterface IsPana is IERC20 {\\n    function rebase( uint256 panaProfit_, uint epoch_) external returns (uint256);\\n\\n    function circulatingSupply() external view returns (uint256);\\n\\n    function gonsForBalance( uint amount ) external view returns ( uint );\\n\\n    function balanceForGons( uint gons ) external view returns ( uint );\\n\\n    function index() external view returns ( uint );\\n\\n    function toKARSHA(uint amount) external view returns (uint);\\n\\n    function fromKARSHA(uint amount) external view returns (uint);\\n    \\n}\\n\",\"keccak256\":\"0x2873d8efa59dbd4392aedf641cb69ff738d9349a6241ade93130d72a787be591\",\"license\":\"AGPL-3.0\"},\"contracts/libraries/SafeERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.7.5;\\n\\nimport {IERC20} from \\\"../interfaces/IERC20.sol\\\";\\n\\n/// @notice Safe IERC20 and ETH transfer library that safely handles missing return values.\\n/// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v3-periphery/blob/main/contracts/libraries/TransferHelper.sol)\\n/// Taken from Solmate\\nlibrary SafeERC20 {\\n    function safeTransferFrom(\\n        IERC20 token,\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"TRANSFER_FROM_FAILED\\\");\\n    }\\n\\n    function safeTransfer(\\n        IERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.transfer.selector, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"TRANSFER_FAILED\\\");\\n    }\\n\\n    function safeApprove(\\n        IERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.approve.selector, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"APPROVE_FAILED\\\");\\n    }\\n\\n    function safeTransferETH(address to, uint256 amount) internal {\\n        (bool success, ) = to.call{value: amount}(new bytes(0));\\n\\n        require(success, \\\"ETH_TRANSFER_FAILED\\\");\\n    }\\n}\",\"keccak256\":\"0xbdd4f99088de7c23383b043055646de013b1312166a9bfa05e3995cdcf7ae022\",\"license\":\"AGPL-3.0-only\"},\"contracts/libraries/SafeMath.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.7.5;\\n\\n\\n// TODO(zx): Replace all instances of SafeMath with OZ implementation\\nlibrary SafeMath {\\n\\n    function add(uint256 a, uint256 b) internal pure returns (uint256) {\\n        uint256 c = a + b;\\n        require(c >= a, \\\"SafeMath: addition overflow\\\");\\n\\n        return c;\\n    }\\n\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return sub(a, b, \\\"SafeMath: subtraction overflow\\\");\\n    }\\n\\n    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b <= a, errorMessage);\\n        uint256 c = a - b;\\n\\n        return c;\\n    }\\n\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256) {\\n        if (a == 0) {\\n            return 0;\\n        }\\n\\n        uint256 c = a * b;\\n        require(c / a == b, \\\"SafeMath: multiplication overflow\\\");\\n\\n        return c;\\n    }\\n\\n    function div(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return div(a, b, \\\"SafeMath: division by zero\\\");\\n    }\\n\\n    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        require(b > 0, errorMessage);\\n        uint256 c = a / b;\\n        assert(a == b * c + a % b); // There is no case in which this doesn't hold\\n\\n        return c;\\n    }\\n\\n    // Only used in the  BondingCalculator.sol\\n    function sqrrt(uint256 a) internal pure returns (uint c) {\\n        if (a > 3) {\\n            c = a;\\n            uint b = add( div( a, 2), 1 );\\n            while (b < c) {\\n                c = b;\\n                b = div( add( div( a, b ), b), 2 );\\n            }\\n        } else if (a != 0) {\\n            c = 1;\\n        }\\n    }\\n\\n}\",\"keccak256\":\"0x45cfc2aa9d85df2add98d4e899d834c646e8ce7001b00ead65f07dbefbcebeef\",\"license\":\"AGPL-3.0\"},\"contracts/treasury/Treasury.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.7.5;\\n\\nimport \\\"../libraries/SafeMath.sol\\\";\\nimport \\\"../libraries/SafeERC20.sol\\\";\\n\\nimport \\\"../interfaces/IERC20.sol\\\";\\nimport \\\"../interfaces/IERC20Metadata.sol\\\";\\nimport \\\"../interfaces/IPana.sol\\\";\\nimport \\\"../interfaces/IsPana.sol\\\";\\nimport \\\"../interfaces/IBondingCalculator.sol\\\";\\nimport \\\"../interfaces/ITreasury.sol\\\";\\nimport \\\"../interfaces/ISupplyContoller.sol\\\";\\n\\nimport \\\"../access/PanaAccessControlled.sol\\\";\\n\\ncontract PanaTreasury is PanaAccessControlled, ITreasury {\\n    /* ========== DEPENDENCIES ========== */\\n\\n    using SafeMath for uint256;\\n    using SafeERC20 for IERC20;\\n\\n    /* ========== EVENTS ========== */\\n\\n    event Deposit(address indexed token, uint256 amount, uint256 payout);\\n    event DepositForRedemption(address indexed token, uint256 amount, uint256 send);\\n    event Managed(address indexed token, uint256 amount);\\n    event Minted(address indexed caller, address indexed recipient, uint256 amount);\\n    event PermissionQueued(STATUS indexed status, address queued);\\n    event Permissioned(address addr, STATUS indexed status, bool result);\\n    event MintedForNFTTreasury(uint256 amount, address treasury);\\n\\n    /* ========== DATA STRUCTURES ========== */\\n\\n    enum STATUS {\\n        RESERVEDEPOSITOR,\\n        RESERVETOKEN,\\n        RESERVEMANAGER,\\n        LIQUIDITYDEPOSITOR,\\n        LIQUIDITYTOKEN,\\n        LIQUIDITYMANAGER,\\n        REWARDMANAGER,\\n        SPANA,\\n        PANAREDEEMER,\\n        NFTTREASURY\\n    }\\n\\n    struct Queue {\\n        STATUS managing;\\n        address toPermit;\\n        address supplyController;\\n        uint256 timelockEnd;\\n        bool nullify;\\n        bool executed;\\n    }\\n\\n    /* ========== STATE VARIABLES ========== */\\n\\n    IPana public immutable PANA;\\n    IsPana public sPANA;\\n\\n    mapping(STATUS => address[]) public registry;\\n    mapping(STATUS => mapping(address => bool)) public permissions;\\n    mapping(address => address) public supplyController;\\n\\n    Queue[] public permissionQueue;\\n    uint256 public immutable blocksNeededForQueue;\\n\\n    bool public timelockEnabled;\\n    bool public initialized;\\n\\n    uint256 public onChainGovernanceTimelock;\\n\\n    // Percentage of PANA balance available for redemption.\\n    // Percentage specified to 4 precision digits. 100 = 1% = 0.01\\n    uint256 public redemptionLimit;\\n\\n    string internal notAccepted = \\\"Treasury: not accepted\\\";\\n    string internal notApproved = \\\"Treasury: not approved\\\";\\n    string internal invalidToken = \\\"Treasury: invalid token\\\";\\n    string internal noValuation = \\\"Treasury: asset is not a reserve token\\\";\\n\\n    /* ========== CONSTRUCTOR ========== */\\n\\n    constructor(\\n        address _pana,\\n        uint256 _timelock,\\n        address _authority\\n    ) PanaAccessControlled(IPanaAuthority(_authority)) {\\n        require(_pana != address(0), \\\"Zero address: PANA\\\");\\n        PANA = IPana(_pana);\\n\\n        timelockEnabled = false;\\n        initialized = false;\\n        blocksNeededForQueue = _timelock;\\n    }\\n\\n    /* ========== MUTATIVE FUNCTIONS ========== */\\n\\n    /**\\n     * @notice allow approved address to deposit an asset for PANA\\n     * @param _amount uint256\\n     * @param _token address\\n     * @param _payout uint256\\n     * @return send_ uint256\\n     */\\n    function deposit(\\n        uint256 _amount,\\n        address _token,\\n        uint256 _payout\\n    ) external override returns (uint256) {\\n        if (permissions[STATUS.RESERVETOKEN][_token]) {\\n            require(permissions[STATUS.RESERVEDEPOSITOR][msg.sender], notApproved);\\n        } else if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {\\n            require(permissions[STATUS.LIQUIDITYDEPOSITOR][msg.sender], notApproved);\\n        } else {\\n            revert(invalidToken);\\n        }\\n\\n        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);\\n        PANA.mint(msg.sender, _payout);\\n\\n        emit Deposit(_token, _amount, _payout);\\n\\n        if(permissions[STATUS.LIQUIDITYTOKEN][_token] \\n            && supplyController[_token] != address(0)\\n            && ISupplyContoller(supplyController[_token]).supplyControlEnabled()\\n            && ISupplyContoller(supplyController[_token]).paramsSet()) {\\n                _updateSupplyRatio(_token);\\n        }\\n\\n        return _payout;\\n    }\\n\\n    /**\\n     * @notice allow approved address to deposit reserve token for available PANA. No new PANA is minted.\\n     * @param _amount uint256\\n     * @param _token address\\n     * @return send_ uint256\\n     */\\n    function depositForRedemption(uint _amount, address _token) external override returns (uint256 send_) {\\n        require(permissions[STATUS.RESERVETOKEN][_token], notAccepted);\\n        require(permissions[STATUS.PANAREDEEMER][msg.sender], notApproved);\\n\\n        // redemption is always calculated as 1:100\\n        send_ = tokenValue(_token, _amount);\\n        require(send_ <= availableForRedemption(), \\\"Not enough PANA reserves\\\");\\n       \\n        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);\\n        IERC20(PANA).safeTransfer(msg.sender, send_);\\n\\n        emit DepositForRedemption(_token, _amount, send_);\\n    }\\n\\n    /**\\n     * @notice  executes loss ratio management\\n     * @dev     this function is for internal usage, it expects all required checks to be performed before a call\\n     * @param   _lpToken a target liquidity token\\n     */\\n    function _updateSupplyRatio(address _lpToken) internal {\\n        ISupplyContoller controller = ISupplyContoller(supplyController[_lpToken]);\\n\\n        (uint256 pana, uint256 slp, bool burn) = controller.getSupplyControlAmount();\\n        if (pana > 0) {\\n            if (burn) {\\n                // send LP tokens to supplyController and burn liquidity\\n                uint256 toBurn = IERC20(_lpToken).balanceOf(address(this));\\n                if (toBurn > slp) {\\n                    toBurn = slp;\\n                }\\n\\n                IERC20(_lpToken).safeTransfer(address(controller), toBurn);\\n                controller.burn(toBurn);\\n            } else {\\n                // send PANA to supplyController and add liquidity\\n                uint256 toAdd = IERC20(PANA).balanceOf(address(this));\\n                if (toAdd > pana) {\\n                    toAdd = pana;\\n                }\\n\\n                IERC20(PANA).safeTransfer(address(controller), toAdd);\\n                controller.add(toAdd);\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice  externally called version of _updateSupplyRatio\\n     * @dev     performs additional configuration checks and reverts if any condition fails\\n     * @param   _lpToken a target liquidity token\\n     */\\n    function updateSupplyRatio(address _lpToken) external {\\n        require(permissions[STATUS.LIQUIDITYTOKEN][_lpToken], \\\"Not an LP token\\\");\\n        require(supplyController[_lpToken] != address(0), \\\"Supply controller is not configured\\\");\\n        require(ISupplyContoller(supplyController[_lpToken]).supplyControlEnabled(), \\\"Supply controller is not enabled\\\");\\n        require(ISupplyContoller(supplyController[_lpToken]).paramsSet(), \\\"Supply controller is not initialized\\\");\\n\\n        _updateSupplyRatio(_lpToken);\\n    }\\n    \\n    /**\\n     * @notice allow approved Assurance/Parametrics Insurance NFT Treasury to mint Pana from Master Treasury.\\n     * @param _amount uint256 amount of Pana to mint\\n     */\\n    function mintForNFTTreasury(uint256 _amount) external {\\n        require(permissions[STATUS.NFTTREASURY][msg.sender], notApproved);\\n        PANA.mint(msg.sender, _amount);\\n        emit MintedForNFTTreasury(_amount, msg.sender);\\n    }\\n\\n    /**\\n     * @notice allow approved address to withdraw assets\\n     * @param _token address\\n     * @param _amount uint256\\n     */\\n    function manage(address _token, uint256 _amount) external override {\\n        if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {\\n            require(permissions[STATUS.LIQUIDITYMANAGER][msg.sender], notApproved);\\n        } else {\\n            require(permissions[STATUS.RESERVEMANAGER][msg.sender], notApproved);\\n        }\\n\\n        IERC20(_token).safeTransfer(msg.sender, _amount);\\n        emit Managed(_token, _amount);\\n    }\\n\\n    /**\\n     * @notice mint new PANA\\n     * @param _recipient address\\n     * @param _amount uint256\\n     */\\n    function mint(address _recipient, uint256 _amount) external override {\\n        require(permissions[STATUS.REWARDMANAGER][msg.sender], notApproved);\\n        PANA.mint(_recipient, _amount);\\n        emit Minted(msg.sender, _recipient, _amount);\\n    }\\n\\n    /**\\n     * @notice sets new PANA redemption limit\\n     * @param _limit percentage (as a decimal with 4 precision digits) of PANA balance available for redemption\\n     */\\n    function setRedemptionLimit(uint256 _limit) external onlyGovernor {\\n        require(_limit <= 10000, \\\"Limit cannot exceed 100 percent\\\");\\n        redemptionLimit = _limit;\\n    }\\n\\n    /**\\n     * @notice enable permission from queue\\n     * @param _status STATUS\\n     * @param _address address\\n     * @param _supplyController address\\n     */\\n    function enable(\\n        STATUS _status,\\n        address _address,\\n        address _supplyController\\n    ) external onlyGovernor {\\n        require(timelockEnabled == false, \\\"Use queueTimelock\\\");\\n        if (_status == STATUS.SPANA) {\\n            sPANA = IsPana(_address);\\n        } else {\\n            permissions[_status][_address] = true;\\n\\n            if (_status == STATUS.LIQUIDITYTOKEN) {\\n                supplyController[_address] = _supplyController;\\n            }\\n\\n            (bool registered, ) = indexInRegistry(_address, _status);\\n            if (!registered) {\\n                registry[_status].push(_address);\\n            }\\n        }\\n        emit Permissioned(_address, _status, true);\\n    }\\n\\n    /**\\n     *  @notice disable permission from address\\n     *  @param _status STATUS\\n     *  @param _toDisable address\\n     */\\n    function disable(STATUS _status, address _toDisable) external {\\n        require(msg.sender == authority.governor() || msg.sender == authority.guardian(), \\\"Only governor or guardian\\\");\\n        permissions[_status][_toDisable] = false;\\n        emit Permissioned(_toDisable, _status, false);\\n    }\\n\\n    /**\\n     * @notice check if registry contains address\\n     * @return (bool, uint256)\\n     */\\n    function indexInRegistry(address _address, STATUS _status) public view returns (bool, uint256) {\\n        address[] memory entries = registry[_status];\\n        for (uint256 i = 0; i < entries.length; i++) {\\n            if (_address == entries[i]) {\\n                return (true, i);\\n            }\\n        }\\n        return (false, 0);\\n    }\\n\\n    /* ========== TIMELOCKED FUNCTIONS ========== */\\n\\n    // functions are used prior to enabling on-chain governance\\n\\n    /**\\n     * @notice queue address to receive permission\\n     * @param _status STATUS\\n     * @param _address address\\n     * @param _supplyController address\\n     */\\n    function queueTimelock(\\n        STATUS _status,\\n        address _address,\\n        address _supplyController\\n    ) external onlyGovernor {\\n        require(_address != address(0));\\n        require(timelockEnabled == true, \\\"Timelock is disabled, use enable\\\");\\n\\n        uint256 timelock = block.number.add(blocksNeededForQueue);\\n        if (_status == STATUS.RESERVEMANAGER || _status == STATUS.LIQUIDITYMANAGER) {\\n            timelock = block.number.add(blocksNeededForQueue.mul(2));\\n        }\\n        permissionQueue.push(\\n            Queue({managing: _status, toPermit: _address, supplyController: _supplyController, timelockEnd: timelock, nullify: false, executed: false})\\n        );\\n        emit PermissionQueued(_status, _address);\\n    }\\n\\n    /**\\n     *  @notice enable queued permission\\n     *  @param _index uint256\\n     */\\n    function execute(uint256 _index) external {\\n        require(timelockEnabled == true, \\\"Timelock is disabled, use enable\\\");\\n\\n        Queue memory info = permissionQueue[_index];\\n\\n        require(!info.nullify, \\\"Action has been nullified\\\");\\n        require(!info.executed, \\\"Action has already been executed\\\");\\n        require(block.number >= info.timelockEnd, \\\"Timelock not complete\\\");\\n\\n        if (info.managing == STATUS.SPANA) {\\n            // 9\\n            sPANA = IsPana(info.toPermit);\\n        } else {\\n            permissions[info.managing][info.toPermit] = true;\\n\\n            if (info.managing == STATUS.LIQUIDITYTOKEN) {\\n                supplyController[info.toPermit] = info.supplyController;\\n            }\\n            (bool registered, ) = indexInRegistry(info.toPermit, info.managing);\\n            if (!registered) {\\n                registry[info.managing].push(info.toPermit);\\n\\n                if (info.managing == STATUS.LIQUIDITYTOKEN) {\\n                    (bool reg, uint256 index) = indexInRegistry(info.toPermit, STATUS.RESERVETOKEN);\\n                    if (reg) {\\n                        delete registry[STATUS.RESERVETOKEN][index];\\n                    }\\n                } else if (info.managing == STATUS.RESERVETOKEN) {\\n                    (bool reg, uint256 index) = indexInRegistry(info.toPermit, STATUS.LIQUIDITYTOKEN);\\n                    if (reg) {\\n                        delete registry[STATUS.LIQUIDITYTOKEN][index];\\n                    }\\n                }\\n            }\\n        }\\n        permissionQueue[_index].executed = true;\\n        emit Permissioned(info.toPermit, info.managing, true);\\n    }\\n\\n    /**\\n     * @notice cancel timelocked action\\n     * @param _index uint256\\n     */\\n    function nullify(uint256 _index) external onlyGovernor {\\n        permissionQueue[_index].nullify = true;\\n    }\\n\\n    /**\\n     * @notice disables timelocked functions\\n     */\\n    function disableTimelock() external onlyGovernor {\\n        require(timelockEnabled == true, \\\"timelock already disabled\\\");\\n        if (onChainGovernanceTimelock != 0 && onChainGovernanceTimelock <= block.number) {\\n            timelockEnabled = false;\\n        } else {\\n            onChainGovernanceTimelock = block.number.add(blocksNeededForQueue.mul(7)); // 7-day timelock\\n        }\\n    }\\n\\n    /**\\n     * @notice enables timelocks after initilization\\n     */\\n    function initialize() external onlyGovernor {\\n        require(initialized == false, \\\"Already initialized\\\");\\n        timelockEnabled = true;\\n        initialized = true;\\n    }\\n\\n    /* ========== VIEW FUNCTIONS ========== */\\n\\n    /**\\n     * @notice returns PANA valuation of asset as 1:100\\n     * The protocol has no intrinsic valuation for external tokens\\n     * This function values any given asset at 100 PANA\\n     * Only to be used for valuation of RESERVE TOKENS\\n     * Not to be used to valuate LP tokens\\n     * @param _token address\\n     * @param _amount uint256\\n     * @return value_ uint256\\n     */\\n    function tokenValue(address _token, uint256 _amount) public view override returns (uint256 value_) {\\n        require(permissions[STATUS.RESERVETOKEN][_token], noValuation);\\n\\n        value_ = _amount.mul(1e11).mul(10**IERC20Metadata(address(PANA)).decimals())\\n                            .div(10**9).div(10**IERC20Metadata(_token).decimals());\\n    }\\n\\n    /**\\n     * @notice returns supply metric\\n     * @dev use this any time you need to query supply\\n     * @return uint256\\n     */\\n    function baseSupply() external view override returns (uint256) {\\n        return PANA.totalSupply();\\n    }\\n\\n    /**\\n     * @notice returns current amount of PANA available for redemption\\n     * @return uint256\\n     */\\n    function availableForRedemption() public view returns (uint256) {\\n        return PANA.balanceOf(address(this)).mul(redemptionLimit).div(10**4);\\n    }\\n}\\n\",\"keccak256\":\"0x57be8325710e6303861766c2c29ae97a14e1ae1e7c7a550da58a92edddd5ef40\",\"license\":\"AGPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x610100604052600c60c08190526b15539055551213d49256915160a21b60e090815262000030916000919062000240565b506040805180820190915260168082527f54726561737572793a206e6f742061636365707465640000000000000000000060209092019182526200007791600a9162000240565b506040805180820190915260168082527f54726561737572793a206e6f7420617070726f766564000000000000000000006020909201918252620000be91600b9162000240565b506040805180820190915260178082527f54726561737572793a20696e76616c696420746f6b656e00000000000000000060209092019182526200010591600c9162000240565b50604051806060016040528060268152602001620038316026913980516200013691600d9160209091019062000240565b503480156200014457600080fd5b506040516200385738038062003857833981810160405260608110156200016a57600080fd5b5080516020820151604092830151600180546001600160a01b0319166001600160a01b038316908117909155935192939192909182917f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a2506001600160a01b03831662000218576040805162461bcd60e51b81526020600482015260126024820152715a65726f20616464726573733a2050414e4160701b604482015290519081900360640190fd5b5060609190911b6001600160601b0319166080526007805461ffff1916905560a052620002ec565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282620002785760008555620002c3565b82601f106200029357805160ff1916838001178555620002c3565b82800160010185558215620002c3579182015b82811115620002c3578251825591602001919060010190620002a6565b50620002d1929150620002d5565b5090565b5b80821115620002d15760008155600101620002d6565b60805160601c60a0516134e26200034f6000398061098352806109db52806115c852806120c8525080610c2d52806112f9528061175b52806119e15280611c43528061202c52806124f2528061259d528061307a528061312b52506134e26000f3fe608060405234801561001057600080fd5b50600436106101e55760003560e01c806393988b531161010f578063bf7e214f116100a2578063f182178311610071578063f18217831461059b578063f2adbe57146105c7578063fe0d94c1146105cf578063ffb29023146105ec576101e5565b8063bf7e214f1461052e578063ce2b7f0c14610536578063d07f390f1461055c578063e4e33ef814610564576101e5565b8063b39df88e116100de578063b39df88e146104ab578063bbb11112146104b3578063bc157ac1146104d0578063bcb8e70114610502576101e5565b806393988b531461042b5780639fef32cc14610475578063a44b82871461047d578063b320f6a9146104a3576101e5565b80635a941ea2116101875780637a9e5e4b116101565780637a9e5e4b146103ed5780637d921af0146104135780638129fc1c1461041b578063860f504814610423576101e5565b80635a941ea21461036c57806366e991c41461038657806371a45c95146103ac57806377e93ca8146103c9576101e5565b8063330dd345116101c3578063330dd3451461026b57806340c10f191461029a578063503edcf0146102c6578063529918311461033d576101e5565b80630b0eee30146101ea578063158ef93e146102185780631d6d5f0514610234575b600080fd5b6102166004803603604081101561020057600080fd5b506001600160a01b038135169060200135610609565b005b610220610812565b604080519115158252519081900360200190f35b6102166004803603606081101561024a57600080fd5b5060ff813516906001600160a01b0360208201358116916040013516610820565b6102206004803603604081101561028157600080fd5b50803560ff1690602001356001600160a01b0316610b72565b610216600480360360408110156102b057600080fd5b506001600160a01b038135169060200135610b92565b6102e3600480360360208110156102dc57600080fd5b5035610cfe565b604051808760098111156102f357fe5b8152602001866001600160a01b03168152602001856001600160a01b0316815260200184815260200183151581526020018215158152602001965050505050505060405180910390f35b6102166004803603604081101561035357600080fd5b50803560ff1690602001356001600160a01b0316610d55565b610374610f5d565b60408051918252519081900360200190f35b6102166004803603602081101561039c57600080fd5b50356001600160a01b0316610f63565b610216600480360360208110156103c257600080fd5b50356111d7565b6103d16112f7565b604080516001600160a01b039092168252519081900360200190f35b6102166004803603602081101561040357600080fd5b50356001600160a01b031661131b565b610216611451565b6102166115f4565b610374611757565b61045a6004803603604081101561044157600080fd5b5080356001600160a01b0316906020013560ff166117e3565b60408051921515835260208301919091528051918290030190f35b6103d16118cb565b6103d16004803603604081101561049357600080fd5b5060ff81351690602001356118da565b610220611912565b61037461191b565b610216600480360360208110156104c957600080fd5b5035611921565b610374600480360360608110156104e657600080fd5b508035906001600160a01b036020820135169060400135611a7d565b6103746004803603604081101561051857600080fd5b50803590602001356001600160a01b0316611e67565b6103d161209c565b6103d16004803603602081101561054c57600080fd5b50356001600160a01b03166120ab565b6103746120c6565b6102166004803603606081101561057a57600080fd5b5060ff813516906001600160a01b03602082013581169160400135166120ea565b610374600480360360408110156105b157600080fd5b506001600160a01b0381351690602001356123b9565b61037461258d565b610216600480360360208110156105e557600080fd5b503561263f565b6102166004803603602081101561060257600080fd5b5035612b50565b6001600160a01b03821660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff1615610721573360009081527f04cde762ef08b6b6c5ded8e8c4c0b3f4e5c9ad7342c88fcc93681b4588b73f056020526040902054600b9060ff1661071b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b820191906000526020600020905b8154815290600101906020018083116106ef57829003601f168201915b50509250505060405180910390fd5b506107bb565b3360009081527f91da3fd0782e51c6b3986e9e672fd566868e71f3dbc2d6c2cd6fbb3e361af2a76020526040902054600b9060ff166107b95760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b505b6107cf6001600160a01b0383163383612c98565b6040805182815290516001600160a01b038416917fb4460e34f1e91c4fa28eb7fac4cbd88cf530ef54a67e1978cd5edd9f77033ead919081900360200190a25050565b600754610100900460ff1681565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561086e57600080fd5b505afa158015610882573d6000803e3d6000fd5b505050506040513d602081101561089857600080fd5b50516000906001600160a01b0316331461090b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b506001600160a01b03821661091f57600080fd5b60075460ff16151560011461097b576040805162461bcd60e51b815260206004820181905260248201527f54696d656c6f636b2069732064697361626c65642c2075736520656e61626c65604482015290519081900360640190fd5b60006109a7437f0000000000000000000000000000000000000000000000000000000000000000612e17565b905060028460098111156109b757fe5b14806109ce575060058460098111156109cc57fe5b145b15610a0b57610a08610a017f00000000000000000000000000000000000000000000000000000000000000006002612e7a565b4390612e17565b90505b60066040518060c00160405280866009811115610a2457fe5b81526001600160a01b0380871660208084019190915290861660408301526060820185905260006080830181905260a090920182905283546001818101865594835291208251600490920201805492939092839160ff1990911690836009811115610a8b57fe5b0217905550602082015181547fffffffffffffffffffffff0000000000000000000000000000000000000000ff166101006001600160a01b03928316810291909117835560408401516001840180546001600160a01b03191691909316179091556060830151600283015560808301516003909201805460a09094015160ff199094169215159290921761ff00191692151502919091179055836009811115610b3057fe5b604080516001600160a01b038616815290517fc822ff41836a6dc998393c71843db8adcbbf01721f41b32389f6838ecb1ea9c89181900360200190a250505050565b600460209081526000928352604080842090915290825290205460ff1681565b3360009081527fc59312466997bb42aaaf719ece141047820e6b34531e1670dc1852a453648f0f6020526040902054600b9060ff16610c2a5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166340c10f1983836040518363ffffffff1660e01b815260040180836001600160a01b0316815260200182815260200192505050600060405180830381600087803b158015610ca257600080fd5b505af1158015610cb6573d6000803e3d6000fd5b50506040805184815290516001600160a01b03861693503392507f9d228d69b5fdb8d273a2336f8fb8612d039631024ea9bf09c424a9503aa078f09181900360200190a35050565b60068181548110610d0e57600080fd5b6000918252602090912060049091020180546001820154600283015460039093015460ff80841695506001600160a01b036101009485900481169593169382821692041686565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b158015610da357600080fd5b505afa158015610db7573d6000803e3d6000fd5b505050506040513d6020811015610dcd57600080fd5b50516001600160a01b0316331480610e665750600160009054906101000a90046001600160a01b03166001600160a01b031663452a93206040518163ffffffff1660e01b815260040160206040518083038186803b158015610e2e57600080fd5b505afa158015610e42573d6000803e3d6000fd5b505050506040513d6020811015610e5857600080fd5b50516001600160a01b031633145b610eb7576040805162461bcd60e51b815260206004820152601960248201527f4f6e6c7920676f7665726e6f72206f7220677561726469616e00000000000000604482015290519081900360640190fd5b600060046000846009811115610ec957fe5b6009811115610ed457fe5b8152602080820192909252604090810160009081206001600160a01b03861682529092529020805460ff1916911515919091179055816009811115610f1557fe5b604080516001600160a01b03841681526000602082015281517f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e1713929181900390910190a25050565b60095481565b6001600160a01b03811660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff16610fef576040805162461bcd60e51b815260206004820152600f60248201527f4e6f7420616e204c5020746f6b656e0000000000000000000000000000000000604482015290519081900360640190fd5b6001600160a01b03818116600090815260056020526040902054166110455760405162461bcd60e51b815260040180806020018281038252602381526020018061346e6023913960400191505060405180910390fd5b6001600160a01b038082166000908152600560209081526040918290205482516376ad5a4d60e01b815292519316926376ad5a4d926004808201939291829003018186803b15801561109657600080fd5b505afa1580156110aa573d6000803e3d6000fd5b505050506040513d60208110156110c057600080fd5b5051611113576040805162461bcd60e51b815260206004820181905260248201527f537570706c7920636f6e74726f6c6c6572206973206e6f7420656e61626c6564604482015290519081900360640190fd5b6001600160a01b0380821660009081526005602090815260409182902054825163506bedc760e11b8152925193169263a0d7db8e926004808201939291829003018186803b15801561116457600080fd5b505afa158015611178573d6000803e3d6000fd5b505050506040513d602081101561118e57600080fd5b50516111cb5760405162461bcd60e51b81526004018080602001828103825260248152602001806134916024913960400191505060405180910390fd5b6111d481612ed3565b50565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561122557600080fd5b505afa158015611239573d6000803e3d6000fd5b505050506040513d602081101561124f57600080fd5b50516000906001600160a01b031633146112c25760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b506001600682815481106112d257fe5b60009182526020909120600490910201600301805460ff191691151591909117905550565b7f000000000000000000000000000000000000000000000000000000000000000081565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561136957600080fd5b505afa15801561137d573d6000803e3d6000fd5b505050506040513d602081101561139357600080fd5b50516000906001600160a01b031633146114065760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50600180546001600160a01b0319166001600160a01b0383169081179091556040517f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a250565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561149f57600080fd5b505afa1580156114b3573d6000803e3d6000fd5b505050506040513d60208110156114c957600080fd5b50516000906001600160a01b0316331461153c5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b5060075460ff161515600114611599576040805162461bcd60e51b815260206004820152601960248201527f74696d656c6f636b20616c72656164792064697361626c656400000000000000604482015290519081900360640190fd5b600854158015906115ac57504360085411155b156115c0576007805460ff191690556115f2565b6115ee610a017f00000000000000000000000000000000000000000000000000000000000000006007612e7a565b6008555b565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561164257600080fd5b505afa158015611656573d6000803e3d6000fd5b505050506040513d602081101561166c57600080fd5b50516000906001600160a01b031633146116df5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50600754610100900460ff161561173d576040805162461bcd60e51b815260206004820152601360248201527f416c726561647920696e697469616c697a656400000000000000000000000000604482015290519081900360640190fd5b6007805461ff001960ff1990911660011716610100179055565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b815260040160206040518083038186803b1580156117b257600080fd5b505afa1580156117c6573d6000803e3d6000fd5b505050506040513d60208110156117dc57600080fd5b5051905090565b6000806060600360008560098111156117f857fe5b600981111561180357fe5b815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561186557602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311611847575b5050505050905060005b81518110156118ba5781818151811061188457fe5b60200260200101516001600160a01b0316866001600160a01b031614156118b2576001935091506118c49050565b60010161186f565b5060008092509250505b9250929050565b6002546001600160a01b031681565b600360205281600052604060002081815481106118f657600080fd5b6000918252602090912001546001600160a01b03169150829050565b60075460ff1681565b60085481565b3360009081527f4ad5a04d53b5856f318545bb721f67d3f6d0a5a999f25eec7e20eaeb4c47b9336020526040902054600b9060ff166119b95760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50604080516340c10f1960e01b81523360048201526024810183905290516001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016916340c10f1991604480830192600092919082900301818387803b158015611a2857600080fd5b505af1158015611a3c573d6000803e3d6000fd5b50506040805184815233602082015281517f090407aa1149a57c208d834ce95f1e5f0dbc47bac5b4858b4a2e5306c650db969450908190039091019150a150565b6001600160a01b03821660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe05602052604081205460ff1615611b5b5760046000805b6009811115611ace57fe5b815260208082019290925260409081016000908120338252909252902054600b9060ff16611b555760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50611c07565b6001600160a01b03831660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff1615611ba657600460006003611ac3565b60405162461bcd60e51b8152602060048201908152600c80546002600019610100600184161502019091160460248401819052909282916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b611c1c6001600160a01b0384163330876131b8565b604080516340c10f1960e01b81523360048201526024810184905290516001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016916340c10f1991604480830192600092919082900301818387803b158015611c8a57600080fd5b505af1158015611c9e573d6000803e3d6000fd5b5050604080518781526020810186905281516001600160a01b03881694507f90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a1593509081900390910190a26001600160a01b03831660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff168015611d4857506001600160a01b038381166000908152600560205260409020541615155b8015611dcd57506001600160a01b038084166000908152600560209081526040918290205482516376ad5a4d60e01b815292519316926376ad5a4d926004808201939291829003018186803b158015611da057600080fd5b505afa158015611db4573d6000803e3d6000fd5b505050506040513d6020811015611dca57600080fd5b50515b8015611e5257506001600160a01b0380841660009081526005602090815260409182902054825163506bedc760e11b8152925193169263a0d7db8e926004808201939291829003018186803b158015611e2557600080fd5b505afa158015611e39573d6000803e3d6000fd5b505050506040513d6020811015611e4f57600080fd5b50515b15611e6057611e6083612ed3565b5092915050565b6001600160a01b03811660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe056020526040812054600a9060ff16611f085760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b503360009081527f2645749a946633740611cfc8178319f0958659d6922e4bf7e3a08b44789f53a46020526040902054600b9060ff16611fa15760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50611fac82846123b9565b9050611fb661258d565b81111561200a576040805162461bcd60e51b815260206004820152601860248201527f4e6f7420656e6f7567682050414e412072657365727665730000000000000000604482015290519081900360640190fd5b61201f6001600160a01b0383163330866131b8565b6120536001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383612c98565b604080518481526020810183905281516001600160a01b038516927f4a4b015d5d009102c176c319f709dd2078a8f42103ac46297c4ded381b1d9db9928290030190a292915050565b6001546001600160a01b031681565b6005602052600090815260409020546001600160a01b031681565b7f000000000000000000000000000000000000000000000000000000000000000081565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561213857600080fd5b505afa15801561214c573d6000803e3d6000fd5b505050506040513d602081101561216257600080fd5b50516000906001600160a01b031633146121d55760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b5060075460ff161561222e576040805162461bcd60e51b815260206004820152601160248201527f55736520717565756554696d656c6f636b000000000000000000000000000000604482015290519081900360640190fd5b600783600981111561223c57fe5b141561226257600280546001600160a01b0319166001600160a01b038416179055612364565b60016004600085600981111561227457fe5b600981111561227f57fe5b8152602080820192909252604090810160009081206001600160a01b03871682529092529020805460ff191691151591909117905560048360098111156122c257fe5b14156122f7576001600160a01b03828116600090815260056020526040902080546001600160a01b0319169183169190911790555b600061230383856117e3565b50905080612362576003600085600981111561231b57fe5b600981111561232657fe5b8152602080820192909252604001600090812080546001810182559082529190200180546001600160a01b0319166001600160a01b0385161790555b505b82600981111561237057fe5b604080516001600160a01b03851681526001602082015281517f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e1713929181900390910190a2505050565b6001600160a01b03821660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe056020526040812054600d9060ff1661245a5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50612586836001600160a01b031663313ce5676040518163ffffffff1660e01b815260040160206040518083038186803b15801561249757600080fd5b505afa1580156124ab573d6000803e3d6000fd5b505050506040513d60208110156124c157600080fd5b50516040805163313ce56760e01b8152905160ff909216600a0a9161258091633b9aca009183916001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000169163313ce56791600480820192602092909190829003018186803b15801561253957600080fd5b505afa15801561254d573d6000803e3d6000fd5b505050506040513d602081101561256357600080fd5b505160ff16600a0a61257a8864174876e800612e7a565b90612e7a565b90613340565b9392505050565b600061263a6127106125806009547f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b15801561260857600080fd5b505afa15801561261c573d6000803e3d6000fd5b505050506040513d602081101561263257600080fd5b505190612e7a565b905090565b60075460ff16151560011461269b576040805162461bcd60e51b815260206004820181905260248201527f54696d656c6f636b2069732064697361626c65642c2075736520656e61626c65604482015290519081900360640190fd5b6126a3613436565b600682815481106126b057fe5b600091825260209091206040805160c081019091526004909202018054829060ff1660098111156126dd57fe5b60098111156126e857fe5b815281546001600160a01b03610100918290048116602084015260018401541660408301526002830154606083015260039092015460ff80821615156080808501919091529390910416151560a09091015281015190915015612792576040805162461bcd60e51b815260206004820152601960248201527f416374696f6e20686173206265656e206e756c6c696669656400000000000000604482015290519081900360640190fd5b8060a00151156127e9576040805162461bcd60e51b815260206004820181905260248201527f416374696f6e2068617320616c7265616479206265656e206578656375746564604482015290519081900360640190fd5b8060600151431015612842576040805162461bcd60e51b815260206004820152601560248201527f54696d656c6f636b206e6f7420636f6d706c6574650000000000000000000000604482015290519081900360640190fd5b60078151600981111561285157fe5b1415612880576020810151600280546001600160a01b0319166001600160a01b03909216919091179055612ab8565b6001600460008360000151600981111561289657fe5b60098111156128a157fe5b815260208082019290925260409081016000908120858401516001600160a01b031682529092529020805460ff19169115159190911790556004815160098111156128e857fe5b1415612929576040818101516020808401516001600160a01b039081166000908152600590925292902080546001600160a01b031916929091169190911790555b600061293d826020015183600001516117e3565b50905080612ab657600360008360000151600981111561295957fe5b600981111561296457fe5b81526020808201929092526040016000908120848301518154600181018355918352929091200180546001600160a01b0319166001600160a01b039092169190911790556004825160098111156129b757fe5b1415612a31576000806129cf846020015160016117e3565b915091508115612a2a57600160005260036020527fa15bc60c955c405d20d9149c709e2460f1c2d9a497496a7f46004d1772c3054c805482908110612a1057fe5b600091825260209091200180546001600160a01b03191690555b5050612ab6565b600182516009811115612a4057fe5b1415612ab657600080612a58846020015160046117e3565b915091508115612ab357600460005260036020527f83ec6a1f0257b830b5e016457c9cf1435391bf56cc98f369a58a54fe93772465805482908110612a9957fe5b600091825260209091200180546001600160a01b03191690555b50505b505b600160068381548110612ac757fe5b6000918252602090912060036004909202010180549115156101000261ff001990921691909117905580516009811115612afd57fe5b7f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e17138260200151600160405180836001600160a01b0316815260200182151581526020019250505060405180910390a25050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b158015612b9e57600080fd5b505afa158015612bb2573d6000803e3d6000fd5b505050506040513d6020811015612bc857600080fd5b50516000906001600160a01b03163314612c3b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50612710811115612c93576040805162461bcd60e51b815260206004820152601f60248201527f4c696d69742063616e6e6f7420657863656564203130302070657263656e7400604482015290519081900360640190fd5b600955565b604080516001600160a01b038481166024830152604480830185905283518084039091018152606490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff1663a9059cbb60e01b178152925182516000946060949389169392918291908083835b60208310612d2a5780518252601f199092019160209182019101612d0b565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d8060008114612d8c576040519150601f19603f3d011682016040523d82523d6000602084013e612d91565b606091505b5091509150818015612dbf575080511580612dbf5750808060200190516020811015612dbc57600080fd5b50515b612e10576040805162461bcd60e51b815260206004820152600f60248201527f5452414e534645525f4641494c45440000000000000000000000000000000000604482015290519081900360640190fd5b5050505050565b600082820183811015612e71576040805162461bcd60e51b815260206004820152601b60248201527f536166654d6174683a206164646974696f6e206f766572666c6f770000000000604482015290519081900360640190fd5b90505b92915050565b600082612e8957506000612e74565b82820282848281612e9657fe5b0414612e715760405162461bcd60e51b81526004018080602001828103825260218152602001806134b56021913960400191505060405180910390fd5b6001600160a01b038082166000908152600560205260408082205481516366ac5b0b60e11b8152915193169282918291859163cd58b616916004808301926060929190829003018186803b158015612f2a57600080fd5b505afa158015612f3e573d6000803e3d6000fd5b505050506040513d6060811015612f5457600080fd5b508051602082015160409092015190945090925090508215612e10578015613076576000856001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b158015612fc557600080fd5b505afa158015612fd9573d6000803e3d6000fd5b505050506040513d6020811015612fef57600080fd5b5051905082811115612ffe5750815b6130126001600160a01b0387168683612c98565b846001600160a01b03166342966c68826040518263ffffffff1660e01b815260040180828152602001915050600060405180830381600087803b15801561305857600080fd5b505af115801561306c573d6000803e3d6000fd5b5050505050612e10565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b1580156130e557600080fd5b505afa1580156130f9573d6000803e3d6000fd5b505050506040513d602081101561310f57600080fd5b505190508381111561311e5750825b6131526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168683612c98565b846001600160a01b0316631003e2d2826040518263ffffffff1660e01b815260040180828152602001915050600060405180830381600087803b15801561319857600080fd5b505af11580156131ac573d6000803e3d6000fd5b50505050505050505050565b604080516001600160a01b0385811660248301528481166044830152606480830185905283518084039091018152608490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff166323b872dd60e01b17815292518251600094606094938a169392918291908083835b602083106132525780518252601f199092019160209182019101613233565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d80600081146132b4576040519150601f19603f3d011682016040523d82523d6000602084013e6132b9565b606091505b50915091508180156132e75750805115806132e757508080602001905160208110156132e457600080fd5b50515b613338576040805162461bcd60e51b815260206004820152601460248201527f5452414e534645525f46524f4d5f4641494c4544000000000000000000000000604482015290519081900360640190fd5b505050505050565b600061258683836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f000000000000815250600081836134095760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b838110156133ce5781810151838201526020016133b6565b50505050905090810190601f1680156133fb5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083858161341557fe5b04905083858161342157fe5b0681850201851461342e57fe5b949350505050565b6040805160c08101909152806000815260006020820181905260408201819052606082018190526080820181905260a0909101529056fe537570706c7920636f6e74726f6c6c6572206973206e6f7420636f6e66696775726564537570706c7920636f6e74726f6c6c6572206973206e6f7420696e697469616c697a6564536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77a164736f6c6343000705000a54726561737572793a206173736574206973206e6f742061207265736572766520746f6b656e",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106101e55760003560e01c806393988b531161010f578063bf7e214f116100a2578063f182178311610071578063f18217831461059b578063f2adbe57146105c7578063fe0d94c1146105cf578063ffb29023146105ec576101e5565b8063bf7e214f1461052e578063ce2b7f0c14610536578063d07f390f1461055c578063e4e33ef814610564576101e5565b8063b39df88e116100de578063b39df88e146104ab578063bbb11112146104b3578063bc157ac1146104d0578063bcb8e70114610502576101e5565b806393988b531461042b5780639fef32cc14610475578063a44b82871461047d578063b320f6a9146104a3576101e5565b80635a941ea2116101875780637a9e5e4b116101565780637a9e5e4b146103ed5780637d921af0146104135780638129fc1c1461041b578063860f504814610423576101e5565b80635a941ea21461036c57806366e991c41461038657806371a45c95146103ac57806377e93ca8146103c9576101e5565b8063330dd345116101c3578063330dd3451461026b57806340c10f191461029a578063503edcf0146102c6578063529918311461033d576101e5565b80630b0eee30146101ea578063158ef93e146102185780631d6d5f0514610234575b600080fd5b6102166004803603604081101561020057600080fd5b506001600160a01b038135169060200135610609565b005b610220610812565b604080519115158252519081900360200190f35b6102166004803603606081101561024a57600080fd5b5060ff813516906001600160a01b0360208201358116916040013516610820565b6102206004803603604081101561028157600080fd5b50803560ff1690602001356001600160a01b0316610b72565b610216600480360360408110156102b057600080fd5b506001600160a01b038135169060200135610b92565b6102e3600480360360208110156102dc57600080fd5b5035610cfe565b604051808760098111156102f357fe5b8152602001866001600160a01b03168152602001856001600160a01b0316815260200184815260200183151581526020018215158152602001965050505050505060405180910390f35b6102166004803603604081101561035357600080fd5b50803560ff1690602001356001600160a01b0316610d55565b610374610f5d565b60408051918252519081900360200190f35b6102166004803603602081101561039c57600080fd5b50356001600160a01b0316610f63565b610216600480360360208110156103c257600080fd5b50356111d7565b6103d16112f7565b604080516001600160a01b039092168252519081900360200190f35b6102166004803603602081101561040357600080fd5b50356001600160a01b031661131b565b610216611451565b6102166115f4565b610374611757565b61045a6004803603604081101561044157600080fd5b5080356001600160a01b0316906020013560ff166117e3565b60408051921515835260208301919091528051918290030190f35b6103d16118cb565b6103d16004803603604081101561049357600080fd5b5060ff81351690602001356118da565b610220611912565b61037461191b565b610216600480360360208110156104c957600080fd5b5035611921565b610374600480360360608110156104e657600080fd5b508035906001600160a01b036020820135169060400135611a7d565b6103746004803603604081101561051857600080fd5b50803590602001356001600160a01b0316611e67565b6103d161209c565b6103d16004803603602081101561054c57600080fd5b50356001600160a01b03166120ab565b6103746120c6565b6102166004803603606081101561057a57600080fd5b5060ff813516906001600160a01b03602082013581169160400135166120ea565b610374600480360360408110156105b157600080fd5b506001600160a01b0381351690602001356123b9565b61037461258d565b610216600480360360208110156105e557600080fd5b503561263f565b6102166004803603602081101561060257600080fd5b5035612b50565b6001600160a01b03821660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff1615610721573360009081527f04cde762ef08b6b6c5ded8e8c4c0b3f4e5c9ad7342c88fcc93681b4588b73f056020526040902054600b9060ff1661071b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b820191906000526020600020905b8154815290600101906020018083116106ef57829003601f168201915b50509250505060405180910390fd5b506107bb565b3360009081527f91da3fd0782e51c6b3986e9e672fd566868e71f3dbc2d6c2cd6fbb3e361af2a76020526040902054600b9060ff166107b95760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b505b6107cf6001600160a01b0383163383612c98565b6040805182815290516001600160a01b038416917fb4460e34f1e91c4fa28eb7fac4cbd88cf530ef54a67e1978cd5edd9f77033ead919081900360200190a25050565b600754610100900460ff1681565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561086e57600080fd5b505afa158015610882573d6000803e3d6000fd5b505050506040513d602081101561089857600080fd5b50516000906001600160a01b0316331461090b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b506001600160a01b03821661091f57600080fd5b60075460ff16151560011461097b576040805162461bcd60e51b815260206004820181905260248201527f54696d656c6f636b2069732064697361626c65642c2075736520656e61626c65604482015290519081900360640190fd5b60006109a7437f0000000000000000000000000000000000000000000000000000000000000000612e17565b905060028460098111156109b757fe5b14806109ce575060058460098111156109cc57fe5b145b15610a0b57610a08610a017f00000000000000000000000000000000000000000000000000000000000000006002612e7a565b4390612e17565b90505b60066040518060c00160405280866009811115610a2457fe5b81526001600160a01b0380871660208084019190915290861660408301526060820185905260006080830181905260a090920182905283546001818101865594835291208251600490920201805492939092839160ff1990911690836009811115610a8b57fe5b0217905550602082015181547fffffffffffffffffffffff0000000000000000000000000000000000000000ff166101006001600160a01b03928316810291909117835560408401516001840180546001600160a01b03191691909316179091556060830151600283015560808301516003909201805460a09094015160ff199094169215159290921761ff00191692151502919091179055836009811115610b3057fe5b604080516001600160a01b038616815290517fc822ff41836a6dc998393c71843db8adcbbf01721f41b32389f6838ecb1ea9c89181900360200190a250505050565b600460209081526000928352604080842090915290825290205460ff1681565b3360009081527fc59312466997bb42aaaf719ece141047820e6b34531e1670dc1852a453648f0f6020526040902054600b9060ff16610c2a5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166340c10f1983836040518363ffffffff1660e01b815260040180836001600160a01b0316815260200182815260200192505050600060405180830381600087803b158015610ca257600080fd5b505af1158015610cb6573d6000803e3d6000fd5b50506040805184815290516001600160a01b03861693503392507f9d228d69b5fdb8d273a2336f8fb8612d039631024ea9bf09c424a9503aa078f09181900360200190a35050565b60068181548110610d0e57600080fd5b6000918252602090912060049091020180546001820154600283015460039093015460ff80841695506001600160a01b036101009485900481169593169382821692041686565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b158015610da357600080fd5b505afa158015610db7573d6000803e3d6000fd5b505050506040513d6020811015610dcd57600080fd5b50516001600160a01b0316331480610e665750600160009054906101000a90046001600160a01b03166001600160a01b031663452a93206040518163ffffffff1660e01b815260040160206040518083038186803b158015610e2e57600080fd5b505afa158015610e42573d6000803e3d6000fd5b505050506040513d6020811015610e5857600080fd5b50516001600160a01b031633145b610eb7576040805162461bcd60e51b815260206004820152601960248201527f4f6e6c7920676f7665726e6f72206f7220677561726469616e00000000000000604482015290519081900360640190fd5b600060046000846009811115610ec957fe5b6009811115610ed457fe5b8152602080820192909252604090810160009081206001600160a01b03861682529092529020805460ff1916911515919091179055816009811115610f1557fe5b604080516001600160a01b03841681526000602082015281517f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e1713929181900390910190a25050565b60095481565b6001600160a01b03811660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff16610fef576040805162461bcd60e51b815260206004820152600f60248201527f4e6f7420616e204c5020746f6b656e0000000000000000000000000000000000604482015290519081900360640190fd5b6001600160a01b03818116600090815260056020526040902054166110455760405162461bcd60e51b815260040180806020018281038252602381526020018061346e6023913960400191505060405180910390fd5b6001600160a01b038082166000908152600560209081526040918290205482516376ad5a4d60e01b815292519316926376ad5a4d926004808201939291829003018186803b15801561109657600080fd5b505afa1580156110aa573d6000803e3d6000fd5b505050506040513d60208110156110c057600080fd5b5051611113576040805162461bcd60e51b815260206004820181905260248201527f537570706c7920636f6e74726f6c6c6572206973206e6f7420656e61626c6564604482015290519081900360640190fd5b6001600160a01b0380821660009081526005602090815260409182902054825163506bedc760e11b8152925193169263a0d7db8e926004808201939291829003018186803b15801561116457600080fd5b505afa158015611178573d6000803e3d6000fd5b505050506040513d602081101561118e57600080fd5b50516111cb5760405162461bcd60e51b81526004018080602001828103825260248152602001806134916024913960400191505060405180910390fd5b6111d481612ed3565b50565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561122557600080fd5b505afa158015611239573d6000803e3d6000fd5b505050506040513d602081101561124f57600080fd5b50516000906001600160a01b031633146112c25760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b506001600682815481106112d257fe5b60009182526020909120600490910201600301805460ff191691151591909117905550565b7f000000000000000000000000000000000000000000000000000000000000000081565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561136957600080fd5b505afa15801561137d573d6000803e3d6000fd5b505050506040513d602081101561139357600080fd5b50516000906001600160a01b031633146114065760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50600180546001600160a01b0319166001600160a01b0383169081179091556040517f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a250565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561149f57600080fd5b505afa1580156114b3573d6000803e3d6000fd5b505050506040513d60208110156114c957600080fd5b50516000906001600160a01b0316331461153c5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b5060075460ff161515600114611599576040805162461bcd60e51b815260206004820152601960248201527f74696d656c6f636b20616c72656164792064697361626c656400000000000000604482015290519081900360640190fd5b600854158015906115ac57504360085411155b156115c0576007805460ff191690556115f2565b6115ee610a017f00000000000000000000000000000000000000000000000000000000000000006007612e7a565b6008555b565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561164257600080fd5b505afa158015611656573d6000803e3d6000fd5b505050506040513d602081101561166c57600080fd5b50516000906001600160a01b031633146116df5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50600754610100900460ff161561173d576040805162461bcd60e51b815260206004820152601360248201527f416c726561647920696e697469616c697a656400000000000000000000000000604482015290519081900360640190fd5b6007805461ff001960ff1990911660011716610100179055565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b815260040160206040518083038186803b1580156117b257600080fd5b505afa1580156117c6573d6000803e3d6000fd5b505050506040513d60208110156117dc57600080fd5b5051905090565b6000806060600360008560098111156117f857fe5b600981111561180357fe5b815260200190815260200160002080548060200260200160405190810160405280929190818152602001828054801561186557602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311611847575b5050505050905060005b81518110156118ba5781818151811061188457fe5b60200260200101516001600160a01b0316866001600160a01b031614156118b2576001935091506118c49050565b60010161186f565b5060008092509250505b9250929050565b6002546001600160a01b031681565b600360205281600052604060002081815481106118f657600080fd5b6000918252602090912001546001600160a01b03169150829050565b60075460ff1681565b60085481565b3360009081527f4ad5a04d53b5856f318545bb721f67d3f6d0a5a999f25eec7e20eaeb4c47b9336020526040902054600b9060ff166119b95760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50604080516340c10f1960e01b81523360048201526024810183905290516001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016916340c10f1991604480830192600092919082900301818387803b158015611a2857600080fd5b505af1158015611a3c573d6000803e3d6000fd5b50506040805184815233602082015281517f090407aa1149a57c208d834ce95f1e5f0dbc47bac5b4858b4a2e5306c650db969450908190039091019150a150565b6001600160a01b03821660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe05602052604081205460ff1615611b5b5760046000805b6009811115611ace57fe5b815260208082019290925260409081016000908120338252909252902054600b9060ff16611b555760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50611c07565b6001600160a01b03831660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff1615611ba657600460006003611ac3565b60405162461bcd60e51b8152602060048201908152600c80546002600019610100600184161502019091160460248401819052909282916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b611c1c6001600160a01b0384163330876131b8565b604080516340c10f1960e01b81523360048201526024810184905290516001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016916340c10f1991604480830192600092919082900301818387803b158015611c8a57600080fd5b505af1158015611c9e573d6000803e3d6000fd5b5050604080518781526020810186905281516001600160a01b03881694507f90890809c654f11d6e72a28fa60149770a0d11ec6c92319d6ceb2bb0a4ea1a1593509081900390910190a26001600160a01b03831660009081527f1a1e6821cde7d0159c0d293177871e09677b4e42307c7db3ba94f8648a5a050f602052604090205460ff168015611d4857506001600160a01b038381166000908152600560205260409020541615155b8015611dcd57506001600160a01b038084166000908152600560209081526040918290205482516376ad5a4d60e01b815292519316926376ad5a4d926004808201939291829003018186803b158015611da057600080fd5b505afa158015611db4573d6000803e3d6000fd5b505050506040513d6020811015611dca57600080fd5b50515b8015611e5257506001600160a01b0380841660009081526005602090815260409182902054825163506bedc760e11b8152925193169263a0d7db8e926004808201939291829003018186803b158015611e2557600080fd5b505afa158015611e39573d6000803e3d6000fd5b505050506040513d6020811015611e4f57600080fd5b50515b15611e6057611e6083612ed3565b5092915050565b6001600160a01b03811660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe056020526040812054600a9060ff16611f085760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b503360009081527f2645749a946633740611cfc8178319f0958659d6922e4bf7e3a08b44789f53a46020526040902054600b9060ff16611fa15760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50611fac82846123b9565b9050611fb661258d565b81111561200a576040805162461bcd60e51b815260206004820152601860248201527f4e6f7420656e6f7567682050414e412072657365727665730000000000000000604482015290519081900360640190fd5b61201f6001600160a01b0383163330866131b8565b6120536001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383612c98565b604080518481526020810183905281516001600160a01b038516927f4a4b015d5d009102c176c319f709dd2078a8f42103ac46297c4ded381b1d9db9928290030190a292915050565b6001546001600160a01b031681565b6005602052600090815260409020546001600160a01b031681565b7f000000000000000000000000000000000000000000000000000000000000000081565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b15801561213857600080fd5b505afa15801561214c573d6000803e3d6000fd5b505050506040513d602081101561216257600080fd5b50516000906001600160a01b031633146121d55760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b5060075460ff161561222e576040805162461bcd60e51b815260206004820152601160248201527f55736520717565756554696d656c6f636b000000000000000000000000000000604482015290519081900360640190fd5b600783600981111561223c57fe5b141561226257600280546001600160a01b0319166001600160a01b038416179055612364565b60016004600085600981111561227457fe5b600981111561227f57fe5b8152602080820192909252604090810160009081206001600160a01b03871682529092529020805460ff191691151591909117905560048360098111156122c257fe5b14156122f7576001600160a01b03828116600090815260056020526040902080546001600160a01b0319169183169190911790555b600061230383856117e3565b50905080612362576003600085600981111561231b57fe5b600981111561232657fe5b8152602080820192909252604001600090812080546001810182559082529190200180546001600160a01b0319166001600160a01b0385161790555b505b82600981111561237057fe5b604080516001600160a01b03851681526001602082015281517f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e1713929181900390910190a2505050565b6001600160a01b03821660009081527fabd6e7cb50984ff9c2f3e18a2660c3353dadf4e3291deeb275dae2cd1e44fe056020526040812054600d9060ff1661245a5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50612586836001600160a01b031663313ce5676040518163ffffffff1660e01b815260040160206040518083038186803b15801561249757600080fd5b505afa1580156124ab573d6000803e3d6000fd5b505050506040513d60208110156124c157600080fd5b50516040805163313ce56760e01b8152905160ff909216600a0a9161258091633b9aca009183916001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000169163313ce56791600480820192602092909190829003018186803b15801561253957600080fd5b505afa15801561254d573d6000803e3d6000fd5b505050506040513d602081101561256357600080fd5b505160ff16600a0a61257a8864174876e800612e7a565b90612e7a565b90613340565b9392505050565b600061263a6127106125806009547f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b15801561260857600080fd5b505afa15801561261c573d6000803e3d6000fd5b505050506040513d602081101561263257600080fd5b505190612e7a565b905090565b60075460ff16151560011461269b576040805162461bcd60e51b815260206004820181905260248201527f54696d656c6f636b2069732064697361626c65642c2075736520656e61626c65604482015290519081900360640190fd5b6126a3613436565b600682815481106126b057fe5b600091825260209091206040805160c081019091526004909202018054829060ff1660098111156126dd57fe5b60098111156126e857fe5b815281546001600160a01b03610100918290048116602084015260018401541660408301526002830154606083015260039092015460ff80821615156080808501919091529390910416151560a09091015281015190915015612792576040805162461bcd60e51b815260206004820152601960248201527f416374696f6e20686173206265656e206e756c6c696669656400000000000000604482015290519081900360640190fd5b8060a00151156127e9576040805162461bcd60e51b815260206004820181905260248201527f416374696f6e2068617320616c7265616479206265656e206578656375746564604482015290519081900360640190fd5b8060600151431015612842576040805162461bcd60e51b815260206004820152601560248201527f54696d656c6f636b206e6f7420636f6d706c6574650000000000000000000000604482015290519081900360640190fd5b60078151600981111561285157fe5b1415612880576020810151600280546001600160a01b0319166001600160a01b03909216919091179055612ab8565b6001600460008360000151600981111561289657fe5b60098111156128a157fe5b815260208082019290925260409081016000908120858401516001600160a01b031682529092529020805460ff19169115159190911790556004815160098111156128e857fe5b1415612929576040818101516020808401516001600160a01b039081166000908152600590925292902080546001600160a01b031916929091169190911790555b600061293d826020015183600001516117e3565b50905080612ab657600360008360000151600981111561295957fe5b600981111561296457fe5b81526020808201929092526040016000908120848301518154600181018355918352929091200180546001600160a01b0319166001600160a01b039092169190911790556004825160098111156129b757fe5b1415612a31576000806129cf846020015160016117e3565b915091508115612a2a57600160005260036020527fa15bc60c955c405d20d9149c709e2460f1c2d9a497496a7f46004d1772c3054c805482908110612a1057fe5b600091825260209091200180546001600160a01b03191690555b5050612ab6565b600182516009811115612a4057fe5b1415612ab657600080612a58846020015160046117e3565b915091508115612ab357600460005260036020527f83ec6a1f0257b830b5e016457c9cf1435391bf56cc98f369a58a54fe93772465805482908110612a9957fe5b600091825260209091200180546001600160a01b03191690555b50505b505b600160068381548110612ac757fe5b6000918252602090912060036004909202010180549115156101000261ff001990921691909117905580516009811115612afd57fe5b7f7531a7aefe3985500c4dec2dcb6049a708f14c6a8a9022b435b8841bdb8e17138260200151600160405180836001600160a01b0316815260200182151581526020019250505060405180910390a25050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b815260040160206040518083038186803b158015612b9e57600080fd5b505afa158015612bb2573d6000803e3d6000fd5b505050506040513d6020811015612bc857600080fd5b50516000906001600160a01b03163314612c3b5760405162461bcd60e51b815260206004820190815282546002600019610100600184161502019091160460248301819052909182916044909101908490801561070c5780601f106106e15761010080835404028352916020019161070c565b50612710811115612c93576040805162461bcd60e51b815260206004820152601f60248201527f4c696d69742063616e6e6f7420657863656564203130302070657263656e7400604482015290519081900360640190fd5b600955565b604080516001600160a01b038481166024830152604480830185905283518084039091018152606490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff1663a9059cbb60e01b178152925182516000946060949389169392918291908083835b60208310612d2a5780518252601f199092019160209182019101612d0b565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d8060008114612d8c576040519150601f19603f3d011682016040523d82523d6000602084013e612d91565b606091505b5091509150818015612dbf575080511580612dbf5750808060200190516020811015612dbc57600080fd5b50515b612e10576040805162461bcd60e51b815260206004820152600f60248201527f5452414e534645525f4641494c45440000000000000000000000000000000000604482015290519081900360640190fd5b5050505050565b600082820183811015612e71576040805162461bcd60e51b815260206004820152601b60248201527f536166654d6174683a206164646974696f6e206f766572666c6f770000000000604482015290519081900360640190fd5b90505b92915050565b600082612e8957506000612e74565b82820282848281612e9657fe5b0414612e715760405162461bcd60e51b81526004018080602001828103825260218152602001806134b56021913960400191505060405180910390fd5b6001600160a01b038082166000908152600560205260408082205481516366ac5b0b60e11b8152915193169282918291859163cd58b616916004808301926060929190829003018186803b158015612f2a57600080fd5b505afa158015612f3e573d6000803e3d6000fd5b505050506040513d6060811015612f5457600080fd5b508051602082015160409092015190945090925090508215612e10578015613076576000856001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b158015612fc557600080fd5b505afa158015612fd9573d6000803e3d6000fd5b505050506040513d6020811015612fef57600080fd5b5051905082811115612ffe5750815b6130126001600160a01b0387168683612c98565b846001600160a01b03166342966c68826040518263ffffffff1660e01b815260040180828152602001915050600060405180830381600087803b15801561305857600080fd5b505af115801561306c573d6000803e3d6000fd5b5050505050612e10565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166370a08231306040518263ffffffff1660e01b815260040180826001600160a01b0316815260200191505060206040518083038186803b1580156130e557600080fd5b505afa1580156130f9573d6000803e3d6000fd5b505050506040513d602081101561310f57600080fd5b505190508381111561311e5750825b6131526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000168683612c98565b846001600160a01b0316631003e2d2826040518263ffffffff1660e01b815260040180828152602001915050600060405180830381600087803b15801561319857600080fd5b505af11580156131ac573d6000803e3d6000fd5b50505050505050505050565b604080516001600160a01b0385811660248301528481166044830152606480830185905283518084039091018152608490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff166323b872dd60e01b17815292518251600094606094938a169392918291908083835b602083106132525780518252601f199092019160209182019101613233565b6001836020036101000a0380198251168184511680821785525050505050509050019150506000604051808303816000865af19150503d80600081146132b4576040519150601f19603f3d011682016040523d82523d6000602084013e6132b9565b606091505b50915091508180156132e75750805115806132e757508080602001905160208110156132e457600080fd5b50515b613338576040805162461bcd60e51b815260206004820152601460248201527f5452414e534645525f46524f4d5f4641494c4544000000000000000000000000604482015290519081900360640190fd5b505050505050565b600061258683836040518060400160405280601a81526020017f536166654d6174683a206469766973696f6e206279207a65726f000000000000815250600081836134095760405162461bcd60e51b81526004018080602001828103825283818151815260200191508051906020019080838360005b838110156133ce5781810151838201526020016133b6565b50505050905090810190601f1680156133fb5780820380516001836020036101000a031916815260200191505b509250505060405180910390fd5b50600083858161341557fe5b04905083858161342157fe5b0681850201851461342e57fe5b949350505050565b6040805160c08101909152806000815260006020820181905260408201819052606082018190526080820181905260a0909101529056fe537570706c7920636f6e74726f6c6c6572206973206e6f7420636f6e66696775726564537570706c7920636f6e74726f6c6c6572206973206e6f7420696e697469616c697a6564536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f77a164736f6c6343000705000a",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "availableForRedemption()": {
+        "returns": {
+          "_0": "uint256"
+        }
+      },
+      "baseSupply()": {
+        "details": "use this any time you need to query supply",
+        "returns": {
+          "_0": "uint256"
+        }
+      },
+      "deposit(uint256,address,uint256)": {
+        "params": {
+          "_amount": "uint256",
+          "_payout": "uint256",
+          "_token": "address"
+        },
+        "returns": {
+          "_0": "send_ uint256"
+        }
+      },
+      "depositForRedemption(uint256,address)": {
+        "params": {
+          "_amount": "uint256",
+          "_token": "address"
+        },
+        "returns": {
+          "send_": "uint256"
+        }
+      },
+      "disable(uint8,address)": {
+        "params": {
+          "_status": "STATUS",
+          "_toDisable": "address"
+        }
+      },
+      "enable(uint8,address,address)": {
+        "params": {
+          "_address": "address",
+          "_status": "STATUS",
+          "_supplyController": "address"
+        }
+      },
+      "execute(uint256)": {
+        "params": {
+          "_index": "uint256"
+        }
+      },
+      "indexInRegistry(address,uint8)": {
+        "returns": {
+          "_0": "(bool, uint256)"
+        }
+      },
+      "manage(address,uint256)": {
+        "params": {
+          "_amount": "uint256",
+          "_token": "address"
+        }
+      },
+      "mint(address,uint256)": {
+        "params": {
+          "_amount": "uint256",
+          "_recipient": "address"
+        }
+      },
+      "mintForNFTTreasury(uint256)": {
+        "params": {
+          "_amount": "uint256 amount of Pana to mint"
+        }
+      },
+      "nullify(uint256)": {
+        "params": {
+          "_index": "uint256"
+        }
+      },
+      "queueTimelock(uint8,address,address)": {
+        "params": {
+          "_address": "address",
+          "_status": "STATUS",
+          "_supplyController": "address"
+        }
+      },
+      "setRedemptionLimit(uint256)": {
+        "params": {
+          "_limit": "percentage (as a decimal with 4 precision digits) of PANA balance available for redemption"
+        }
+      },
+      "tokenValue(address,uint256)": {
+        "params": {
+          "_amount": "uint256",
+          "_token": "address"
+        },
+        "returns": {
+          "value_": "uint256"
+        }
+      },
+      "updateSupplyRatio(address)": {
+        "details": "performs additional configuration checks and reverts if any condition fails",
+        "params": {
+          "_lpToken": "a target liquidity token"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "availableForRedemption()": {
+        "notice": "returns current amount of PANA available for redemption"
+      },
+      "baseSupply()": {
+        "notice": "returns supply metric"
+      },
+      "deposit(uint256,address,uint256)": {
+        "notice": "allow approved address to deposit an asset for PANA"
+      },
+      "depositForRedemption(uint256,address)": {
+        "notice": "allow approved address to deposit reserve token for available PANA. No new PANA is minted."
+      },
+      "disable(uint8,address)": {
+        "notice": "disable permission from address"
+      },
+      "disableTimelock()": {
+        "notice": "disables timelocked functions"
+      },
+      "enable(uint8,address,address)": {
+        "notice": "enable permission from queue"
+      },
+      "execute(uint256)": {
+        "notice": "enable queued permission"
+      },
+      "indexInRegistry(address,uint8)": {
+        "notice": "check if registry contains address"
+      },
+      "initialize()": {
+        "notice": "enables timelocks after initilization"
+      },
+      "manage(address,uint256)": {
+        "notice": "allow approved address to withdraw assets"
+      },
+      "mint(address,uint256)": {
+        "notice": "mint new PANA"
+      },
+      "mintForNFTTreasury(uint256)": {
+        "notice": "allow approved Assurance/Parametrics Insurance NFT Treasury to mint Pana from Master Treasury."
+      },
+      "nullify(uint256)": {
+        "notice": "cancel timelocked action"
+      },
+      "queueTimelock(uint8,address,address)": {
+        "notice": "queue address to receive permission"
+      },
+      "setRedemptionLimit(uint256)": {
+        "notice": "sets new PANA redemption limit"
+      },
+      "tokenValue(address,uint256)": {
+        "notice": "returns PANA valuation of asset as 1:100 The protocol has no intrinsic valuation for external tokens This function values any given asset at 100 PANA Only to be used for valuation of RESERVE TOKENS Not to be used to valuate LP tokens"
+      },
+      "updateSupplyRatio(address)": {
+        "notice": "externally called version of _updateSupplyRatio"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 314,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "UNAUTHORIZED",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 316,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "authority",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IPanaAuthority)2684"
+      },
+      {
+        "astId": 8780,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "sPANA",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IsPana)3145"
+      },
+      {
+        "astId": 8785,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "registry",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_enum(STATUS)8763,t_array(t_address)dyn_storage)"
+      },
+      {
+        "astId": 8791,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "permissions",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_enum(STATUS)8763,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 8795,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "supplyController",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_address)"
+      },
+      {
+        "astId": 8798,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "permissionQueue",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_array(t_struct(Queue)8776_storage)dyn_storage"
+      },
+      {
+        "astId": 8802,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "timelockEnabled",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_bool"
+      },
+      {
+        "astId": 8804,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "initialized",
+        "offset": 1,
+        "slot": "7",
+        "type": "t_bool"
+      },
+      {
+        "astId": 8806,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "onChainGovernanceTimelock",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 8808,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "redemptionLimit",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 8811,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "notAccepted",
+        "offset": 0,
+        "slot": "10",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 8814,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "notApproved",
+        "offset": 0,
+        "slot": "11",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 8817,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "invalidToken",
+        "offset": 0,
+        "slot": "12",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 8820,
+        "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+        "label": "noValuation",
+        "offset": 0,
+        "slot": "13",
+        "type": "t_string_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_struct(Queue)8776_storage)dyn_storage": {
+        "base": "t_struct(Queue)8776_storage",
+        "encoding": "dynamic_array",
+        "label": "struct PanaTreasury.Queue[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(IPanaAuthority)2684": {
+        "encoding": "inplace",
+        "label": "contract IPanaAuthority",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IsPana)3145": {
+        "encoding": "inplace",
+        "label": "contract IsPana",
+        "numberOfBytes": "20"
+      },
+      "t_enum(STATUS)8763": {
+        "encoding": "inplace",
+        "label": "enum PanaTreasury.STATUS",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_address)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_enum(STATUS)8763,t_array(t_address)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_enum(STATUS)8763",
+        "label": "mapping(enum PanaTreasury.STATUS => address[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_address)dyn_storage"
+      },
+      "t_mapping(t_enum(STATUS)8763,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_enum(STATUS)8763",
+        "label": "mapping(enum PanaTreasury.STATUS => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Queue)8776_storage": {
+        "encoding": "inplace",
+        "label": "struct PanaTreasury.Queue",
+        "members": [
+          {
+            "astId": 8765,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "managing",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_enum(STATUS)8763"
+          },
+          {
+            "astId": 8767,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "toPermit",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 8769,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "supplyController",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 8771,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "timelockEnd",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 8773,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "nullify",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool"
+          },
+          {
+            "astId": 8775,
+            "contract": "contracts/treasury/Treasury.sol:PanaTreasury",
+            "label": "executed",
+            "offset": 1,
+            "slot": "3",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

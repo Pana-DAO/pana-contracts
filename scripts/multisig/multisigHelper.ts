@@ -50,7 +50,7 @@ export class MultisigHelper {
         const safeData = await this.getCurrentSafeData(this.safeAddress);
         const pendingTx = await this.getLatestPendingTransaction(this.safeAddress);
 
-        if (pendingTx) {
+        if (pendingTx && pendingTx.count > 0) {
             const pendingNonce = pendingTx.results[0].nonce;
             if (pendingNonce > 0 && pendingNonce >= safeData.nonce) {
                 transaction.nonce = pendingNonce + 1;

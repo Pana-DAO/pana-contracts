@@ -8,8 +8,9 @@ import "../../types/ERC20Permit.sol";
 import "../../interfaces/IKarsha.sol";
 import "../../interfaces/IsPana.sol";
 import "../../interfaces/IStaking.sol";
+import "../../access/PanaAccessControlled.sol";
 
-contract sPana is IsPana, ERC20Permit {
+contract sPana is IsPana, ERC20Permit, PanaAccessControlled {
     /* ========== DEPENDENCIES ========== */
 
     using SafeMath for uint256;
@@ -25,11 +26,6 @@ contract sPana is IsPana, ERC20Permit {
 
     modifier onlyStakingContract() {
         require(msg.sender == stakingContract, "StakingContract:  call is not staking contract");
-        _;
-    }
-
-    modifier onlyGovernor() {
-        require(msg.sender == governor, "UNAUTHORIZED User");
         _;
     }
 
@@ -52,7 +48,6 @@ contract sPana is IsPana, ERC20Permit {
     uint256 internal INDEX; // Index Gons - tracks rebase growth
 
     address public stakingContract; // balance used to calc rebase
-    address private governor; // hold address to toggle disable transfer in sPana
     bool internal disableTransfer;//toggle disable transfer in sPana
     IKarsha public KARSHA; // additional staked supply (governance token)
 
@@ -73,12 +68,10 @@ contract sPana is IsPana, ERC20Permit {
 
     mapping(address => mapping(address => uint256)) private _allowedValue;
 
-    address public treasury;
-    mapping(address => uint256) public override debtBalances;
-
     /* ========== CONSTRUCTOR ========== */
 
-    constructor() ERC20("Staked PANA", "sPANA", 18) ERC20Permit("Staked PANA") {
+    constructor(address _authority) ERC20("Staked PANA", "sPANA", 18) ERC20Permit("Staked PANA") 
+        PanaAccessControlled(IPanaAuthority(_authority)) {
         initializer = msg.sender;
         _totalSupply = INITIAL_FRAGMENTS_SUPPLY;
         _gonsPerFragment = TOTAL_GONS.div(_totalSupply);
@@ -101,28 +94,30 @@ contract sPana is IsPana, ERC20Permit {
     }
 
     // do this last
-    function initialize(address _stakingContract, address _treasury, address _governor) external {
+    function initialize(address _stakingContract) external {
         require(msg.sender == initializer, "Initializer:  caller is not initializer");
 
         require(_stakingContract != address(0), "Staking");
         stakingContract = _stakingContract;
         _gonBalances[stakingContract] = TOTAL_GONS;
 
-        require(_treasury != address(0), "Zero address: Treasury");
-        treasury = _treasury;
-
-        require(_governor != address(0), "Zero address: Governor");
-        governor = _governor;        
-
         emit Transfer(address(0x0), stakingContract, _totalSupply);
         emit LogStakingContractUpdated(stakingContract);
 
         initializer = address(0);
     }
+    
     function toggleTransfer() external onlyGovernor returns (bool) {
         disableTransfer=!disableTransfer;
         emit ToggleTransfer(disableTransfer);
         return disableTransfer;
+    }
+
+    function setStakingContract(address _stakingContract) external onlyGovernor {
+        require(_stakingContract != address(0), "Zero address: StakingContract");
+        _gonBalances[_stakingContract] = _gonBalances[stakingContract];
+        _gonBalances[stakingContract] = 0;
+        stakingContract = _stakingContract;
     }
 
     /* ========== REBASE ========== */
@@ -169,7 +164,10 @@ contract sPana is IsPana, ERC20Permit {
         uint256 profit_,
         uint256 epoch_
     ) internal {
-        uint256 rebasePercent = profit_.mul(1e18).div(previousCirculating_);
+        uint256 rebasePercent = 0;
+        if(previousCirculating_ > 0) {
+            rebasePercent = profit_.mul(1e18).div(previousCirculating_);
+        }
         rebases.push(
             Rebase({
                 epoch: epoch_,
@@ -196,7 +194,6 @@ contract sPana is IsPana, ERC20Permit {
         _gonBalances[to] = _gonBalances[to].add(gonValue);
 
         //todo:if transfer is called by sPana token
-        require(balanceOf(msg.sender) >= debtBalances[msg.sender], "Debt: cannot transfer amount");
         emit Transfer(msg.sender, to, value);
         return true;
     }
@@ -215,7 +212,6 @@ contract sPana is IsPana, ERC20Permit {
         _gonBalances[to] = _gonBalances[to].add(gonValue);
         
         //todo:if transferFrom is called by sPana token
-        require(balanceOf(from) >= debtBalances[from], "Debt: cannot transfer amount");
         emit Transfer(from, to, value);
         return true;
     }
@@ -238,23 +234,6 @@ contract sPana is IsPana, ERC20Permit {
             _approve(msg.sender, spender, oldValue.sub(subtractedValue));
         }
         return true;
-    }
-
-    // this function is called by the treasury, and informs sPANA of changes to debt.
-    // note that addresses with debt balances cannot transfer collateralized sPANA
-    // until the debt has been repaid.
-    function changeDebt(
-        uint256 amount,
-        address debtor,
-        bool add
-    ) external override {
-        require(msg.sender == treasury, "Only treasury");
-        if (add) {
-            debtBalances[debtor] = debtBalances[debtor].add(amount);
-        } else {
-            debtBalances[debtor] = debtBalances[debtor].sub(amount);
-        }        
-        require(debtBalances[debtor] <= KARSHA.balanceOfPANA(debtor), "KARSHA: insufficient balance");
     }
 
     /* ========== INTERNAL FUNCTIONS ========== */

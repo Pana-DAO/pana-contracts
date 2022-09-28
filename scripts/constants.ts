@@ -11,7 +11,7 @@ export const CONTRACTS: Record<string, string> = {
     USDC: "USDC",
     pPana: "PPanaERC20",
     pPanaRedeem: "PPanaRedeem",
-    slidingWindowOracle: "PanaSlidingWindowOracle",
+    priceOracle: "SimpleUniswapOracle",
     PanaSupplyController: "PanaSupplyController",
     stakingPools: "StakingPools"
 };
@@ -24,7 +24,8 @@ export const LARGE_APPROVAL = "100000000000000000000000000000000";
 export const EPOCH_LENGTH_IN_BLOCKS = "28800";
 export const FIRST_EPOCH_NUMBER = "0";
 export const FIRST_EPOCH_TIME = "1639430907";
-export const INITIAL_REWARD_RATE = "1400";
+export const INITIAL_REWARD_RATE = "6329311";
+export const FIXED_APY = true;
 export const INITIAL_INDEX = "1000000000000000000";
 export const INITIAL_MINT = "6000000000000000";
 export const BOUNTY_AMOUNT = "0";
@@ -55,7 +56,7 @@ export function getDEXFactoryAddress(chainId: string) : string{
         case "421611": //arbitrum test
             return "0x681c3836a5589b933062ACA4fd846c1287a2865F";
         default: //arbitrum
-            return "";
+            return "0xc35DADB65012eC5796536bD9864eD8773aBc74C4";
     }
 }
 
@@ -67,7 +68,7 @@ export function getDEXRouterAddress(chainId: string) : string{
         case "421611": //arbitrum test
             return "0xb5a35165047fed7440D3a75909c0949bf1943696";
         default: //arbitrum
-            return "";
+            return "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
     }
 }
 
@@ -77,9 +78,9 @@ export function getPANAUSDCLPToken(chainId: string) : string{
         case "5": //goerli
             return "0xE9aFf8206804AEA476432850e33B51cC1c3Ef6b0";
         case "421611": //arbitrum test
-            return "0x75C78C8F779dE09687629E158Ad4f33EE35b5eE1";
+            return "0x91a2d26e987219E6a266784d5a816ceEf03cB3B8";
         default: //arbitrum
-            return "";
+            return "0x300fDD222687db8686EA51847Db43fa988b518E0";
     }
 }
 

@@ -114,12 +114,11 @@ describe("Distributor", () => {
                 );
             });
 
-            it("mint from treasury and distribute to recipients", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
-                await distributor.connect(governor).addRecipient(other.address, 1521);
+            it("mint from treasury  based on baseSupply for variable APY and distribute to recipients", async () => {
+                await distributor.connect(governor).addRecipient(staking.address, 2975000,false);
+                await distributor.connect(governor).addRecipient(other.address, 1521000,false);
 
                 treasuryFake.baseSupply.returns(10000000);
-                treasuryFake.excessReserves.returns(100000);
                 await distributor.connect(staking).distribute();
 
                 expect(treasuryFake.mint).to.have.been.calledWith(staking.address, 29750);
@@ -128,7 +127,7 @@ describe("Distributor", () => {
 
             describe("rate adjustments", () => {
                 it("can decrease distribution rate", async () => {
-                    await distributor.connect(governor).addRecipient(staking.address, 2975);
+                    await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                     const index = 0;
                     const add = false;
                     const rate = 5;
@@ -142,7 +141,7 @@ describe("Distributor", () => {
                 });
 
                 it("can increase distribution rate", async () => {
-                    await distributor.connect(governor).addRecipient(staking.address, 2975);
+                    await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                     const index = 0;
                     const add = true;
                     const rate = 5;
@@ -156,7 +155,7 @@ describe("Distributor", () => {
                 });
 
                 it("will not adjust if adjustment rate is zero", async () => {
-                    await distributor.connect(governor).addRecipient(staking.address, 2975);
+                    await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                     const index = 0;
                     const add = true;
                     const rate = 0;
@@ -170,7 +169,7 @@ describe("Distributor", () => {
                 });
 
                 it("will stop decreasing once target it met", async () => {
-                    await distributor.connect(governor).addRecipient(staking.address, 2975);
+                    await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                     const index = 0;
                     const add = false;
                     const rate = 5;
@@ -184,7 +183,7 @@ describe("Distributor", () => {
                 });
 
                 it("will stop increasing once target it met", async () => {
-                    await distributor.connect(governor).addRecipient(staking.address, 2975);
+                    await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                     const index = 0;
                     const add = true;
                     const rate = 5;
@@ -201,7 +200,7 @@ describe("Distributor", () => {
 
         describe("setAdjustment", () => {
             it("sets the adjustment at the given index", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,true);
 
                 const index = 0;
                 const add = true;
@@ -216,7 +215,7 @@ describe("Distributor", () => {
             });
 
             it("can only be done by governor or guardian", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,true);
 
                 await expect(
                     distributor.connect(other).setAdjustment(0, false, 5, 2000)
@@ -224,7 +223,7 @@ describe("Distributor", () => {
             });
 
             it("allows governor to make large adjustments", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,true);
 
                 const index = 0;
                 const add = false;
@@ -239,7 +238,7 @@ describe("Distributor", () => {
             });
 
             it("allows guardian to make adjustments up to 2.5%", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 1000);
+                await distributor.connect(governor).addRecipient(staking.address, 1000,true);
 
                 const index = 0;
                 const add = false;
@@ -254,7 +253,7 @@ describe("Distributor", () => {
             });
 
             it("restricts guardian to from making adjustments over 2.5%", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 1000);
+                await distributor.connect(governor).addRecipient(staking.address, 1000,true);
 
                 const rate = 26;
                 await expect(
@@ -264,11 +263,11 @@ describe("Distributor", () => {
         });
 
         describe("nextRewardAt", () => {
-            it("returns the number of PANA to be distributed in the next epoch", async () => {
+            it("returns the number of PANA to be distributed in the next epoch for variable APY", async () => {
                 treasuryFake.baseSupply.returns(3899568500546135);
 
-                const rate = 2975;
-                const reward = await distributor.nextRewardAt(rate);
+                const rate = 2975000;
+                const reward = await distributor.nextRewardAt(rate,false);
                 expect(reward).to.equal(11601216289124);
             });
 
@@ -276,15 +275,15 @@ describe("Distributor", () => {
                 treasuryFake.baseSupply.returns(3899568500546135);
 
                 const rate = 0;
-                const reward = await distributor.nextRewardAt(rate);
+                const reward = await distributor.nextRewardAt(rate,false);
                 expect(reward).to.equal(0);
             });
         });
 
         describe("nextRewardFor", () => {
             it("returns the number of PANA to be distributed to the given address in the next epoch", async () => {
-                const rate = 2975;
-                await distributor.connect(governor).addRecipient(staking.address, rate);
+                const rate = 2975000;
+                await distributor.connect(governor).addRecipient(staking.address, rate,false);
                 treasuryFake.baseSupply.returns(3899568500546135);
 
                 const reward = await distributor.nextRewardFor(staking.address);
@@ -301,8 +300,8 @@ describe("Distributor", () => {
 
         describe("addRecipient", () => {
             it("will append a recipient to the list", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
-                await distributor.connect(governor).addRecipient(other.address, 1000);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,false);
+                await distributor.connect(governor).addRecipient(other.address, 1000,false);
 
                 const r0 = await distributor.info(0);
                 expect(r0.recipient).to.equal(staking.address);
@@ -314,17 +313,17 @@ describe("Distributor", () => {
             });
 
             it("can only be done by governor", async () => {
-                await expect(distributor.connect(guardian).addRecipient(staking.address, 2975)).to
+                await expect(distributor.connect(guardian).addRecipient(staking.address, 2975,false)).to
                     .be.reverted;
 
-                await expect(distributor.connect(other).addRecipient(staking.address, 2975)).to.be
+                await expect(distributor.connect(other).addRecipient(staking.address, 2975,false)).to.be
                     .reverted;
             });
         });
 
         describe("removeRecipeint", () => {
             it("will set reciepent and rate to 0", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                 await distributor.connect(governor).removeRecipient(0);
 
                 const r0 = await distributor.info(0);
@@ -333,7 +332,7 @@ describe("Distributor", () => {
             });
 
             it("can be done by the guardian", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                 await distributor.connect(guardian).removeRecipient(0);
 
                 const r0 = await distributor.info(0);
@@ -342,7 +341,7 @@ describe("Distributor", () => {
             });
 
             it("must be done by either governor or guardian", async () => {
-                await distributor.connect(governor).addRecipient(staking.address, 2975);
+                await distributor.connect(governor).addRecipient(staking.address, 2975,false);
                 await expect(
                     distributor.connect(other).removeRecipient(0)
                 ).to.be.revertedWith("Caller is not governor or guardian");

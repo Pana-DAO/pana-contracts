@@ -21,15 +21,13 @@ import {
     PanaBondDepository__factory,
     PanaBondDepository,
     PanaAuthority,
-    PanaSlidingWindowOracle,
-    PanaSlidingWindowOracle__factory,
+    SimpleUniswapOracle,
+    SimpleUniswapOracle__factory,
     UniswapV2Factory,
     UniswapV2Factory__factory,
     UniswapV2Pair__factory,
     UniswapV2Router02__factory,
     UniswapV2Router02,
-    PanaBondingCalculator,
-    PanaBondingCalculator__factory,
     PanaSupplyController,
     PanaSupplyController__factory,
     
@@ -92,11 +90,10 @@ describe("Pana reserve Supply control", () => {
     let authority:PanaAuthority;
     let lpfactory: UniswapV2Factory;
     let LP : Contract;
-    let slidingWindow : PanaSlidingWindowOracle;
+    let slidingWindow : SimpleUniswapOracle;
     let uniswapRouter : UniswapV2Router02;
     let USDCDeposited : BigNumber;
     let PanaDeposited : BigNumber;
-    let bondingCalculator : PanaBondingCalculator;
     let supplyControl : PanaSupplyController;
     let USDCDecimals : number;
     let PANADecimals: number;
@@ -111,30 +108,29 @@ describe("Pana reserve Supply control", () => {
         usdc = await (new USDC__factory(deployer)).deploy(0);
         
         authority = await (new PanaAuthority__factory(deployer))
-                        .deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
+                        .deploy(deployer.address, deployer.address, deployer.address, vault.address, deployer.address);
         await authority.deployed();
         
         pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);
-        sPana = await (new SPana__factory(deployer)).deploy();
-        karsha = await (new Karsha__factory(deployer)).deploy(deployer.address, sPana.address);
+        sPana = await (new SPana__factory(deployer)).deploy(authority.address);
+        karsha = await (new Karsha__factory(deployer)).deploy(deployer.address,sPana.address,authority.address);
         
         treasury = await (new PanaTreasury__factory(deployer)).deploy(pana.address, blocksNeededForQueue, authority.address);
         staking = await new PanaStaking__factory(deployer).deploy(pana.address, sPana.address, karsha.address, authority.address);
         distributor = await new Distributor__factory(deployer)
                         .deploy(treasury.address, pana.address, staking.address, authority.address);
         
-        karsha.migrate(staking.address, sPana.address);
+        await karsha.setStaking(staking.address);
         bondDepository = await new PanaBondDepository__factory(deployer)
                             .deploy(authority.address, pana.address, karsha.address, staking.address, treasury.address);
         
         
         lpfactory = await new UniswapV2Factory__factory(deployer).deploy(deployer.address);
         uniswapRouter = await (new UniswapV2Router02__factory(deployer)).deploy(lpfactory.address, ZERO_ADDRESS);
-        bondingCalculator = await new PanaBondingCalculator__factory(deployer).deploy(pana.address);        
         
         await lpfactory.createPair(usdc.address, pana.address);
         
-        slidingWindow = await( new PanaSlidingWindowOracle__factory(deployer).deploy(lpfactory.address, 3600, 2));
+        slidingWindow = await( new SimpleUniswapOracle__factory(deployer).deploy(lpfactory.address));
         
         LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(usdc.address, pana.address));
 
@@ -143,53 +139,51 @@ describe("Pana reserve Supply control", () => {
         
         USDCDecimals = await usdc.decimals();
         PANADecimals = await pana.decimals();
-        PanaDeposited = decimalRepresentation("1000000", PANADecimals); // 1,000,000 pana 
-        USDCDeposited = decimalRepresentation("500000", USDCDecimals); // 50,000 USDC 
+        PanaDeposited = decimalRepresentation("2000000", PANADecimals); // 2 million pana 
+        USDCDeposited = decimalRepresentation("20000", USDCDecimals); // 20,000 USDC 
+        let preMintedPana = decimalRepresentation("5000000",PANADecimals); // 5 million pana
         
         // to add liquidity
-        await pana.connect(vault).mint(deployer.address,PanaDeposited);
+       
+        // minting USDC
         await usdc.connect(deployer).mint(deployer.address,USDCDeposited);
-        await usdc.connect(deployer).mint(deployer.address,decimalRepresentation("1000000",USDCDecimals));
-        await pana.connect(vault).mint(user1.address,PanaDeposited);
+        // await usdc.connect(deployer).mint(deployer.address,decimalRepresentation("1000000",USDCDecimals));
         await usdc.connect(deployer).mint(user1.address,USDCDeposited);
-        await pana.connect(vault).mint(treasury.address,decimalRepresentation("50000"));
-        await pana.connect(vault).mint(user2.address,decimalRepresentation("950000"));
+
+        // minting pana
+        await pana.connect(deployer).mintForDistribution(preMintedPana);
         
         // Needed to spend deployer's PANA
         await sPana.setIndex("1000000000000000000"); // index = 1
         await sPana.setKarsha(karsha.address);
-        await sPana.initialize(staking.address, treasury.address, deployer.address);
+        await sPana.initialize(staking.address);
         await staking.setDistributor(distributor.address);
         
         // Enabling permissions for treasury
         // enable distributor and bondDepository as reward managers
-        await treasury.enable("8", distributor.address, ZERO_ADDRESS, ZERO_ADDRESS);
-        await treasury.enable("8", bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
+        await treasury.enable("6", distributor.address, ZERO_ADDRESS);
+        await treasury.enable("6", bondDepository.address, ZERO_ADDRESS);
 
         // enable deployer and bondDepository reserve depositors
-        await treasury.enable("0", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
-        await treasury.enable('0', bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
+        await treasury.enable("0", deployer.address, ZERO_ADDRESS);
+        await treasury.enable('0', bondDepository.address, ZERO_ADDRESS);
 
         // enable deployer and bondDepository as liquidity depositors
-        await treasury.enable("4", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
-        await treasury.enable("4", bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
+        await treasury.enable("3", deployer.address, ZERO_ADDRESS);
+        await treasury.enable("3", bondDepository.address, ZERO_ADDRESS);
         
         // enable USDC as reserve token
-        await treasury.enable("2", usdc.address, ZERO_ADDRESS, ZERO_ADDRESS);
+        await treasury.enable("1", usdc.address, ZERO_ADDRESS);
 
         // enable LP as liquidity token
-        await treasury.enable("5", LP.address, bondingCalculator.address, supplyControl.address);
+        await treasury.enable("4", LP.address, supplyControl.address);
         await treasury.initialize();
         
-        // set base value on treasury
-        await treasury.connect(deployer).setBaseValue('100000000000');
-
         await authority.pushVault(treasury.address, true);
-        await staking.setBondDepositor(bondDepository.address);
-        await distributor.connect(deployer).addRecipient(staking.address, INITIAL_REWARD_RATE);
+        await staking.connect(deployer).addApprovedDepositor(bondDepository.address);
+        await distributor.connect(deployer).addRecipient(staking.address, INITIAL_REWARD_RATE,true);
         await staking.setFirstEpoch(EPOCH_LENGTH, EPOCH_NUMBER, parseInt(block.timestamp) + 3600);
         
-        // setting price oracle
         await bondDepository.connect(deployer).setPriceOracle(slidingWindow.address);
 
     });
@@ -279,13 +273,14 @@ describe("Pana reserve Supply control", () => {
     describe("Tests for supply control operations", async function() {
         // bond parameters
         let capacity = decimalRepresentation("500000");
-        let initialPrice = decimalRepresentation("1",17);
+        let initialPrice = decimalRepresentation("1",16); // 1 pana = 0.01 usdc 
         let vesting = 60*60*4; // 4 hours
         let depositInterval = 60*60*24; // 24 hours
         let tune = 60*60*4; // 4 hours
         let buffer = 100e5;
         let conclusion:number;
-        let depositAmount = decimalRepresentation("1", 6); // using a small amount in 6 decimals
+        let depositUSDC = decimalRepresentation("1", 6); // using a small amount in 6 decimals
+        let depositLP = decimalRepresentation("20", 11 );  // using a small lp amount in 11 decimals
         
         const getPanaReserve = async ()=>{
             let [amt1, amt2] = await LP.getReserves();
@@ -308,9 +303,11 @@ describe("Pana reserve Supply control", () => {
 
         describe("Reserve control by add/burn pana",() => {
 
-            let lossratio = bigNumberRepresentation("2250");
+            let lossratio = bigNumberRepresentation("4000");
             let cf = bigNumberRepresentation("100");
             let cc = bigNumberRepresentation("100");
+            let ratiorUpperBound = 4001;
+            let ratiorLowerBound = 3999;
 
             beforeEach( async() => {
                 // to add liquidity
@@ -321,13 +318,10 @@ describe("Pana reserve Supply control", () => {
                 
                 // to add bonding
                 await usdc.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
-                await usdc.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
                 await LP.connect(deployer).approve(bondDepository.address, LARGE_APPROVAL);
+                await usdc.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
                 await LP.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
-                await usdc.connect(deployer).approve(treasury.address, LARGE_APPROVAL);
 
-                await treasury.connect(deployer).deposit(decimalRepresentation("10000",USDCDecimals),
-                    usdc.address, panaIntrinsicValBigNumber("990000",PANADecimals,USDCDecimals));
 
                 conclusion = parseInt(block.timestamp) + 86400; // 1 day
 
@@ -337,8 +331,8 @@ describe("Pana reserve Supply control", () => {
                     .addLiquidity(
                         usdc.address, 
                         pana.address, 
-                        decimalRepresentation("90000",USDCDecimals),
-                        decimalRepresentation("900000",PANADecimals), 
+                        USDCDeposited,
+                        PanaDeposited, 
                         0, 
                         0, 
                         deployer.address, 
@@ -346,17 +340,21 @@ describe("Pana reserve Supply control", () => {
                     );
 
                 let totalLPbalance = await LP.balanceOf(deployer.address);
-                // transfering half of LP tokens acquired from adding liquidity by deployer
-                await LP.connect(deployer).transfer(treasury.address, totalLPbalance.div(2));
-                await slidingWindow.update(usdc.address, pana.address);
+                // transfering 1/4th of total LP tokens acquired from adding liquidity by deployer
+                await LP.connect(deployer).transfer(treasury.address, totalLPbalance.mul(1).div(4));
+                await pana.connect(deployer).transfer(treasury.address, decimalRepresentation("150000",PANADecimals));
+                await pana.connect(deployer).transfer(user1.address, decimalRepresentation("1500000",PANADecimals));
 
-                await moveTimestamp(1800);
 
-                await supplyControl.connect(deployer).setSupplyControlParams(2250, 100, 100, decimalRepresentation("200000"));
+                // setting price oracle
+                await slidingWindow.initialize(LP.address);
+                moveTimestamp(1800)
+
+                await supplyControl.connect(deployer).setSupplyControlParams(4000, 100, 100, decimalRepresentation("200000"));
                 
                 await bondDepository.connect(deployer).create(
                     LP.address,
-                    [capacity, decimalRepresentation(1,11), buffer], // initial price is set to 11 decimals since the price of LP is in 11 decimals
+                    [capacity, decimalRepresentation(4,10), buffer], // initial price is set to 11 decimals since the price of LP is in 10 decimals
                     [false, true, true, true],
                     [vesting, conclusion] ,
                     [depositInterval, tune]);
@@ -372,16 +370,16 @@ describe("Pana reserve Supply control", () => {
             it("Should enable bonding by user", async () => {
                 let balanceBefore = await LP.balanceOf(deployer.address);
                 await bondDepository.connect(deployer)
-                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
                 let balanceAfter = await LP.balanceOf(deployer.address);
-                expect(balanceAfter).to.equal(balanceBefore.sub(depositAmount));
+                expect(balanceAfter).to.equal(balanceBefore.sub(depositLP));
             });
             
             it("Should return correct target supply", async() => {
                 let lastTotalSupply = await pana.totalSupply();
                 let lastPanaPool = await getPanaReserve();
                 await bondDepository.connect(deployer)
-                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();
                 let target = lastPanaPool.add(lossratio.mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getTargetSupply());            
@@ -391,7 +389,7 @@ describe("Pana reserve Supply control", () => {
                 let lastPanaPool = await getPanaReserve();
                 let lastTotalSupply = await pana.totalSupply();
                 await bondDepository.connect(deployer)
-                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();            
                 let target = lastPanaPool.add((lossratio.sub(cf)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getSupplyFloor());
@@ -401,7 +399,7 @@ describe("Pana reserve Supply control", () => {
                 let lastPanaPool = await getPanaReserve();            
                 let lastTotalSupply = await pana.totalSupply();
                 await bondDepository.connect(deployer)
-                        .deposit(0, depositAmount, decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
                 let newTotalSupply = await pana.totalSupply();
                 let target = lastPanaPool.add((lossratio.add(cc)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
                 expect(target).to.equal(await supplyControl.getSupplyCeiling());
@@ -412,7 +410,7 @@ describe("Pana reserve Supply control", () => {
                 let panaInPool = await getPanaReserve();
 
                 await bondDepository.connect(deployer)
-                        .deposit(0,depositAmount, decimalRepresentation(1), deployer.address, user1.address);
+                        .deposit(0,depositLP, decimalRepresentation(1), deployer.address, user1.address);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
@@ -427,8 +425,8 @@ describe("Pana reserve Supply control", () => {
 
             it("Should return correct supply control amount on burning", async() => {
                 // reserve supply is increased -> pana burn from pool
-                await uniswapRouter.connect(user1)
-                        .swapExactTokensForTokens(decimalRepresentation("100"), 0, [pana.address, usdc.address], user1.address, conclusion);
+                await uniswapRouter.connect(deployer)
+                        .swapExactTokensForTokens(decimalRepresentation("100"), 0, [pana.address, usdc.address], deployer.address, conclusion);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
@@ -452,15 +450,13 @@ describe("Pana reserve Supply control", () => {
 
                 beforeEach( async() => {
 
-                    await slidingWindow.update(usdc.address, pana.address);
-                    await moveTimestamp(1800);
                     await supplyControl.connect(deployer).enableSupplyControl();
                     lpBalance = await LP.balanceOf(treasury.address);
                     panaBalance = await pana.balanceOf(treasury.address);
 
                 });
 
-                it("Should check if correct amount is added on bonding", async() => {
+                it("Should check if correct amount is added to pool on bonding", async() => {
 
                     // bond with usdc token
                     // increase in Total supply
@@ -478,8 +474,8 @@ describe("Pana reserve Supply control", () => {
                             .deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
                     expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(ratioAfterBond));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.greaterThan(Number(lpBalance));
                 });
@@ -505,8 +501,8 @@ describe("Pana reserve Supply control", () => {
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
                     expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(ratioAfterSwap));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.greaterThan(Number(lpBalance));
 
@@ -540,33 +536,41 @@ describe("Pana reserve Supply control", () => {
                     // Thus, Treasury should add pana to pool
                     let ratioAfterBond = await getSupplyRatio();
                     expect(Number(ratioAfterBond)).to.lessThan(Number(startingRatio));
-                    expect(Number(await getLossRatio(panaInpool, ts))).to.be.lessThan(2150);
+                    expect(Number(await getLossRatio(panaInpool, ts))).to.be.lessThan(Number(lossratio.sub(cf)));
 
                     // bond with LP token to trigger addition of pana to Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
                     expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(ratioAfterBond));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.greaterThan(Number(lpBalance));
 
                 });
 
-                it("Should not add if treasury doesnt have enough supply", async() => {
+                it("Should add with treasury balance if treasury doesnt have enough supply", async() => {
+
+                    let startingRatio = await  getSupplyRatio();
+
 
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("40000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
+                            .deposit(1, decimalRepresentation("4000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
 
                     let ratioAfterBond = await getSupplyRatio();
                     let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.getSupplyControlAmount();
 
+                    // the treasury should not have enough pana to supply
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(expectedPanaSupply));
                     // Increase in total supply leads to decrease in loss ratio
-                    // Thus,Treasury should add pana to pool
+                    // Thus,Treasury should add pana to pool 
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
-                    expect(Number(await pana.balanceOf(treasury.address))).to.equal(Number(panaBalance));
-                    expect(Number(await getSupplyRatio())).to.equal(Number(ratioAfterBond));
+                    // since treasury doesn't have enough supply it shouldn't trigger supply control
+                    expect(Number(await pana.balanceOf(treasury.address))).to.equal(Number(0));
+                    expect(Number(await getSupplyRatio())).to.greaterThan(Number(ratioAfterBond));
+                    expect(Number(await getSupplyRatio())).to.lessThan(Number(startingRatio));
+
                 });
 
             });
@@ -591,7 +595,7 @@ describe("Pana reserve Supply control", () => {
                                     usdc.address, 
                                     pana.address, 
                                     decimalRepresentation("1000",USDCDecimals), 
-                                    decimalRepresentation("1000",PANADecimals) ,
+                                    decimalRepresentation("10000",PANADecimals) ,
                                     0,
                                     0,
                                     user1.address, 
@@ -609,14 +613,14 @@ describe("Pana reserve Supply control", () => {
                     let ratioAfterBond = await getSupplyRatio();
 
                     expect(Number(ratioAfterBond)).to.greaterThan(Number(startingRatio));
-                    expect(Number(await getLossRatio(panaInPool, totalSupplyBefore))).to.be.greaterThan(2350);
+                    expect(Number(await getLossRatio(panaInPool, totalSupplyBefore))).to.be.greaterThan(Number(lossratio.add(cc)));
                     
                     // bond with LP token to trigger burning of pana from Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
                     
                     expect(Number(await getSupplyRatio())).to.be.lessThan(Number(ratioAfterBond));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.lessThan(Number(lpBalance));
 
@@ -642,8 +646,8 @@ describe("Pana reserve Supply control", () => {
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
                     
                     expect(Number(await getSupplyRatio())).to.be.lessThan(Number(ratioAfterBond));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.lessThan(Number(lpBalance));
                 });
@@ -657,20 +661,20 @@ describe("Pana reserve Supply control", () => {
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
                     
                     expect(Number(await getSupplyRatio())).to.be.lessThan(Number(ratioAfterBond));
-                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(2251);
-                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(2249);
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(panaBalance));
                     expect(Number(await LP.balanceOf(treasury.address))).to.be.lessThan(Number(lpBalance));
                 });
 
-                it("Should not burn if treasury doesn't have enough supply", async() => {
+                it("Should burn with treasury balance if treasury doesn't have enough supply", async() => {
 
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
                                 usdc.address,
                                 pana.address, 
-                                decimalRepresentation("200000",USDCDecimals), 
-                                decimalRepresentation("900000",PANADecimals) ,
+                                decimalRepresentation("120000",USDCDecimals), 
+                                decimalRepresentation("1250005",PANADecimals) ,
                                 0,
                                 0, 
                                 user1.address, 
@@ -682,9 +686,9 @@ describe("Pana reserve Supply control", () => {
                     // bond with LP token to trigger addition of pana to Supply
                     await bondDepository.connect(deployer).deposit(0,1,decimalRepresentation(1),deployer.address,user1.address);
                     
-                    expect(Number(await pana.balanceOf(treasury.address))).to.equal(Number(panaBalance));
-                    expect(Number(await LP.balanceOf(treasury.address))).to.equal(Number(lpBalance));
-                    expect(Number(await getSupplyRatio())).to.be.equal(Number(ratioAfter));
+                    expect(Number(await LP.balanceOf(treasury.address))).to.equal(Number(0));
+                    expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(startingRatio));
+                    expect(Number(await getSupplyRatio())).to.be.lessThan(Number(ratioAfter));
                 });
 
             });
@@ -702,11 +706,11 @@ describe("Pana reserve Supply control", () => {
 
                     let panaInpool = await getPanaReserve();
                     let ts = await pana.totalSupply();
-                    // bonding with usdc to increase total supply = 4500 Pana  
+                    // bonding with usdc to increase total supply = 2500 Pana  
                     await bondDepository.connect(user1)
-                            .deposit(1, decimalRepresentation("450",USDCDecimals), decimalRepresentation(1), user1.address, user1.address);
+                            .deposit(1, decimalRepresentation("25",USDCDecimals), decimalRepresentation(1), user1.address, user1.address);
 
-                    // adding USDC and pana to liquidity pool = 1000 pana
+                    // adding USDC and pana to liquidity pool (1000 pana)
                     await uniswapRouter.connect(user1)
                             .addLiquidity(
                                             usdc.address,
@@ -721,7 +725,7 @@ describe("Pana reserve Supply control", () => {
 
 
                     // increase of pana in reserve and increase of total supply 
-                    // such that loss ratio is nullified and stays within channel 1000/4500 = 22.22%
+                    // such that loss ratio is nullified and stays within channel 1000/2500 = 4.00%
                     // Thus, Treasury should not trigger burn
                     let ratioAfterBond = await getSupplyRatio();
                     let lossratioAfter = await getLossRatio(panaInpool,ts);

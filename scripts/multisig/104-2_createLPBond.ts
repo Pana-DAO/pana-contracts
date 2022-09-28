@@ -11,14 +11,14 @@ async function main() {
 
     /* SET THIS PARAMS TO RUN SCRIPT */
     const CAPACITY = 200000; // Pana
-    const PRICE = 0.04;
+    const PRICE = '52322820877';
     const DEBT_BUFFER = 100000; // 100%
     const CAPACITY_IN_QUOTE = false;
     const QUOTE_IS_RESERVED = true;
     const FIXED_TERM = true;
-    const VESTING_TERM = 86400; // 1 Day
+    const VESTING_TERM = 432000; // 5 Days
     const CONCULSION_LENTH = 1728000; // 20 days
-    const DEPOSIT_INTERVAL = 21600; // 6 hrs
+    const DEPOSIT_INTERVAL = 172800; // 2 days
     const TUNE_INTERVAL = 86400; // 1 day
 
     const QUOTE_IS_LP = true;
@@ -38,7 +38,7 @@ async function main() {
 
 
     let capacity = ethers.utils.parseUnits(CAPACITY.toString(), 18);
-    let price = ethers.utils.parseUnits(PRICE.toString(), 18);
+    let price = PRICE; //ethers.utils.parseUnits(PRICE.toString(), 18);
     let currentTimeStamp = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
     let conclusion = currentTimeStamp + CONCULSION_LENTH;
     console.log(conclusion);

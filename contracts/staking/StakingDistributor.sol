@@ -9,6 +9,8 @@ import "../interfaces/ITreasury.sol";
 import "../interfaces/IDistributor.sol";
 
 import "../access/PanaAccessControlled.sol";
+import "../interfaces/IStaking.sol";
+
 
 contract Distributor is IDistributor, PanaAccessControlled {
     /* ========== DEPENDENCIES ========== */
@@ -25,13 +27,14 @@ contract Distributor is IDistributor, PanaAccessControlled {
     mapping(uint256 => Adjust) public adjustments;
     uint256 public override bounty;
 
-    uint256 private immutable rateDenominator = 1_000_000;
+    uint256 private immutable rateDenominator = 1_000_000_000;
 
     /* ====== STRUCTS ====== */
 
     struct Info {
         uint256 rate; // in ten-thousandths ( 5000 = 0.5% )
         address recipient;
+        bool fixedAPY;
     }
     Info[] public info;
 
@@ -67,11 +70,9 @@ contract Distributor is IDistributor, PanaAccessControlled {
         // distribute rewards to each recipient
         for (uint256 i = 0; i < info.length; i++) {
             if (info[i].rate > 0) {
-                uint256 amountToDist = nextRewardAt(info[i].rate);
-                if (amountToDist <= treasury.excessReserves()) {
-                    treasury.mint(info[i].recipient, amountToDist); // mint and send tokens
-                    adjust(i); // check for adjustment
-                }
+                uint256 amountToDist = nextRewardAt(info[i].rate, info[i].fixedAPY);
+                treasury.mint(info[i].recipient, amountToDist); // mint and send tokens
+                adjust(i); // check for adjustment
             }
         }
     }
@@ -127,8 +128,12 @@ contract Distributor is IDistributor, PanaAccessControlled {
         @param _rate uint
         @return uint
      */
-    function nextRewardAt(uint256 _rate) public view override returns (uint256) {
-        return treasury.baseSupply().mul(_rate).div(rateDenominator);
+    function nextRewardAt(uint256 _rate, bool _fixedAPY) public view override returns (uint256) {
+        if (_fixedAPY) {
+            return IStaking(staking).stakingSupply().mul(_rate).div(rateDenominator);
+        } else {
+            return treasury.baseSupply().mul(_rate).div(rateDenominator);
+        }
     }
 
     /**
@@ -140,7 +145,7 @@ contract Distributor is IDistributor, PanaAccessControlled {
         uint256 reward;
         for (uint256 i = 0; i < info.length; i++) {
             if (info[i].recipient == _recipient) {
-                reward = reward.add(nextRewardAt(info[i].rate));
+                reward = reward.add(nextRewardAt(info[i].rate, info[i].fixedAPY));
             }
         }
         return reward;
@@ -162,10 +167,10 @@ contract Distributor is IDistributor, PanaAccessControlled {
         @param _recipient address
         @param _rewardRate uint
      */
-    function addRecipient(address _recipient, uint256 _rewardRate) external override onlyGovernor {
+    function addRecipient(address _recipient, uint256 _rewardRate, bool _fixedAPY) external override onlyGovernor {
         require(_recipient != address(0), "Zero address: Recipient");
         require(_rewardRate <= rateDenominator, "Rate cannot exceed denominator");
-        info.push(Info({recipient: _recipient, rate: _rewardRate}));
+        info.push(Info({ recipient: _recipient, rate: _rewardRate, fixedAPY: _fixedAPY }));
     }
 
     /**
@@ -201,7 +206,7 @@ contract Distributor is IDistributor, PanaAccessControlled {
         );
         require(info[_index].recipient != address(0), "Recipient does not exist");
 
-        if (msg.sender == authority.guardian()) {
+        if (msg.sender != authority.governor()) {
             require(_rate <= info[_index].rate.mul(25).div(1000), "Limiter: cannot adjust by >2.5%");
         }
 

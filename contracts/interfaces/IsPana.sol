@@ -17,13 +17,5 @@ interface IsPana is IERC20 {
     function toKARSHA(uint amount) external view returns (uint);
 
     function fromKARSHA(uint amount) external view returns (uint);
-
-     function changeDebt(
-        uint256 amount,
-        address debtor,
-        bool add
-    ) external;
-
-    function debtBalances(address _address) external view returns (uint256);
-
+    
 }

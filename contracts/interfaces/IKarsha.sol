@@ -16,8 +16,6 @@ interface IKarsha is IERC20 {
 
   function balanceTo(uint256 _amount) external view returns (uint256);
 
-  function migrate( address _staking, address _sPana ) external;
-
   function transfer(address _to,uint256 _amount) external override returns (bool);
   function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool);
 }

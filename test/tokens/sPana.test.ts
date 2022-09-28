@@ -58,15 +58,15 @@ describe("sPana", () => {
     karshaFake = await smock.fake<Karsha>('Karsha');     
     const authority = await (new PanaAuthority__factory(initializer)).deploy(initializer.address, initializer.address, initializer.address, initializer.address, ZERO_ADDRESS);
     pana = await (new PanaERC20Token__factory(initializer)).deploy(authority.address);
-    sPana = await (new SPana__factory(initializer)).deploy();
-    karsha = await (new Karsha__factory(initializer)).deploy(initializer.address,sPana.address);
-    karsha.migrate(stakingAddress.address,sPana.address);
+    sPana = await (new SPana__factory(initializer)).deploy(authority.address);
+    karsha = await (new Karsha__factory(initializer)).deploy(stakingAddress.address,sPana.address,authority.address);
     staking = await new PanaStaking__factory(initializer).deploy(
       pana.address,
       sPana.address,
       karshaFake.address,      
       authority.address
   );  
+
   });
 
   it("is constructed correctly", async () => {
@@ -109,7 +109,7 @@ describe("sPana", () => {
 
     describe("initialize", () => {
       it("assigns TOTAL_GONS to the stakingFake contract's balance", async () => {
-        await sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address);        
+        await sPana.connect(initializer).initialize(stakingFake.address);        
         expect((await sPana.balanceOf(stakingFake.address)).toBigInt()/BigInt(10**9)).to.equal((TOTAL_GONS/BigInt(10**9)));
       });
 
@@ -119,13 +119,13 @@ describe("sPana", () => {
       // });
 
       it("emits LogStakingContractUpdated event", async () => {
-        await expect(sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address)).
+        await expect(sPana.connect(initializer).initialize(stakingFake.address)).
           to.emit(sPana, "LogStakingContractUpdated").withArgs(stakingFake.address);
       });
 
       it("unsets the initializer, so it cannot be called again", async () => {
-        await sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address);
-        await expect(sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address)).to.be.reverted;
+        await sPana.connect(initializer).initialize(stakingFake.address);
+        await expect(sPana.connect(initializer).initialize(stakingFake.address)).to.be.reverted;
       });
     });
   });
@@ -134,7 +134,7 @@ describe("sPana", () => {
     beforeEach(async () => {
       await sPana.connect(initializer).setIndex(1);
       await sPana.connect(initializer).setKarsha(karshaFake.address);
-      await sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address);
+      await sPana.connect(initializer).initialize(stakingFake.address);
     });
 
         describe("approve", () => {
@@ -219,7 +219,7 @@ describe("sPana", () => {
     beforeEach(async () => {
       await sPana.connect(initializer).setIndex(BigInt(decimalRepresentation_1(1,18)));
       await sPana.connect(initializer).setKarsha(karsha.address);
-      await sPana.connect(initializer).initialize(stakingFake.address, treasuryFake.address,initializer.address);
+      await sPana.connect(initializer).initialize(stakingFake.address);
     });
     it("balanceTo = (amount*decimal)/index", async () => { 
       let amount_ = BigInt(decimalRepresentation_1(100,18));
@@ -290,9 +290,9 @@ describe("sPana", () => {
   //     });      
   //   });    
   // });
-  describe("debt checks", () => {      
-    it("default debt balance is zero", async () => {  
-      expect(await sPana.connect(initializer).debtBalances(alice.address)).to.equal(0);
-    });
-  });
+  // describe("debt checks", () => {      
+  //   it("default debt balance is zero", async () => {  
+  //     expect(await sPana.connect(initializer).debtBalances(alice.address)).to.equal(0);
+  //   });
+  // });
 });

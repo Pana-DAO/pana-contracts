@@ -43,12 +43,12 @@ describe("Karsha-Token-Test", () => {
     treasuryFake = await smock.fake<ITreasury>('ITreasury');
     stakingFake = await smock.fake<IStaking>('IStaking');
     stakingFake.attach(stakingAddress.address);    
-    sPana = await (new SPana__factory(initializer)).deploy();
-    karsha = await (new Karsha__factory(deployer)).deploy(deployer.address,sPana.address);
-    karsha.migrate(stakingAddress.address,sPana.address);
+    sPana = await (new SPana__factory(initializer)).deploy(authority.address);
+    karsha = await (new Karsha__factory(initializer)).deploy(stakingAddress.address,sPana.address,authority.address);
+    await karsha.connect(deployer).setStaking(stakingAddress.address);
     await sPana.connect(initializer).setIndex(decimalRepresentation(2,indexDecimal));
     await sPana.connect(initializer).setKarsha(karsha.address);
-    await sPana.connect(initializer).initialize(stakingAddress.address, treasuryFake.address,initializer.address);    
+    await sPana.connect(initializer).initialize(stakingAddress.address);    
   });
 
   it("correctly constructs an ERC20", async () => {
@@ -60,7 +60,7 @@ describe("Karsha-Token-Test", () => {
   describe("mint", () => {
     it("must be done by Staking Contract only", async () => {
       await expect(karsha.connect(bob).mint(bob.address, 100)).
-        to.be.revertedWith("Only approved");
+        to.be.revertedWith("Only Staking");
     });
     it("increases total supply", async () => {
       let supplyBefore = await karsha.totalSupply();

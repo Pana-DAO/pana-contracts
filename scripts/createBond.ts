@@ -11,7 +11,7 @@ async function main() {
     
     /* SET THIS PARAMS TO RUN SCRIPT */
     const CAPACITY = 200000; // Pana
-    const PRICE = 0.065;
+    const PRICE = 0.00000004; //0.00000004;
     const DEBT_BUFFER = 100000; // 100%
     const CAPACITY_IN_QUOTE = false;
     const QUOTE_IS_RESERVED = true;
@@ -27,7 +27,8 @@ async function main() {
     // ====== IF NAKED (USDC) BOND THEN UNCOMMENT THIS
     // const QUOTE_IS_LP = false;
     // let tokenAddress = getUSDCAddress((await ethers.provider.getNetwork()).chainId.toString());
-
+    
+    
     const { daoMultisig } = await getNamedAccounts();
     
     const bondDepoDeployment = await deployments.get(CONTRACTS.bondDepo);
@@ -36,9 +37,9 @@ async function main() {
     let bondDepository = PanaBondDepository__factory.connect(bondDepoDeployment.address, dao);
 
     console.log("Bond Depository Contract Address - " + bondDepoDeployment.address);
-
+    
     let capacity = ethers.utils.parseUnits(CAPACITY.toString(), 18);
-    let price = ethers.utils.parseUnits(PRICE.toString(), 18);
+    let price = "48000000000"; //ethers.utils.parseUnits(PRICE.toString(), 18);
     let currentTimeStamp = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
     let conclusion = currentTimeStamp + CONCULSION_LENTH;
     console.log(conclusion);

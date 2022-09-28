@@ -12,7 +12,7 @@ const decimalRepresentation = (value: any, decimals: number) => {
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-const panaIntrinsicValBigNumber = (value: any, PANADecimals: number, tokDecimals: number,base_value:number = 100) => {
+const panaValBigNumber = (value: any, PANADecimals: number, tokDecimals: number,base_value:number = 100) => {
     return bigNumberRepresentation(value.toString()).mul(base_value).mul(bigNumberRepresentation(10 ** PANADecimals ).div(bigNumberRepresentation( 10 ** tokDecimals )));
 };
 
@@ -77,7 +77,7 @@ describe("PANA Treasury Test Suite", async function() {
             PANA = await panaTokenContract.deploy(PanaAuthority.address);
 
             let sPanaTokenContract = await ethers.getContractFactory("sPana");
-            sPANA = await sPanaTokenContract.deploy();
+            sPANA = await sPanaTokenContract.deploy(PanaAuthority.address);
 
             let usdcTokenContract = await ethers.getContractFactory("USDC");
             USDC = await usdcTokenContract.deploy(0);
@@ -124,7 +124,7 @@ describe("PANA Treasury Test Suite", async function() {
 
         it("Should only allow governor to add participants", async function() {
             await expect(Treasury.connect(testAddress)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS))
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS))
                 .to.be.revertedWith('UNAUTHORIZED');
         });
 
@@ -132,7 +132,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);  
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS);  
             
             // Check if the participant is added to registry
             expect(await Treasury.registry(0,0))
@@ -147,7 +147,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-                .enable(1, reserveSpender.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(1, reserveSpender.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             expect(await Treasury.registry(1,0))
@@ -162,7 +162,7 @@ describe("PANA Treasury Test Suite", async function() {
             
             // Add new participant
             await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(2, USDC.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             // expect(await Treasury.registry(2,0))
@@ -177,7 +177,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-                .enable(3, reserveManager.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(3, reserveManager.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             expect(await Treasury.registry(3,0))
@@ -192,7 +192,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-                .enable(4, liquidityDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(4, liquidityDepositor.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             expect(await Treasury.registry(4,0))
@@ -207,7 +207,7 @@ describe("PANA Treasury Test Suite", async function() {
             
             // Add new participant
             await Treasury.connect(governor)
-                .enable(5, testLiquidityToken.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(5, testLiquidityToken.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             // expect(await Treasury.registry(5,0))
@@ -222,7 +222,7 @@ describe("PANA Treasury Test Suite", async function() {
             
             // Add new participant
             await Treasury.connect(governor)
-                .enable(6, liquidityManager.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(6, liquidityManager.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             expect(await Treasury.registry(6,0))
@@ -233,26 +233,26 @@ describe("PANA Treasury Test Suite", async function() {
                 .to.equal(true); 
         });
 
-        it("Should add debtor", async function() {
+        // it("Should add debtor", async function() {
             
-            // Add new participant
-            await Treasury.connect(governor)
-                .enable(7, reserveDebtor.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+        //     // Add new participant
+        //     await Treasury.connect(governor)
+        //         .enable(7, reserveDebtor.address, ZERO_ADDRESS);            
 
-            // Check if the participant is added to registry
-            expect(await Treasury.registry(7,0))
-                .to.equal(reserveDebtor.address);
+        //     // Check if the participant is added to registry
+        //     expect(await Treasury.registry(7,0))
+        //         .to.equal(reserveDebtor.address);
 
-            // Check if the participant is enabled
-            expect(await Treasury.permissions(7,reserveDebtor.address))
-                .to.equal(true); 
-        });
+        //     // Check if the participant is enabled
+        //     expect(await Treasury.permissions(7,reserveDebtor.address))
+        //         .to.equal(true); 
+        // });
 
         it("Should add reward manager", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-                .enable(8, rewardManager.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(8, rewardManager.address, ZERO_ADDRESS);            
 
             // Check if the participant is added to registry
             expect(await Treasury.registry(8,0))
@@ -267,7 +267,7 @@ describe("PANA Treasury Test Suite", async function() {
             
             // Add new participant
             await Treasury.connect(governor)
-                .enable(9, sPANA.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+                .enable(7, sPANA.address, ZERO_ADDRESS);            
 
             // Check if the sPana is added to registry
             expect(await Treasury.sPANA())
@@ -275,44 +275,44 @@ describe("PANA Treasury Test Suite", async function() {
 
         });
 
-        it("Should add pana debtor", async function() {
+        // it("Should add pana debtor", async function() {
             
-            // Add new participant
-            await Treasury.connect(governor)
-                .enable(10, panaDebtor.address, ZERO_ADDRESS, ZERO_ADDRESS);            
+        //     // Add new participant
+        //     await Treasury.connect(governor)
+        //         .enable(10, panaDebtor.address, ZERO_ADDRESS);            
 
-            // Check if the participant is added to registry
-            expect(await Treasury.registry(10,0))
-                .to.equal(panaDebtor.address);
+        //     // Check if the participant is added to registry
+        //     expect(await Treasury.registry(10,0))
+        //         .to.equal(panaDebtor.address);
 
-            // Check if the participant is enabled
-            expect(await Treasury.permissions(10,panaDebtor.address))
-                .to.equal(true); 
-        });
+        //     // Check if the participant is enabled
+        //     expect(await Treasury.permissions(10,panaDebtor.address))
+        //         .to.equal(true); 
+        // });
 
-        it("Should be able to disable participants", async function() {
+        // it("Should be able to disable participants", async function() {
             
-            // Add new participant
-            await Treasury.connect(governor)
-                .enable(10, panaDebtor.address, ZERO_ADDRESS, ZERO_ADDRESS);  
+        //     // Add new participant
+        //     await Treasury.connect(governor)
+        //         .enable(10, panaDebtor.address, ZERO_ADDRESS);  
                 
-            await Treasury.connect(governor).disable(10, panaDebtor.address);
+        //     await Treasury.connect(governor).disable(10, panaDebtor.address);
 
-            // Check if the participant is disabled
-            expect(await Treasury.permissions(10,panaDebtor.address))
-                .to.equal(false); 
-        });
+        //     // Check if the participant is disabled
+        //     expect(await Treasury.permissions(10,panaDebtor.address))
+        //         .to.equal(false); 
+        // });
 
-        it("Should only allow governor or guardian to disable participants", async function() {
+        // it("Should only allow governor or guardian to disable participants", async function() {
             
-            // Add new participant
-            await Treasury.connect(governor)
-                .enable(10, panaDebtor.address, ZERO_ADDRESS, ZERO_ADDRESS);  
+        //     // Add new participant
+        //     await Treasury.connect(governor)
+        //         .enable(10, panaDebtor.address, ZERO_ADDRESS);  
                 
-            await expect(Treasury.disable(10, panaDebtor.address))
-                    .to.be.revertedWith('Only governor or guardian');
+        //     await expect(Treasury.disable(10, panaDebtor.address))
+        //             .to.be.revertedWith('Only governor or guardian');
 
-        });
+        // });
     });
 
     describe("Delayed participant addition", function() {
@@ -322,7 +322,7 @@ describe("PANA Treasury Test Suite", async function() {
 
                 // Add new participant
                 await Treasury.connect(governor)
-                .queueTimelock(3, reserveManager.address, ZERO_ADDRESS, ZERO_ADDRESS); 
+                .queueTimelock(2, reserveManager.address, ZERO_ADDRESS); 
             
             }
         );
@@ -331,7 +331,7 @@ describe("PANA Treasury Test Suite", async function() {
 
             // Add new participant
             await Treasury.connect(governor)
-            .queueTimelock(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS); 
+            .queueTimelock(0, reserveDepositor.address, ZERO_ADDRESS); 
 
             // Check if the participant is added to queue
             expect((await Treasury.permissionQueue(1)).managing)
@@ -344,7 +344,7 @@ describe("PANA Treasury Test Suite", async function() {
                
             // Add new participant
             await Treasury.connect(governor)
-                .queueTimelock(6, liquidityManager.address, ZERO_ADDRESS, ZERO_ADDRESS);   
+                .queueTimelock(5, liquidityManager.address, ZERO_ADDRESS);   
 
             let lmExpectedLockEnd = (await ethers.provider.getBlockNumber()) + (blocksNeededForQueue*2);
 
@@ -365,11 +365,11 @@ describe("PANA Treasury Test Suite", async function() {
             await Treasury.execute(0);
 
             // Check if the participant is added to registry
-            expect(await Treasury.registry(3,0))
+            expect(await Treasury.registry(2,0))
                 .to.equal(reserveManager.address);
 
             // Check if the participant is enabled
-            expect(await Treasury.permissions(3,reserveManager.address))
+            expect(await Treasury.permissions(2,reserveManager.address))
                 .to.equal(true); 
         });
     });
@@ -377,46 +377,44 @@ describe("PANA Treasury Test Suite", async function() {
 
     describe("Deposit To Treasury", function() {
         let USDCBonded: any,
-            intrinsicValue: any,
+            payoutValue: any,
             bonderPayout,
             bondingFees,
             profits: any,
             panaSupply: any,
             depBalance: any,
-            totalReserves: any;
+            baseValue: any;
 
         beforeEach(
             async function() {
 
                 //Add reserve depositor for testing purposes
                 await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS);
 
                 //Add reserve token for testing purposes
                 await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(100, 9)));
+                .enable(1, USDC.address, ZERO_ADDRESS);
 
                 // Bond 1 USDC
                 // Assumes 1 USDC = 1 USD = 100 pseudo INR
                 // Hence, 1 USDC should ideally mint 100 PANAs including DAO profits and other fees
                 USDCBonded = bigNumberRepresentation(decimalRepresentation(1, USDCDecimals));
+                baseValue = bigNumberRepresentation(100);
                 
-                intrinsicValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCBonded, PANADecimals, USDCDecimals));
+                payoutValue = bigNumberRepresentation(panaValBigNumber(USDCBonded, PANADecimals, USDCDecimals,baseValue));
                 
                 // Payout 80 PANAs to the bonder 
                 bonderPayout = bigNumberRepresentation(decimalRepresentation(80, PANADecimals));
 
-                // Bond Fees 5 PANAs
-                bondingFees = bigNumberRepresentation(decimalRepresentation(5, PANADecimals));
+                // Bond Fees 20 PANAs
+                bondingFees = bigNumberRepresentation(decimalRepresentation(20, PANADecimals));
 
-                // Profit 15 PANAs
-                profits = intrinsicValue.sub(bonderPayout).sub(bondingFees);
+                // Profit 0 PANAs
+                profits = payoutValue.sub(bonderPayout).sub(bondingFees);
 
                 panaSupply = await PANA.totalSupply();
                 depBalance = await PANA.balanceOf(reserveDepositor.address);
-                totalReserves = await Treasury.totalReserves();
 
                 // Transfer some USDC to respective accounts for testing and approve treasury as spender
                 await USDC.mint(deployer.address, USDCBonded);
@@ -426,9 +424,6 @@ describe("PANA Treasury Test Suite", async function() {
             }
         );
 
-        it("Should intrinsically valuate USDC correctly", async function() {
-            expect(await Treasury.tokenValue(USDC.address, USDCBonded)).to.be.equal(intrinsicValue);
-        });
 
         it("Should only accept approved tokens", async function() {
             await expect(Treasury.connect(reserveDepositor).deposit(USDCBonded, testAddress.address, profits))
@@ -441,30 +436,24 @@ describe("PANA Treasury Test Suite", async function() {
         });
 
         it("Should deposit 1 USDC to treasury", async function() {
-            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, profits.toString());
+            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, payoutValue);
             
             // Treasury should get 1 USDC
             expect(await USDC.balanceOf(Treasury.address))
                 .to.equal(USDCBonded);
         });
 
-        it("Should increase treasury PANA Reserves", async function() {
-            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, profits.toString());
-            let finalTreasuryBalance = totalReserves.add(intrinsicValue);
-            expect(await Treasury.totalReserves())
-                .to.equal(finalTreasuryBalance);
-        });
 
         it("Should increase PANA total supply", async function() {
-            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, profits.toString());
-            let finalPanaSupply = panaSupply.add(intrinsicValue).sub(profits);
+            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, payoutValue);
+            let finalPanaSupply = panaSupply.add(payoutValue).sub(profits);
             expect(await PANA.totalSupply())
                 .to.equal(finalPanaSupply);
         });
 
         it("Should increase depositor PANA balance", async function() {
-            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, profits.toString());
-            let finaldepBalance = depBalance.add(intrinsicValue).sub(profits);
+            await Treasury.connect(reserveDepositor).deposit(USDCBonded, USDC.address, payoutValue);
+            let finaldepBalance = depBalance.add(payoutValue).sub(profits);
             expect(await PANA.balanceOf(reserveDepositor.address))
                 .to.equal(finaldepBalance);
         });
@@ -479,32 +468,30 @@ describe("PANA Treasury Test Suite", async function() {
             treasuryUSDCBalance: any,
             spenderUSDCBalance: any,
             spenderPANABalance: any,
-            intrinsicValue: any,
+            payoutValue: any,
             totalReserves: any;
 
         beforeEach(
             async function() {
                 //Add reserve depositor for testing purposes
                 await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS);
 
-                // Add reserve spender for testing purposes
-                await Treasury.connect(governor)
-                .enable(1, reserveSpender.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                // // Add reserve spender for testing purposes
+                // await Treasury.connect(governor)
+                // .enable(1, reserveSpender.address, ZERO_ADDRESS);
 
                 // Add reward manager for testing purposes
                 await Treasury.connect(governor)
-                .enable(8, rewardManager.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(6, rewardManager.address, ZERO_ADDRESS);
 
                 //Add reserve token for testing purposes
                 await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(100, 9)));
+                .enable(1, USDC.address, ZERO_ADDRESS);
 
                 USDCDeposited = bigNumberRepresentation(decimalRepresentation(8, USDCDecimals));
                 USDCToWithdraw = bigNumberRepresentation(decimalRepresentation(2, USDCDecimals));
-                USDCWithdrawnPANAEquivalent = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCToWithdraw, PANADecimals, USDCDecimals));
+                USDCWithdrawnPANAEquivalent = bigNumberRepresentation(panaValBigNumber(USDCToWithdraw, PANADecimals, USDCDecimals));
 
                 // Mint 8 USDCs to reserveDepositor and deployer for testing purposes and approve treasury as spender
                 await USDC.mint(deployer.address, USDCDeposited);
@@ -513,9 +500,9 @@ describe("PANA Treasury Test Suite", async function() {
                 await USDC.connect(reserveDepositor).approve(Treasury.address, USDCDeposited);
 
                 // Deposit 8 USDCs into treasury for testing purposes
-                // Assume profits=200 for minting to spender
-                intrinsicValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
-                await Treasury.connect(reserveDepositor).deposit(USDCDeposited, USDC.address,  bigNumberRepresentation(decimalRepresentation(200, PANADecimals)));
+                // Assume price 1:100 then 800 for minting to spender
+                payoutValue = bigNumberRepresentation(panaValBigNumber(USDCDeposited, PANADecimals, USDCDecimals, 100));
+                await Treasury.connect(reserveDepositor).deposit(USDCDeposited, USDC.address, payoutValue);
 
                 // Mint 200 PANA to reserve spender for testing purposes
                 //PANA.setVault(deployer.address);
@@ -528,52 +515,49 @@ describe("PANA Treasury Test Suite", async function() {
                         bigNumberRepresentation(decimalRepresentation(200, PANADecimals))
                     );
 
-                panaSupply = await PANA.totalSupply();
+                panaSupply = await PANA.balanceOf(Treasury.address);
                 treasuryUSDCBalance = await USDC.balanceOf(Treasury.address);
                 spenderUSDCBalance = await USDC.balanceOf(reserveSpender.address);
                 spenderPANABalance = await PANA.balanceOf(reserveSpender.address);
-                totalReserves = await Treasury.totalReserves();                
             }
         );
 
-        it("Should allow only approved tokens to be withdrawn", async function() {
-            await expect(Treasury.withdraw(USDCToWithdraw, testAddress.address))
-                    .to.be.revertedWith('Treasury: not accepted');
-        });
+        // it("Should allow only approved tokens to be withdrawn", async function() {
+        //     await expect(Treasury.withdraw(USDCToWithdraw, testAddress.address))
+        //             .to.be.revertedWith('Treasury: not accepted');
+        // });
 
-        it("Should only allow approved spenders to withdraw", async function() {
-            await expect(Treasury.withdraw(USDCToWithdraw, USDC.address))
-                    .to.be.revertedWith('Treasury: not approved');
-        });
+        // it("Should only allow approved spenders to withdraw", async function() {
+        //     await expect(Treasury.withdraw(USDCToWithdraw, USDC.address))
+        //             .to.be.revertedWith('Treasury: not approved');
+        // });
 
-        it("Should transfer 2 USDCs to reserve spender", async function() {
-            await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
-            expect(await USDC.balanceOf(reserveSpender.address)).to.equal(USDCToWithdraw);
-        });
+        // it("Should transfer 2 USDCs to reserve spender", async function() {
+        //     await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
+        //     expect(await USDC.balanceOf(reserveSpender.address)).to.equal(USDCToWithdraw);
+        // });
 
-        it("Should decrease treasury reserve KARSHA by equivalent amount of USDC withdrawn", async function() {
-            await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
-            let finalTreasuryBalance = totalReserves.sub(USDCWithdrawnPANAEquivalent);
-            expect(await Treasury.totalReserves()).to.equal(finalTreasuryBalance);
-        });
 
-        it("Should decrease treasury USDCs balance by USDC withdrawn", async function() {
-            await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
-            let finalTreasuryUSDCBalance = treasuryUSDCBalance.sub(USDCToWithdraw);
-            expect(await USDC.balanceOf(Treasury.address)).to.equal(finalTreasuryUSDCBalance);
-        });
+        // it("Should decrease treasury USDCs balance by USDC withdrawn", async function() {
+        //     await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
+        //     let finalTreasuryUSDCBalance = treasuryUSDCBalance.sub(USDCToWithdraw);
+        //     expect(await USDC.balanceOf(Treasury.address)).to.equal(finalTreasuryUSDCBalance);
+        // });
 
-        it("Should burn PANA from spenders balance", async function() {
-            await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
-            let finalSpenderPANABalance = spenderPANABalance.sub(USDCWithdrawnPANAEquivalent);
-            expect(await PANA.balanceOf(reserveSpender.address)).to.equal(finalSpenderPANABalance);
-        });
+        // it("Should burn PANA from spenders balance", async function() {
+        //     await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
+        //     let finalSpenderPANABalance = spenderPANABalance.sub(USDCWithdrawnPANAEquivalent);
+        //     expect(await PANA.balanceOf(reserveSpender.address)).to.equal(finalSpenderPANABalance);
+        // });
 
-        it("Should reduce PANA total supply", async function() {
-            await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
-            let finalSupply = panaSupply.sub(USDCWithdrawnPANAEquivalent);
-            expect(await PANA.totalSupply()).to.equal(finalSupply.toString());
-        });
+        // it("Should reduce PANA from reserve spender and add to treasury", async function() {
+        //     await Treasury.connect(reserveSpender).withdraw(USDCToWithdraw, USDC.address);
+        //     // let finalSupply = panaSupply.sub(USDCWithdrawnPANAEquivalent);
+
+        //     expect(await PANA.balanceOf(Treasury.address)).to.equal(USDCWithdrawnPANAEquivalent);
+        //     expect(await PANA.balanceOf(reserveSpender.address)).to.equal(spenderPANABalance.sub(USDCWithdrawnPANAEquivalent));
+
+        // });
     });
 
 
@@ -583,24 +567,22 @@ describe("PANA Treasury Test Suite", async function() {
             rewardAmount: any,
             panaSupply: any,
             DAOProfit: any,
-            intrinsicValue,
+            payoutValue,
             totalReserves;
 
         beforeEach(
             async function() {
                 //Add reserve depositor for testing purposes
                 await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS);
 
                 // Add reward manager for testing purposes
                 await Treasury.connect(governor)
-                .enable(8, rewardManager.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(6, rewardManager.address, ZERO_ADDRESS);
 
                 //Add reserve token for testing purposes
                 await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(100, 9)));
+                .enable(1, USDC.address, ZERO_ADDRESS);
 
                 USDCDeposited = bigNumberRepresentation(decimalRepresentation(2, USDCDecimals));
                 DAOProfit = bigNumberRepresentation(decimalRepresentation(200, PANADecimals));
@@ -613,7 +595,7 @@ describe("PANA Treasury Test Suite", async function() {
 
                 // Deposit 2 USDCs into treasury for testing purposes
                 // Assume 2 USDCs as profit to treasury for creating excess reserves which are then used for rewards
-                //intrinsicValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
+                //payoutValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
                 //await Treasury.connect(reserveDepositor).deposit(USDCDeposited, USDC.address, DAOProfit);
                 await USDC.connect(reserveDepositor).transferFrom(reserveDepositor.address, Treasury.address, USDCDeposited);
                 //await Treasury.updateReserves();
@@ -621,7 +603,6 @@ describe("PANA Treasury Test Suite", async function() {
 
                 panaSupply = await PANA.totalSupply();
                 rewardeePANABalance = await PANA.balanceOf(rewardee.address);
-                totalReserves = await Treasury.totalReserves(); 
                 rewardAmount = bigNumberRepresentation(decimalRepresentation(100, PANADecimals));               
             }
         );
@@ -629,16 +610,6 @@ describe("PANA Treasury Test Suite", async function() {
         it('Should allow only reward manager to mint rewards', async function() {
             await expect(Treasury.mint(rewardee.address, rewardAmount))
                     .to.be.revertedWith('Treasury: not approved');
-        });
-
-        it('Should calculate excess reserves correctly', async function() {
-            expect(await Treasury.excessReserves()).to.be.equal(0);
-        });
-
-        it('Should mint rewards only if enough excess reserves available', async function() {
-            rewardAmount = rewardAmount.mul(4); // overflow
-            await expect(Treasury.connect(rewardManager).mint(rewardee.address, rewardAmount))
-                    .to.be.revertedWith('Treasury: insufficient reserves');
         });
 
         it('Should increase Pana supply by amount rewarded', async function() {
@@ -658,31 +629,28 @@ describe("PANA Treasury Test Suite", async function() {
         let USDCDeposited,
             USDCToWithdraw: any,
             USDCWithdrawnPANAEquivalent: any,
-            intrinsicValue,
+            payoutValue,
             panaSupply,
             treasuryUSDCBalance: any,
-            managerUSDCBalance: any,
-            totalReserves: any;
+            managerUSDCBalance: any;
 
         beforeEach(
             async function() {
                 //Add reserve depositor for testing purposes
                 await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(0, reserveDepositor.address, ZERO_ADDRESS);
 
                 // Add reserve manager for testing purposes
                 await Treasury.connect(governor)
-                .enable(3, reserveManager.address, ZERO_ADDRESS, ZERO_ADDRESS);
+                .enable(2, reserveManager.address, ZERO_ADDRESS);
 
                 //Add reserve token for testing purposes
                 await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(100, 9)));
+                .enable(1, USDC.address, ZERO_ADDRESS);
 
                 USDCDeposited = bigNumberRepresentation(decimalRepresentation(8, USDCDecimals));
                 USDCToWithdraw = bigNumberRepresentation(decimalRepresentation(2, USDCDecimals));
-                USDCWithdrawnPANAEquivalent = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCToWithdraw, PANADecimals, USDCDecimals));
+                USDCWithdrawnPANAEquivalent = bigNumberRepresentation(panaValBigNumber(USDCToWithdraw, PANADecimals, USDCDecimals));
 
                 // Mint 8 USDCs to reserveDepositor for testing purposes and approve treasury as spender
                 await USDC.mint(reserveDepositor.address, USDCDeposited);
@@ -690,30 +658,18 @@ describe("PANA Treasury Test Suite", async function() {
 
                 // Deposit 8 USDCs into treasury for testing purposes
                 // Assume profits=200
-                intrinsicValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
+                payoutValue = bigNumberRepresentation(panaValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
                 await Treasury.connect(reserveDepositor).deposit(USDCDeposited, USDC.address,  bigNumberRepresentation(decimalRepresentation(200, PANADecimals)));
 
                 panaSupply = await PANA.totalSupply();
                 treasuryUSDCBalance = await USDC.balanceOf(Treasury.address);
                 managerUSDCBalance = await USDC.balanceOf(reserveManager.address);
-                totalReserves = await Treasury.totalReserves();                
             }
         );
 
         it("Should allow only reserve manager to withdraw tokens", async function() {
             await expect(Treasury.manage(USDC.address, USDCToWithdraw))
                     .to.be.revertedWith('Treasury: not approved');
-        });
-
-        it("Should allow only withdrawal only if excess reserves are available", async function() {
-            await expect(Treasury.connect(reserveManager).manage(USDC.address, USDCToWithdraw.mul(2)))
-                    .to.be.revertedWith('Treasury: insufficient reserves');
-        });
-
-        it("Should decrease total reserves", async function() {
-            await Treasury.connect(reserveManager).manage(USDC.address, USDCToWithdraw);
-            let finalReserves = totalReserves.sub(USDCWithdrawnPANAEquivalent);
-            expect(await Treasury.totalReserves()).to.equal(finalReserves.toString());
         });
 
         it("Should decrease treasury USDC balance", async function() {
@@ -757,65 +713,4 @@ describe("PANA Treasury Test Suite", async function() {
         });*/
     });
 
-
-    describe("Dynamic Base Valuation", function() {
-        let USDCDeposited: any,
-            USDCToWithdraw: any,
-            USDCWithdrawnPANAEquivalent: any,
-            intrinsicValue,
-            panaSupply,
-            treasuryUSDCBalance: any,
-            managerUSDCBalance: any,
-            totalReserves: any;
-
-        beforeEach(
-            async function() {
-                //Add reserve depositor for testing purposes
-                await Treasury.connect(governor)
-                .enable(0, reserveDepositor.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                // Add reserve manager for testing purposes
-                await Treasury.connect(governor)
-                .enable(3, reserveManager.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                //Add reserve token for testing purposes
-                await Treasury.connect(governor)
-                .enable(2, USDC.address, ZERO_ADDRESS, ZERO_ADDRESS);
-
-                USDCDeposited = bigNumberRepresentation(decimalRepresentation(1, USDCDecimals));
-                USDCToWithdraw = bigNumberRepresentation(decimalRepresentation(2, USDCDecimals));
-                USDCWithdrawnPANAEquivalent = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCToWithdraw, PANADecimals, USDCDecimals));
-
-                // Mint 8 USDCs to reserveDepositor for testing purposes and approve treasury as spender
-                await USDC.mint(reserveDepositor.address, USDCDeposited);
-                await USDC.connect(reserveDepositor).approve(Treasury.address, USDCDeposited);
-
-                // Deposit 8 USDCs into treasury for testing purposes
-                // Assume profits=200
-                // intrinsicValue = bigNumberRepresentation(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
-                // await Treasury.connect(reserveDepositor).deposit(USDCDeposited, USDC.address,  bigNumberRepresentation(decimalRepresentation(200, PANADecimals)));
-
-                panaSupply = await PANA.totalSupply();
-                treasuryUSDCBalance = await USDC.balanceOf(Treasury.address);
-                managerUSDCBalance = await USDC.balanceOf(reserveManager.address);
-                totalReserves = await Treasury.totalReserves();                
-            }
-        );
-
-        it("Should not allow valuation if base value is not set", async function() {
-            //expect(await Treasury.tokenValue(USDC.address, USDCDeposited)).to.be.equal(USDCDeposited.mul(100));
-            expect(Treasury.tokenValue(USDC.address, USDCDeposited)).to.be.revertedWith('Base value is not set');
-
-        });
-
-        it("Should have correct token value per base value", async function() {
-            let baseValue = 100;
-            await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(baseValue, 9)));
-            expect(await Treasury.tokenValue(USDC.address, USDCDeposited)).to.be.equal(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals));
-
-            baseValue = 200;
-            await Treasury.connect(governor).setBaseValue(bigNumberRepresentation(decimalRepresentation(baseValue, 9)));
-            expect(await Treasury.tokenValue(USDC.address, USDCDeposited)).to.be.equal(panaIntrinsicValBigNumber(USDCDeposited, PANADecimals, USDCDecimals,baseValue));
-        });
-    });
 });

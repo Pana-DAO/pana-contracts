@@ -206,40 +206,28 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
       
       uint256 toTreasury = 0;
       uint256 toRef = 0;
-      uint256 toDAO = 0;
           
       if (market.quoteTokenIsReserve) {
           // transfer payment from user to this contract
           market.quoteToken.safeTransferFrom(msg.sender, address(this), _amount);
 
-          // get tokenValue from treasury to calculate profit for deposit
-          uint256 value = treasury.tokenValue(address(market.quoteToken), _amount);
-
-          // get rewards for DAO, Treasury and referral
-          if (value > _payout) {
-            (toRef, toDAO, toTreasury) = giveRewards(_payout, _referral, value - _payout);
-          }
-
-          // calculate amount to mint
-          uint256 toMint = _payout + toRef + toDAO + toTreasury;
-
-          // calculate profit
-          uint256 profit = 0;
-          if (value > toMint) {
-            profit = value - toMint;
-          }
+          // get rewards for Treasury and referral
+          (toRef, toTreasury) = giveRewards(_payout, _referral);
           
+          // calculate amount to mint
+          uint256 toMint = _payout + toRef + toTreasury;
+
           // deposit the payment to the treasury
-          treasury.deposit(_amount, address(market.quoteToken), profit);
+          treasury.deposit(_amount, address(market.quoteToken), toMint);
       } else {
           // transfer payment from user to treasury directly
           market.quoteToken.safeTransferFrom(msg.sender, address(treasury), _amount);
           
           // get rewards for DAO, Treasury and referral
-          (toRef, toDAO, toTreasury) = giveRewards(_payout, _referral, type(uint256).max);
+          (toRef, toTreasury) = giveRewards(_payout, _referral);
 
           // mint PANA for payout and reward
-          treasury.mint(address(this), _payout + toRef + toDAO + toTreasury);
+          treasury.mint(address(this), _payout + toRef + toTreasury);
       }
 
       if (toTreasury > 0) {
@@ -470,7 +458,7 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
    * @param _id          ID of market
    * @return             oracle price for market in PANA decimals
    */
-  function getOraclePrice(uint256 _id) public view returns (uint256) {
+  function _getOraclePrice(uint256 _id) internal returns (uint256) {
     Market memory market = markets[_id];
     Metadata memory meta = metadata[_id];
 
@@ -486,7 +474,7 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
 
       address token = pair.token0();
       address token1 = pair.token1();
-      (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pair).getReserves();
+      (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
       
       if (token == address(pana) || token == address(karsha)) {
         (token, token1) = (token1, token);
@@ -530,59 +518,31 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
     }
   }
 
-/* ======== EXTERNAL VIEW ======== */
-
   /**
-   * @notice             calculate current market price of quote token in base token
-   * @dev                accounts for debt and control variable decay since last deposit (vs _marketPrice())
-   * @param _id          ID of market
-   * @return             price for market in PANA decimals
-   *
-   * price is derived from the equation
-   *
-   * p = cv * dr
-   *
-   * where
-   * p = price
-   * cv = control variable
-   * dr = debt ratio
-   *
-   * dr = d / s
-   * 
-   * where
-   * d = debt
-   * s = supply of token at market creation
-   *
-   * d -= ( d * (dt / l) )
-   * 
-   * where
-   * dt = change in time
-   * l = length of program
-   */
-  function marketPrice(uint256 _id) public view override returns (uint256) {
-    return 
-      currentControlVariable(_id)
-      * debtRatio(_id)
+   * @notice                  calculate current market price of quote token in base token
+   * @dev                     see marketPrice() for explanation of price computation
+   * @dev                     uses info from storage because data has been updated before call (vs marketPrice())
+   * @param _id               market ID
+   * @return                  price for market in PANA decimals
+   */ 
+  function _marketPrice(uint256 _id) internal returns (uint256) {
+    uint256 price =  terms[_id].controlVariable 
+      * _debtRatio(_id) 
       / (10 ** metadata[_id].quoteDecimals);
+
+    // check oracle price and select minimum
+    if (address(priceOracle) != address(0)) {
+      uint256 oraclePrice = _getOraclePrice(_id);
+      if (oraclePrice < price) {
+        price = oraclePrice;
+      }
+    }
+
+    return price;  
   }
 
-  /**
-   * @notice             payout due for amount of quote tokens
-   * @dev                accounts for debt and control variable decay so it is up to date
-   * @param _amount      amount of quote tokens to spend
-   * @param _id          ID of market
-   * @return             amount of PANA to be paid in PANA decimals
-   *
-   * @dev 1e36 = PANA decimals (18) + market price decimals (18)
-   */
-  function payoutFor(uint256 _amount, uint256 _id) external view override returns (uint256) {
-    Metadata memory meta = metadata[_id];
-    return 
-      _amount
-      * 1e36
-      / marketPrice(_id)
-      / 10 ** meta.quoteDecimals;
-  }
+
+/* ======== EXTERNAL VIEW ======== */
 
   /**
    * @notice             calculate current ratio of debt to supply
@@ -683,39 +643,94 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
     return ids;
   }
 
-/* ======== INTERNAL VIEW ======== */
+  /**
+   * @notice             View Only - gets token price in quote tokens from oracle
+   * @param _id          ID of market
+   * @return             oracle price for market in PANA decimals
+   */
+  function getOraclePriceView(uint256 _id) public view returns (uint256) {
+    Market memory market = markets[_id];
+    Metadata memory meta = metadata[_id];
+
+    if (meta.quoteIsLPToken) {
+      /**
+       * to find a price of 1 LP token, we need:
+       * - call oracle to get the price of other token in Pana
+       * - calculate LP total reserves in Pana
+       * - divide LP total supply by total reserves 
+       */
+
+      IUniswapV2Pair pair = IUniswapV2Pair(address(market.quoteToken));
+
+      address token = pair.token0();
+      address token1 = pair.token1();
+      (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
+      
+      if (token == address(pana) || token == address(karsha)) {
+        (token, token1) = (token1, token);
+        (reserve0, reserve1) = (reserve1, reserve0);
+      }
+      else {
+        require(token1 == address(pana) || token1 == address(karsha), "Invalid pair");
+      }
+
+      uint256 tokenDecimals = IERC20Metadata(token).decimals();
+
+      // tokenPrice is in PANA decimals
+      uint256 tokenPrice = priceOracle.consultReadonly(token, 10 ** tokenDecimals, token1);
+
+      // total reserves calculated in Pana/Karsha
+      uint256 totalReserves = reserve1 + reserve0 * tokenPrice / (10 ** tokenDecimals);
+
+      // price of 1 pana/Karsha in LP token
+      uint256 oraclePrice = pair.totalSupply() * 1e18 / totalReserves;
+
+      if (token1 == address(karsha)) {
+        // adjust karsha price to pana per current index
+        oraclePrice = oraclePrice / staking.index();
+      }
+
+      return oraclePrice;
+    }
+    else {
+      uint256 quoteDecimals = IERC20Metadata(address(market.quoteToken)).decimals();
+
+      // TWAP oracle returns price in terms of tokenOut but we need it in PANA decimals
+      uint256 decimals = IERC20Metadata(address(pana)).decimals();
+      if (decimals > quoteDecimals) {
+        decimals += decimals - quoteDecimals;
+      }
+      else {
+        decimals -= quoteDecimals - decimals;
+      }
+
+      return priceOracle.consultReadonly(address(pana), 10 ** decimals, address(market.quoteToken));
+    }
+  }
 
   /**
-   * @notice                  calculate current market price of quote token in base token
-   * @dev                     see marketPrice() for explanation of price computation
-   * @dev                     uses info from storage because data has been updated before call (vs marketPrice())
+   * @notice                  View Only Function - calculate current market price of quote token in base token
    * @param _id               market ID
    * @return                  price for market in PANA decimals
    */ 
-  function _marketPrice(uint256 _id) internal view returns (uint256) {
-    uint256 price =  terms[_id].controlVariable 
-      * _debtRatio(_id) 
+  function marketPrice(uint256 _id) external view returns (uint256) {
+    uint256 price =  currentControlVariable(_id) 
+      * debtRatio(_id) 
       / (10 ** metadata[_id].quoteDecimals);
 
     // check oracle price and select minimum
     if (address(priceOracle) != address(0)) {
-      uint256 oraclePrice = getOraclePrice(_id);
+      uint256 oraclePrice = getOraclePriceView(_id);
       if (oraclePrice < price) {
         price = oraclePrice;
       }
     }
 
-    // limit market price floor at token basic valuation level
-    uint256 basePrice = 10 ** (metadata[_id].quoteDecimals + 18)
-      / treasury.tokenValue(address(markets[_id].quoteToken), 10 ** metadata[_id].quoteDecimals);
-
-    if (price < basePrice) {
-      price = basePrice;
-    }
-
     return price;  
   }
-  
+
+  /* ======== INTERNAL VIEW ======== */
+
   /**
    * @notice                  calculate debt factoring in decay
    * @dev                     uses info from storage because data has been updated before call (vs debtRatio())

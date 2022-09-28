@@ -8,7 +8,6 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
 
   /* ========= STATE VARIABLES ========== */
 
-  uint256 public daoReward; // % reward for dao (3 decimals: 100 = 1%)
   uint256 public refReward; // % reward for referrer (3 decimals: 100 = 1%)
   uint256 public treasuryReward; // % reward for Treasury (3 decimals: 100 = 1%)
   mapping(address => uint256) public rewards; // front end operator rewards
@@ -36,40 +35,22 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
   /* ========= INTERNAL ========== */
 
   /** 
-   * @notice adds rewards amount for front end operators and DAO based on _payout
+   * @notice adds rewards amount for front end operators and treasury based on _payout
    */
   function giveRewards(
     uint256 _payout,
-    address _referral,
-    uint256 _rewardLimit
-  ) internal returns (uint256 toRef, uint256 toDAO, uint256 toTreasury) {
-    // first we calculate rewards paid to the DAO, Treasury and to the front end operator (referrer)
-    toDAO = _payout * daoReward / 1e4;
+    address _referral
+  ) internal returns (uint256 toRef, uint256 toTreasury) {
+    // first we calculate rewards paid to front end operator (referrer) and to the treasurer
     toRef = _payout * refReward / 1e4;
     toTreasury = _payout * treasuryReward / 1e4;
-
-    // adjust rewards if we exceed limits
-    if ((toDAO + toRef + toTreasury) > _rewardLimit) {
-      if (toRef >= _rewardLimit) {
-        toRef = _rewardLimit;
-        toTreasury = 0;
-        toDAO = 0;
-      } else {
-        _rewardLimit = _rewardLimit - toRef;
-        if ((toDAO + toTreasury) > _rewardLimit) {
-          toTreasury = toTreasury > _rewardLimit ? _rewardLimit : toTreasury;
-          toDAO = _rewardLimit > toTreasury ? _rewardLimit - toTreasury : 0;
-        }
-      }
-    }
 
     // and store them in our rewards mapping
     if (whitelisted[_referral]) {
       rewards[_referral] += toRef;
-      rewards[authority.guardian()] += toDAO;
       rewards[authority.vault()] += toTreasury;
-    } else { // the Treasury receives both rewards if referrer is not whitelisted
-      rewards[authority.guardian()] += toDAO;
+    } else { 
+      // the Treasury receives both rewards if referrer is not whitelisted
       rewards[authority.vault()] += toTreasury + toRef;
     }
   }
@@ -89,9 +70,8 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
   /**
    * @notice set rewards for front end operators and DAO
    */
-  function setRewards(uint256 _toFrontEnd, uint256 _toDAO, uint256 _toTreasury) external onlyGovernor {
+  function setRewards(uint256 _toFrontEnd, uint256 _toTreasury) external onlyGovernor {
     refReward = _toFrontEnd;
-    daoReward = _toDAO;
     treasuryReward = _toTreasury;
   }
 

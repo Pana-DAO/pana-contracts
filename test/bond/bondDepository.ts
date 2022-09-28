@@ -59,6 +59,7 @@ describe("Pana reserve bond contract", () => {
     let vault: SignerWithAddress;
     let user1: SignerWithAddress;
     let user2: SignerWithAddress;
+    let distributionVault: SignerWithAddress;
     let pana: PanaERC20Token;
     let usdc : USDC;
     let karsha: Karsha;
@@ -72,24 +73,24 @@ describe("Pana reserve bond contract", () => {
     let PANADecimals : number;
     
     beforeEach(async () => {
-        [deployer, vault, user1, user2] = await ethers.getSigners();
+        [deployer, vault, user1, user2, distributionVault] = await ethers.getSigners();
         
         block = await network.provider.send("eth_getBlockByNumber", ["latest", false]);
 
         usdc = await (new USDC__factory(deployer)).deploy(chainIds.hardhat);
         
-        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, ZERO_ADDRESS);
+        authority = await (new PanaAuthority__factory(deployer)).deploy(deployer.address, deployer.address, deployer.address, vault.address, distributionVault.address);
         await authority.deployed();
         
         pana = await (new PanaERC20Token__factory(deployer)).deploy(authority.address);
-        sPana = await (new SPana__factory(deployer)).deploy();
-        karsha = await (new Karsha__factory(deployer)).deploy(deployer.address,sPana.address);
+        sPana = await (new SPana__factory(deployer)).deploy(authority.address);
+        karsha = await (new Karsha__factory(deployer)).deploy(deployer.address,sPana.address,authority.address);
         
         treasury = await (new PanaTreasury__factory(deployer)).deploy(pana.address, blocksNeededForQueue, authority.address);
         staking = await new PanaStaking__factory(deployer).deploy(pana.address,sPana.address,karsha.address,authority.address);
+        await karsha.setStaking(staking.address);
         distributor = await new Distributor__factory(deployer).deploy(treasury.address,pana.address,staking.address,authority.address);
         
-        karsha.migrate(staking.address,sPana.address);
         bondDepository = await new PanaBondDepository__factory(deployer).deploy(
             authority.address,pana.address,karsha.address,staking.address,treasury.address);
         USDCDecimals = await usdc.decimals();
@@ -98,27 +99,26 @@ describe("Pana reserve bond contract", () => {
             // Needed to spend deployer's PANA
             await sPana.setIndex("1000000000000000000"); // index = 1
             await sPana.setKarsha(karsha.address);
-            await sPana.initialize(staking.address, treasury.address, deployer.address);
+            await sPana.initialize(staking.address);
             await staking.setDistributor(distributor.address);
             
             // Enabling permissions for treasury
             // toggle reward manager
-            await treasury.enable("8", distributor.address,ZERO_ADDRESS, ZERO_ADDRESS);
-            await treasury.enable("8", bondDepository.address,ZERO_ADDRESS, ZERO_ADDRESS);
+            await treasury.enable("6", distributor.address,ZERO_ADDRESS);
+            await treasury.enable("6", bondDepository.address,ZERO_ADDRESS);
             // toggle deployer and bond reserve depositor
-            await treasury.enable("0", deployer.address,ZERO_ADDRESS, ZERO_ADDRESS);
-            await treasury.enable('0',bondDepository.address, ZERO_ADDRESS, ZERO_ADDRESS);
+            await treasury.enable("0", deployer.address,ZERO_ADDRESS);
+            await treasury.enable('0',bondDepository.address, ZERO_ADDRESS);
             // toggle liquidity depositor
-            await treasury.enable("4", deployer.address, ZERO_ADDRESS, ZERO_ADDRESS);
+            await treasury.enable("3", deployer.address, ZERO_ADDRESS);
             // toggle USDC as reserve token
-            await treasury.enable("2", usdc.address,ZERO_ADDRESS, ZERO_ADDRESS);
+            await treasury.enable("1", usdc.address,ZERO_ADDRESS);
             await treasury.initialize();
 
-            await treasury.setBaseValue("100000000000");
-
+            await pana.connect(deployer).mintForDistribution(decimalRepresentation('5000000'))
             await authority.pushVault(treasury.address, true);
-            await staking.setBondDepositor(bondDepository.address);
-            await distributor.connect(deployer).addRecipient(staking.address, INITIAL_REWARD_RATE);
+            await staking.connect(deployer).addApprovedDepositor(bondDepository.address);
+            await distributor.connect(deployer).addRecipient(staking.address, INITIAL_REWARD_RATE,true);
             await staking.setFirstEpoch(EPOCH_LENGTH, EPOCH_NUMBER, parseInt(block.timestamp) + 3600);
         });
         it("should initialize authorities",async()=>{
@@ -155,9 +155,6 @@ describe("Pana reserve bond contract", () => {
                 // minting tokens for user and treasury
                 await usdc.addAuth(deployer.address);
                 await usdc.connect(deployer).mint(deployer.address,    decimalRepresentation(10000000,USDCDecimals));
-                await usdc.connect(deployer).approve(treasury.address, decimalRepresentation(10000000,USDCDecimals));
-                await treasury.connect(deployer).deposit(decimalRepresentation(1000000,USDCDecimals),
-                usdc.address,decimalRepresentation(99000000));
                 await usdc.mint(user1.address,decimalRepresentation(100000,USDCDecimals));
                 await usdc.connect(user1).approve(bondDepository.address, LARGE_APPROVAL);
                 
@@ -189,8 +186,8 @@ describe("Pana reserve bond contract", () => {
                 });
 
                 it("should set correct reward rate",async() => {
-                    await bondDepository.setRewards("1000","500","300");
-                    expect(await bondDepository.daoReward()).to.be.equal("500");
+                    await bondDepository.setRewards("1000","300");
+                    // expect(await bondDepository.daoReward()).to.be.equal("500");
                     expect(await bondDepository.refReward()).to.be.equal("1000");
                     expect(await bondDepository.treasuryReward()).to.be.equal("300");
                 });
@@ -221,10 +218,18 @@ describe("Pana reserve bond contract", () => {
                 });
                 
                 it("should provide correct payout for price",async()=>{
-                    let amount = decimalRepresentation(10000,USDCDecimals)
+                    let amount = decimalRepresentation(100,USDCDecimals);
                     let price = await bondDepository.marketPrice(bondID);
                     let expectedPayout = Number(amount) / Number(price);
-                    expect(Number(await bondDepository.payoutFor(amount, 0))).to.be.greaterThanOrEqual(expectedPayout);
+                    let [payout,,] = await bondDepository.connect(user1).callStatic.deposit(
+                        bondID,
+                        amount,
+                        maxPrice,
+                        user1.address,
+                        user2.address
+                    );
+
+                    expect(Number(payout)).to.be.greaterThanOrEqual(expectedPayout);
                 });
                 
                 
@@ -250,8 +255,14 @@ describe("Pana reserve bond contract", () => {
                 });
 
                 it("should return correct reward on bonding",async() => {
-                    await bondDepository.setRewards("0","0","2000");
-                    let payout = await bondDepository.payoutFor(depositAmount,0)
+                    await bondDepository.setRewards("0","2000");
+                    let [payout,,] = await bondDepository.connect(user1).callStatic.deposit(
+                        bondID,
+                        depositAmount,
+                        maxPrice,
+                        user1.address,
+                        user2.address
+                    );
                     await bondDepository.connect(user1).deposit(
                         bondID,
                         depositAmount,
@@ -265,9 +276,15 @@ describe("Pana reserve bond contract", () => {
 
                 });
 
-                it("should return correct reward based on reward limit",async ()=> {
-                    await bondDepository.setRewards("0","0","1000000");
-                    let payout = await bondDepository.payoutFor(decimalRepresentation(15,USDCDecimals),0)
+                it("should return correct reward based on reward rate",async ()=> {
+                    await bondDepository.setRewards("100000","100000");
+                    let [payout,,] = await bondDepository.connect(user1).callStatic.deposit(
+                        bondID,
+                        decimalRepresentation(15,USDCDecimals),
+                        maxPrice,
+                        user1.address,
+                        user2.address
+                    );
                     await bondDepository.connect(user1).deposit(
                         bondID,
                         decimalRepresentation(15,USDCDecimals),
@@ -275,11 +292,11 @@ describe("Pana reserve bond contract", () => {
                         user1.address,
                         user2.address
                     );
-                    let tokenValue = await treasury.tokenValue(usdc.address,decimalRepresentation(15,USDCDecimals));
+                    // get remaining rewards for treasury
+                    await bondDepository.connect(deployer).getTreasuryRewards();
                     
-                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThan(Number(tokenValue.sub(payout.mul("1001").div("1000"))));
-                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThanOrEqual(Number(tokenValue.sub(payout)));
-
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.greaterThanOrEqual(Number(payout.mul("200000").div("10000")));
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(payout.mul("200100").div("10000")));
                 });
 
                 it("should allow multiple deposits",async () => {

@@ -95,12 +95,12 @@ describe("PPana redemption", () => {
         await pPANA.connect(daoMultisig).addApprovedSeller(idoParticipant.address); 
         
         await authority.connect(governor).pushVault(treasury.address, true);
-        await treasury.connect(governor).enable(0, pPANARedeem.address, ethers.constants.AddressZero, ethers.constants.AddressZero); 
-        await treasury.connect(governor).enable(2, usdc.address, ethers.constants.AddressZero, ethers.constants.AddressZero);
-        await treasury.connect(governor).enable(11, pPANARedeem.address, ethers.constants.AddressZero, ethers.constants.AddressZero)
+        await treasury.connect(governor).enable(0, pPANARedeem.address, ethers.constants.AddressZero); 
+        await treasury.connect(governor).enable(1, usdc.address, ethers.constants.AddressZero);
+        await treasury.connect(governor).enable(8, pPANARedeem.address, ethers.constants.AddressZero);
+        await treasury.connect(governor).setRedemptionLimit(10000);
 
         
-        await treasury.connect(governor).setBaseValue("100000000000");
     });
     
     describe("Checking if everything is minted" , function () {
@@ -198,8 +198,7 @@ describe("PPana redemption", () => {
 
             it("should claim the Pana per pPana by 1:100 irrespective of intrinsic value", async () => {
                 const teamMember_panaBalance_preExercise = await pana.balanceOf(teamMember.address);
-                await treasury.connect(governor).setBaseValue( ethers.utils.parseUnits( String( 121 ), "ether" ) );
-    
+                
                 await usdc.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "mwei" )); 
                 await pPANA.connect(teamMember).approve(pPANARedeem.address, ethers.utils.parseUnits( String( 936 ), "ether" )); 
                 await pPANARedeem.connect(teamMember).exercise(ethers.utils.parseUnits( String( 936 ), "ether" ));

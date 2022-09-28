@@ -12,7 +12,7 @@ async function main() {
     const { daoMultisig } = await getNamedAccounts();
     
     const bondDepoDeployment = await deployments.get(CONTRACTS.bondDepo);
-    const oracleDeployment = await deployments.get(CONTRACTS.slidingWindowOracle);
+    const oracleDeployment = await deployments.get(CONTRACTS.priceOracle);
     const dao = await ethers.getSigner(daoMultisig);
 
     let bondDepo = PanaBondDepository__factory.connect(bondDepoDeployment.address, dao);

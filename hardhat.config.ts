@@ -68,8 +68,8 @@ const config: HardhatUserConfig = {
         },
         arbitrum: {
             url: `https://arbitrum-mainnet.infura.io/v3/${infuraKey}`,
-            gas: 210000000,
-            gasPrice: 800000000000,
+            gas: 20287350,
+            gasPrice: 252873500,
             accounts:
             privateKey !== undefined ? [privateKey] : [],
             chainId: chainIds.arbitrum

@@ -23,6 +23,8 @@ interface IStaking {
 
     function index() external view returns (uint256);
 
+    function stakingSupply() external view returns (uint256);
+
     function setBondDepositor(address _bondDepositor) external;
 
     function allowExternalStaking(bool allow) external;
