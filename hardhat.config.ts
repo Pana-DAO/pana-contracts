@@ -19,7 +19,7 @@ const chainIds = {
     hardhat: 31337,
     mumbai: 80001,
     goerli: 5,
-    arbitrumTest: 421611,
+    arbitrumTest: 421613,
     arbitrum: 42161
 };
 
@@ -59,9 +59,9 @@ const config: HardhatUserConfig = {
             chainId: chainIds.goerli
         },
         arbitrumTest: {
-            url: `https://arbitrum-rinkeby.infura.io/v3/${infuraKey}`,
-            gas: 25e6,
-            gasPrice: 20e9,
+            url: `https://arbitrum-goerli.infura.io/v3/${infuraKey}`,
+            gas: 20287350,
+            gasPrice: 252873500,
             accounts:
             privateKey !== undefined ? [privateKey] : [],
             chainId: chainIds.arbitrumTest
@@ -74,6 +74,22 @@ const config: HardhatUserConfig = {
             privateKey !== undefined ? [privateKey] : [],
             chainId: chainIds.arbitrum
         }
+    },
+    etherscan: {
+        apiKey: {
+            arbitrum: process.env.ETHERSCAN_API_KEY || '',
+            arbitrumTest: process.env.TESTNET_ETHERSCAN_API_KEY || ''
+        },
+        customChains: [
+          {
+            network: "arbitrumTest",
+            chainId: 421613,
+            urls: {
+              apiURL: "https://api-goerli.arbiscan.io/api",
+              browserURL: "https://goerli.arbiscan.io/"
+            }
+          }
+        ]
     },
     paths: {
         artifacts: "./artifacts",
@@ -193,10 +209,7 @@ const config: HardhatUserConfig = {
     typechain: {
         outDir: "types",
         target: "ethers-v5",
-    },
-    etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
-    },
+    }
 };
 
 export default config;

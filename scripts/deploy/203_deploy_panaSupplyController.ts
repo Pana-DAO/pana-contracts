@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CONTRACTS, getDEXRouterAddress, getPANAUSDCLPToken } from "../constants";
+import { CONTRACTS, getDEXRouterAddress, getPANAUSDCLPToken, KP } from "../constants";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts, getChainId } = hre;
@@ -10,29 +10,30 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     const authorityDeployment = await deployments.get(CONTRACTS.authority);
     const panaDeployment = await deployments.get(CONTRACTS.pana);
-    const treasuryDeployment = await deployments.get(CONTRACTS.treasury);
+    const treasuryV2Deployment = await deployments.get(CONTRACTS.treasuryV2);
     const pairContractAddress = getPANAUSDCLPToken(chainId);
     
     const uniswapRouter = getDEXRouterAddress(chainId);
 
-    await deploy(CONTRACTS.PanaSupplyController, {
+    await deploy(CONTRACTS.proportionalSupplyController, {
         from: deployer,
         args: [
+            KP,
             panaDeployment.address,
             pairContractAddress,
             uniswapRouter,
-            treasuryDeployment.address,
+            treasuryV2Deployment.address,
             authorityDeployment.address
         ],
         log: true,
     });
 };
 
-func.tags = [CONTRACTS.PanaSupplyController];
+func.tags = [CONTRACTS.proportionalSupplyController];
 func.dependencies = [
     CONTRACTS.authority,
     CONTRACTS.pana,
-    CONTRACTS.treasury
+    CONTRACTS.treasuryV2
 ];
 
 export default func;

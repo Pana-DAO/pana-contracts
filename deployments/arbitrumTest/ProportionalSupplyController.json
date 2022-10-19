@@ -1,0 +1,691 @@
+{
+  "address": "0x97CE968fA4d04a850744F6B18A82BcE9DBE9Ad28",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_kp",
+          "type": "int256"
+        },
+        {
+          "internalType": "address",
+          "name": "_PANA",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_pair",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_supplyControlCaller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_authority",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "contract IPanaAuthority",
+          "name": "authority",
+          "type": "address"
+        }
+      ],
+      "name": "AuthorityUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalSupply",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "panaInPool",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "slp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "panaResidue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenResidue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Burnt",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "kp",
+          "type": "int256"
+        },
+        {
+          "indexed": false,
+          "internalType": "int256",
+          "name": "oldKp",
+          "type": "int256"
+        }
+      ],
+      "name": "PCoefficientSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalSupply",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "panaInPool",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "slp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "panaSupplied",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "panaResidue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenResidue",
+          "type": "uint256"
+        }
+      ],
+      "name": "Supplied",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lossRatio",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cf",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cc",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "samplingTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldLossRatio",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldCf",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldCc",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldSamplingTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "SupplyControlParamsSet",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pana",
+          "type": "uint256"
+        }
+      ],
+      "name": "add",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "authority",
+      "outputs": [
+        {
+          "internalType": "contract IPanaAuthority",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_slp",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "compute",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pana",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_slp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_burn",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "disableSupplyControl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "enableSupplyControl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "kp",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lossRatio",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pair",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paramsSet",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "prev_timestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "router",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "samplingTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IPanaAuthority",
+          "name": "_newAuthority",
+          "type": "address"
+        }
+      ],
+      "name": "setAuthority",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_kp",
+          "type": "int256"
+        }
+      ],
+      "name": "setPCoefficient",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_lossRatio",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cf",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_samplingTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSupplyControlParams",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "supplyControlCaller",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "supplyControlEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x56456d1711067ec85f4581a2e793f065864c7c12c061fff2a1e7d0c18b798db9",
+  "receipt": {
+    "to": null,
+    "from": "0x2d494Cb0a923009C471B9512571048560a44556A",
+    "contractAddress": "0x97CE968fA4d04a850744F6B18A82BcE9DBE9Ad28",
+    "transactionIndex": 1,
+    "gasUsed": "2141358",
+    "logsBloom": "0x00000000000000000000000000000000010000000000000000000000000000000004000008000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000002000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000",
+    "blockHash": "0x0078e5585f775329e5fdb8e2e4248314911adf13c9873175a04a7e7570e2cf1d",
+    "transactionHash": "0x56456d1711067ec85f4581a2e793f065864c7c12c061fff2a1e7d0c18b798db9",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 675531,
+        "transactionHash": "0x56456d1711067ec85f4581a2e793f065864c7c12c061fff2a1e7d0c18b798db9",
+        "address": "0x97CE968fA4d04a850744F6B18A82BcE9DBE9Ad28",
+        "topics": [
+          "0x2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad",
+          "0x00000000000000000000000074db8cbccaf7aef5f5faf8b753e994563ab5edb3"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x0078e5585f775329e5fdb8e2e4248314911adf13c9873175a04a7e7570e2cf1d"
+      }
+    ],
+    "blockNumber": 675531,
+    "cumulativeGasUsed": "2141358",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "10000",
+    "0x28a4d7A1da539cAAb96b615cd454e2B446B16F1c",
+    "0x466614D6B4249A24Be3E0B4d176Ee4BC6F795411",
+    "0xe82c4d8b993d613a28600b953e91a3a93ae69fd6",
+    "0x3B15aBa72Fb187a9a33530E37f14852Ac6067d52",
+    "0x74Db8CBCCaF7aef5F5FAf8B753e994563AB5Edb3"
+  ],
+  "solcInputHash": "8933ba23f05c035e19843d62d978c47e",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"_kp\",\"type\":\"int256\"},{\"internalType\":\"address\",\"name\":\"_PANA\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_pair\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_router\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_supplyControlCaller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_authority\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"contract IPanaAuthority\",\"name\":\"authority\",\"type\":\"address\"}],\"name\":\"AuthorityUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalSupply\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"panaInPool\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"panaResidue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenResidue\",\"type\":\"uint256\"}],\"name\":\"Burnt\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"kp\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"oldKp\",\"type\":\"int256\"}],\"name\":\"PCoefficientSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalSupply\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"panaInPool\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"slp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"panaSupplied\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"panaResidue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenResidue\",\"type\":\"uint256\"}],\"name\":\"Supplied\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"lossRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"cf\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"cc\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"samplingTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldLossRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldCf\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldCc\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldSamplingTime\",\"type\":\"uint256\"}],\"name\":\"SupplyControlParamsSet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_pana\",\"type\":\"uint256\"}],\"name\":\"add\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"authority\",\"outputs\":[{\"internalType\":\"contract IPanaAuthority\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_slp\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cc\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"compute\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"_pana\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_slp\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"_burn\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"disableSupplyControl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"enableSupplyControl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"kp\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lossRatio\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pair\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paramsSet\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"prev_timestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"router\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"samplingTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IPanaAuthority\",\"name\":\"_newAuthority\",\"type\":\"address\"}],\"name\":\"setAuthority\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"_kp\",\"type\":\"int256\"}],\"name\":\"setPCoefficient\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_lossRatio\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_cf\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_cc\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_samplingTime\",\"type\":\"uint256\"}],\"name\":\"setSupplyControlParams\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"supplyControlCaller\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"supplyControlEnabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"add(uint256)\":{\"params\":{\"_pana\":\"uint256 - amount of pana to add\"}},\"burn(uint256)\":{\"params\":{\"_slp\":\"uint256 - amount of slp to burn\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"add(uint256)\":{\"notice\":\"adds Pana to the pool\"},\"burn(uint256)\":{\"notice\":\"burns Pana from the pool using SLP\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/treasury/ProportionalSupplyController.sol\":\"ProportionalSupplyController\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":800},\"remappings\":[]},\"sources\":{\"contracts/access/PanaAccessControlled.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.7.5;\\n\\nimport \\\"../interfaces/IPanaAuthority.sol\\\";\\n\\nabstract contract PanaAccessControlled {\\n\\n    /* ========== EVENTS ========== */\\n\\n    event AuthorityUpdated(IPanaAuthority indexed authority);\\n\\n    string UNAUTHORIZED = \\\"UNAUTHORIZED\\\"; // save gas\\n\\n    /* ========== STATE VARIABLES ========== */\\n\\n    IPanaAuthority public authority;\\n\\n\\n    /* ========== Constructor ========== */\\n\\n    constructor(IPanaAuthority _authority) {\\n        authority = _authority;\\n        emit AuthorityUpdated(_authority);\\n    }\\n    \\n\\n    /* ========== MODIFIERS ========== */\\n    \\n    modifier onlyGovernor() {\\n        require(msg.sender == authority.governor(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    modifier onlyGuardian() {\\n        require(msg.sender == authority.guardian(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    modifier onlyPolicy() {\\n        require(msg.sender == authority.policy(), UNAUTHORIZED);\\n        _;\\n    }\\n\\n    modifier onlyVault() {\\n        require(msg.sender == authority.vault(), UNAUTHORIZED);\\n        _;\\n    }\\n    \\n    /* ========== GOV ONLY ========== */\\n    \\n    function setAuthority(IPanaAuthority _newAuthority) external onlyGovernor {\\n        authority = _newAuthority;\\n        emit AuthorityUpdated(_newAuthority);\\n    }\\n}\\n\",\"keccak256\":\"0x034e5499a57b5a80ba7315a07b54a800876e4e9143ec38855118dc2ff0af9311\",\"license\":\"AGPL-3.0-only\"},\"contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IERC20 {\\n  /**\\n   * @dev Returns the amount of tokens in existence.\\n   */\\n  function totalSupply() external view returns (uint256);\\n\\n  /**\\n   * @dev Returns the amount of tokens owned by `account`.\\n   */\\n  function balanceOf(address account) external view returns (uint256);\\n\\n  /**\\n   * @dev Moves `amount` tokens from the caller's account to `recipient`.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * Emits a {Transfer} event.\\n   */\\n  function transfer(address recipient, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Returns the remaining number of tokens that `spender` will be\\n   * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n   * zero by default.\\n   *\\n   * This value changes when {approve} or {transferFrom} are called.\\n   */\\n  function allowance(address owner, address spender) external view returns (uint256);\\n\\n  /**\\n   * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n   * that someone may use both the old and the new allowance by unfortunate\\n   * transaction ordering. One possible solution to mitigate this race\\n   * condition is to first reduce the spender's allowance to 0 and set the\\n   * desired value afterwards:\\n   * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n   *\\n   * Emits an {Approval} event.\\n   */\\n  function approve(address spender, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Moves `amount` tokens from `sender` to `recipient` using the\\n   * allowance mechanism. `amount` is then deducted from the caller's\\n   * allowance.\\n   *\\n   * Returns a boolean value indicating whether the operation succeeded.\\n   *\\n   * Emits a {Transfer} event.\\n   */\\n  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\\n\\n  /**\\n   * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n   * another (`to`).\\n   *\\n   * Note that `value` may be zero.\\n   */\\n  event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n  /**\\n   * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n   * a call to {approve}. `value` is the new allowance.\\n   */\\n  event Approval(address indexed owner, address indexed spender, uint256 value);\\n}\\n\",\"keccak256\":\"0xa142440b0e1c51ece24b6d074ac883b34e1f33a2472773eeaaf4871875904d09\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IERC20Metadata.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\nimport \\\"./IERC20.sol\\\";\\n\\ninterface IERC20Metadata is IERC20 {\\n\\n    function name() external view returns (string memory);\\n\\n    function symbol() external view returns (string memory);\\n\\n    function decimals() external view returns (uint8);\\n}\",\"keccak256\":\"0x6dfa58ba4a241b2201f3ecb3ba26345ce4dd66f0a553f18b2a284341f5aacd72\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IPanaAuthority.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IPanaAuthority {\\n    /* ========== EVENTS ========== */\\n    \\n    event GovernorPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event GuardianPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event PolicyPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event VaultPushed(address indexed from, address indexed to, bool _effectiveImmediately);\\n    event DistributionVaultPushed(address indexed from, address indexed to, bool _effectiveImmediately); \\n\\n    event GovernorPulled(address indexed from, address indexed to);\\n    event GuardianPulled(address indexed from, address indexed to);\\n    event PolicyPulled(address indexed from, address indexed to);\\n    event VaultPulled(address indexed from, address indexed to);\\n    event DistributionVaultPulled(address indexed from, address indexed to);\\n\\n    /* ========== VIEW ========== */\\n    \\n    function governor() external view returns (address);\\n    function guardian() external view returns (address);\\n    function policy() external view returns (address);\\n    function vault() external view returns (address);\\n    function distributionVault() external view returns (address);\\n}\",\"keccak256\":\"0xc49dc603c39b5cbd2e18e02176ef489bd89dde552495236e9798ae49a9f2e875\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/ISupplyContoller.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface ISupplyContoller {\\n        \\n    /* ========== EVENTS ========== */\\n    event SupplyControlParamsSet(uint256 lossRatio, uint256 cf, uint256 cc, uint256 samplingTime,\\n        uint256 oldLossRatio, uint256 oldCf, uint256 oldCc, uint256 oldSamplingTime);\\n    event Burnt(uint256 totalSupply, uint256 panaInPool, uint256 slp, uint256 panaResidue, uint256 tokenResidue);\\n    event Supplied(uint256 totalSupply, uint256 panaInPool, uint256 slp, uint256 panaSupplied, uint256 panaResidue, uint256 tokenResidue);\\n    \\n    function supplyControlEnabled() external view returns (bool);\\n\\n    function paramsSet() external view returns (bool);\\n\\n    function setSupplyControlParams(uint256 _lossRatio, uint256 _cf, uint256 _cc, uint256 _samplingTime) external;\\n\\n    function enableSupplyControl() external;\\n\\n    function disableSupplyControl() external;\\n\\n    function compute() external view returns (uint256 _pana, uint256 _slp, bool _burn);\\n\\n    function burn(uint256 _slp) external;\\n\\n    function add(uint256 _pana) external;\\n}\",\"keccak256\":\"0xe92d83740efb7adad6bbc9f22d60f1a30fa3bc4083eff8f59eeb17c18bdc334c\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IUniswapV2ERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\ninterface IUniswapV2ERC20 {\\n    event Approval(address indexed owner, address indexed spender, uint value);\\n    event Transfer(address indexed from, address indexed to, uint value);\\n\\n    function name() external pure returns (string memory);\\n    function symbol() external pure returns (string memory);\\n    function decimals() external pure returns (uint8);\\n    function totalSupply() external view returns (uint);\\n    function balanceOf(address owner) external view returns (uint);\\n    function allowance(address owner, address spender) external view returns (uint);\\n\\n    function approve(address spender, uint value) external returns (bool);\\n    function transfer(address to, uint value) external returns (bool);\\n    function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\\n    function nonces(address owner) external view returns (uint);\\n\\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n}\",\"keccak256\":\"0xa8bc04fe333cf795f2882098679f5026bccd6d10c173f94a6f7e9d5c064e9284\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IUniswapV2Pair.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity >=0.7.5;\\n\\nimport \\\"./IUniswapV2ERC20.sol\\\";\\n\\ninterface IUniswapV2Pair is IUniswapV2ERC20 {\\n    function token0() external pure returns (address);\\n    function token1() external pure returns (address);\\n    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;\\n    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\\n    function mint(address to) external returns (uint liquidity);\\n    function sync() external;\\n    function price0CumulativeLast() external view returns (uint);\\n    function price1CumulativeLast() external view returns (uint);\\n}\",\"keccak256\":\"0xcc1533386ddac7a89c40271e937fa4c765772530a19561bf5bbf866e26ebc355\",\"license\":\"AGPL-3.0\"},\"contracts/interfaces/IUniswapV2Router01.sol\":{\"content\":\"// File: contracts/uniswapv2/interfaces/IUniswapV2Router01.sol\\n\\npragma solidity >=0.6.2;\\n\\ninterface IUniswapV2Router01 {\\n    function factory() external pure returns (address);\\n    function WETH() external pure returns (address);\\n\\n    function addLiquidity(\\n        address tokenA,\\n        address tokenB,\\n        uint amountADesired,\\n        uint amountBDesired,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountA, uint amountB, uint liquidity);\\n    function addLiquidityETH(\\n        address token,\\n        uint amountTokenDesired,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline\\n    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);\\n    function removeLiquidity(\\n        address tokenA,\\n        address tokenB,\\n        uint liquidity,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountA, uint amountB);\\n    function removeLiquidityETH(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountToken, uint amountETH);\\n    function removeLiquidityWithPermit(\\n        address tokenA,\\n        address tokenB,\\n        uint liquidity,\\n        uint amountAMin,\\n        uint amountBMin,\\n        address to,\\n        uint deadline,\\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\\n    ) external returns (uint amountA, uint amountB);\\n    function removeLiquidityETHWithPermit(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline,\\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\\n    ) external returns (uint amountToken, uint amountETH);\\n    function swapExactTokensForTokens(\\n        uint amountIn,\\n        uint amountOutMin,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external returns (uint[] memory amounts);\\n    function swapTokensForExactTokens(\\n        uint amountOut,\\n        uint amountInMax,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external returns (uint[] memory amounts);\\n    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)\\n        external\\n        payable\\n        returns (uint[] memory amounts);\\n    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)\\n        external\\n        returns (uint[] memory amounts);\\n    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)\\n        external\\n        returns (uint[] memory amounts);\\n    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)\\n        external\\n        payable\\n        returns (uint[] memory amounts);\\n\\n    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);\\n    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);\\n    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);\\n    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);\\n    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);\\n}\\n\",\"keccak256\":\"0x79b7fa7b0c162aa4bea0a075f6912df8c61ee247160e9080084971d35fef6759\"},\"contracts/interfaces/IUniswapV2Router02.sol\":{\"content\":\"// File: contracts/uniswapv2/interfaces/IUniswapV2Router02.sol\\n\\npragma solidity >=0.6.2;\\n\\nimport \\\"./IUniswapV2Router01.sol\\\";\\n\\ninterface IUniswapV2Router02 is IUniswapV2Router01 {\\n    function removeLiquidityETHSupportingFeeOnTransferTokens(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline\\n    ) external returns (uint amountETH);\\n    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(\\n        address token,\\n        uint liquidity,\\n        uint amountTokenMin,\\n        uint amountETHMin,\\n        address to,\\n        uint deadline,\\n        bool approveMax, uint8 v, bytes32 r, bytes32 s\\n    ) external returns (uint amountETH);\\n\\n    function swapExactTokensForTokensSupportingFeeOnTransferTokens(\\n        uint amountIn,\\n        uint amountOutMin,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external;\\n    function swapExactETHForTokensSupportingFeeOnTransferTokens(\\n        uint amountOutMin,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external payable;\\n    function swapExactTokensForETHSupportingFeeOnTransferTokens(\\n        uint amountIn,\\n        uint amountOutMin,\\n        address[] calldata path,\\n        address to,\\n        uint deadline\\n    ) external;\\n}\\n\",\"keccak256\":\"0x6e1bc39eae984748707ab239c91860aa8121eb4cce92b3ba7b13c453a23a2e16\"},\"contracts/libraries/SafeERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0-only\\npragma solidity >=0.7.5;\\n\\nimport {IERC20} from \\\"../interfaces/IERC20.sol\\\";\\n\\n/// @notice Safe IERC20 and ETH transfer library that safely handles missing return values.\\n/// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v3-periphery/blob/main/contracts/libraries/TransferHelper.sol)\\n/// Taken from Solmate\\nlibrary SafeERC20 {\\n    function safeTransferFrom(\\n        IERC20 token,\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"TRANSFER_FROM_FAILED\\\");\\n    }\\n\\n    function safeTransfer(\\n        IERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.transfer.selector, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"TRANSFER_FAILED\\\");\\n    }\\n\\n    function safeApprove(\\n        IERC20 token,\\n        address to,\\n        uint256 amount\\n    ) internal {\\n        (bool success, bytes memory data) = address(token).call(\\n            abi.encodeWithSelector(IERC20.approve.selector, to, amount)\\n        );\\n\\n        require(success && (data.length == 0 || abi.decode(data, (bool))), \\\"APPROVE_FAILED\\\");\\n    }\\n\\n    function safeTransferETH(address to, uint256 amount) internal {\\n        (bool success, ) = to.call{value: amount}(new bytes(0));\\n\\n        require(success, \\\"ETH_TRANSFER_FAILED\\\");\\n    }\\n}\",\"keccak256\":\"0xbdd4f99088de7c23383b043055646de013b1312166a9bfa05e3995cdcf7ae022\",\"license\":\"AGPL-3.0-only\"},\"contracts/treasury/BaseSupplyController.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/**\\n * @notice \\n * Supply controller is intended to return amount of Pana needed to be added/removed \\n * to/from the liquidity pool to move the pana supply in pool closer to the target setting.\\n * The treasury then calls the burn and add operations from this \\n * contract to perform the Burn/Supply as determined to maintain the target supply in pool\\n *\\n * CAUTION: Since the control mechanism is based on a percentage and Pana is an 18 decimal token,\\n * any supply of Pana less or equal to 10^^-17 will lead to underflow\\n */\\npragma solidity ^0.8.10;\\n\\nimport \\\"../libraries/SafeERC20.sol\\\";\\nimport \\\"../interfaces/IERC20Metadata.sol\\\";\\nimport \\\"../interfaces/IERC20.sol\\\";\\nimport \\\"../interfaces/IUniswapV2ERC20.sol\\\";\\nimport \\\"../interfaces/IUniswapV2Pair.sol\\\";\\nimport \\\"../interfaces/IUniswapV2Router02.sol\\\";\\n\\nimport \\\"../access/PanaAccessControlled.sol\\\";\\nimport \\\"../interfaces/ISupplyContoller.sol\\\";\\n\\nabstract contract BaseSupplyController is ISupplyContoller, PanaAccessControlled {\\n    using SafeERC20 for IERC20;            \\n\\n    IERC20 internal immutable PANA;\\n    IERC20 internal immutable TOKEN;\\n\\n    address public pair; // The LP pair for which this controller will be used\\n    address public router; // The address of the UniswapV2Router02 router contract for the given pair\\n    address public supplyControlCaller; // The address of the contract that is responsible for invoking control\\n\\n    bool public override supplyControlEnabled; // Switch to start/stop supply control at anytime\\n    bool public override paramsSet; // Flag that indicates whether the params were set for current control regime\\n\\n    // Loss Ratio, calculated as lossRatio = deltaPS/deltaTS.\\n    // Where deltaPS = Target Pana Supply in Pool - Current Pana Supply in Pool\\n    // deltaTS = Increase in total Pana supply\\n    // Percentage specified to 4 precision digits. 2250 = 22.50% = 0.2250\\n    uint256 public lossRatio;\\n\\n    // cf = Channel floor\\n    // tlr = Target loss ratio\\n    // Control should take action only when Pana supply in pool at a point falls such that lossRatio < tlr - cf\\n    // Percentage specified to 4 precision digits. 100 = 1% = 0.01\\n    uint256 public cf;\\n\\n    // cc = Channel Ceiling\\n    // tlr = Target loss ratio\\n    // Control should take action only when Pana supply in pool at a point grows such that lossRatio > tlr + cc\\n    // Percentage specified to 4 precision digits. 100 = 1% = 0.01\\n    uint256 public cc;\\n\\n    // Minimal time between calculations, seconds\\n    uint256 public samplingTime;\\n\\n    // Previous compute time\\n    uint256 public prev_timestamp;\\n\\n    modifier supplyControlCallerOnly() {\\n        require(msg.sender == supplyControlCaller ||\\n                msg.sender == authority.policy(), \\n                \\\"CONTROL: Only invokable by policy or a contract authorized as caller\\\");\\n        _;\\n    }\\n\\n    constructor(\\n        address _PANA,\\n        address _pair, \\n        address _router, \\n        address _supplyControlCaller,\\n        address _authority\\n    ) PanaAccessControlled(IPanaAuthority(_authority)) {\\n        require(_PANA != address(0), \\\"Zero address: PANA\\\");\\n        require(_pair != address(0), \\\"Zero address: PAIR\\\");\\n        require(_router != address(0), \\\"Zero address: ROUTER\\\");\\n        require(_supplyControlCaller != address(0), \\\"Zero address: CALLER\\\");\\n        require(_authority != address(0), \\\"Zero address: AUTHORITY\\\");\\n\\n        PANA = IERC20(_PANA);\\n        TOKEN = (IUniswapV2Pair(_pair).token0() == address(PANA)) ?  \\n                    IERC20(IUniswapV2Pair(_pair).token1()) : \\n                        IERC20(IUniswapV2Pair(_pair).token0());\\n        pair = _pair;\\n        router = _router;\\n        supplyControlCaller = _supplyControlCaller;\\n        paramsSet = false;\\n    }\\n\\n    function enableSupplyControl() external override onlyGovernor {\\n        require(supplyControlEnabled == false, \\\"CONTROL: Control already in progress\\\");\\n        require(paramsSet == true, \\\"CONTROL: Control parameters are not set\\\");\\n        supplyControlEnabled = true;\\n    }\\n\\n    function disableSupplyControl() external override onlyGovernor {\\n        require(supplyControlEnabled == true, \\\"CONTROL: No control in progress\\\");\\n        supplyControlEnabled = false;\\n        paramsSet = false; // Control params should be set for new control regime whenever it is started\\n    }\\n\\n    function setSupplyControlParams(uint256 _lossRatio, uint256 _cf, uint256 _cc, uint256 _samplingTime) external onlyGovernor {\\n        uint256 old_lossRatio = paramsSet ? lossRatio : 0;\\n        uint256 old_cf = paramsSet ? cf : 0;\\n        uint256 old_cc = paramsSet ? cc : 0;\\n        uint256 old_samplingTime = paramsSet ? samplingTime : 0; \\n\\n        lossRatio = _lossRatio;\\n        cf = _cf;\\n        cc = _cc;\\n        samplingTime = _samplingTime;\\n\\n        paramsSet = true;\\n\\n        emit SupplyControlParamsSet(lossRatio, cf, cc, samplingTime, old_lossRatio, old_cf, old_cc, old_samplingTime);\\n    }\\n\\n    function compute() external view override returns (uint256 _pana, uint256 _slp, bool _burn) {\\n        require(paramsSet == true, \\\"CONTROL: Control parameters are not set\\\");\\n\\n        (_pana, _slp, _burn) = (0, 0, false);\\n\\n        if (supplyControlEnabled) {\\n            uint256 _dt = block.timestamp - prev_timestamp;\\n            if (_dt < samplingTime) {\\n                // too early for the next control action hence returning zero\\n                return (_pana, _slp, _burn);\\n            }\\n\\n            uint256 _totalSupply = PANA.totalSupply();\\n            uint256 _panaInPool = getPanaReserves();\\n\\n            uint256 _targetSupply = lossRatio * _totalSupply / (10**4);\\n            uint256 _channelFloor = (lossRatio - cf) * _totalSupply / 10**4;\\n            uint256 _channelCeiling = (lossRatio + cc) * _totalSupply / 10**4;\\n\\n            if ((_panaInPool < _channelFloor || _panaInPool > _channelCeiling)) {\\n                int256 panaAmount = computePana(_targetSupply, _panaInPool, _dt);\\n\\n                _burn = panaAmount < 0;\\n                if (_burn) {\\n                    _pana = uint256(-panaAmount);\\n\\n                    // Burn SLPs containing 1/2 the Pana needed to be burnt. \\n                    // Other half will be be burnt through swap                    \\n                    _slp = (_pana * IUniswapV2Pair(pair).totalSupply()) / (2 * _panaInPool);\\n                } else {\\n                    _pana = uint256(panaAmount);\\n                    _slp = 0;\\n                }\\n            }\\n        }\\n    }\\n\\n    function computePana(uint256 _targetSupply, uint256 _panaInPool, uint256 _dt) internal view virtual returns (int256);\\n\\n    /**\\n     * @notice burns Pana from the pool using SLP\\n     * @param _slp uint256 - amount of slp to burn\\n     */\\n    function burn(uint256 _slp) external override supplyControlCallerOnly {\\n        prev_timestamp = block.timestamp;\\n\\n        IUniswapV2Pair(pair).approve(router, _slp);\\n\\n        // Half the amount of Pana to burn comes out alongwith the other half in the form of token\\n        (uint _panaOut, uint _tokenOut) = \\n            IUniswapV2Router02(router).removeLiquidity(\\n                address(PANA),\\n                address(TOKEN),\\n                _slp,\\n                0,\\n                0,\\n                address(this),\\n                type(uint256).max\\n            );\\n\\n        TOKEN.approve(router, _tokenOut);\\n\\n        address[] memory _path = new address[](2);\\n        _path[0] = address(TOKEN);\\n        _path[1] = address(PANA);\\n\\n        // Swap the token to remove the other half\\n        (uint[] memory _amounts) = IUniswapV2Router02(router).swapExactTokensForTokens(\\n            _tokenOut, \\n            0, \\n            _path,\\n            address(this), \\n            type(uint256).max\\n        );\\n\\n        // Residual amounts need to be transferred to treasury\\n        uint256 _panaResidue = _panaOut + _amounts[1];\\n        uint256 _tokenResidue = _tokenOut - _amounts[0];\\n\\n        PANA.safeTransfer(msg.sender, _panaResidue);\\n\\n        if (_tokenResidue > 0) {\\n            TOKEN.safeTransfer(msg.sender, _tokenResidue);\\n        }\\n\\n        emit Burnt(PANA.totalSupply(), getPanaReserves(), _slp, _panaResidue, _tokenResidue);\\n    }\\n\\n    /**\\n     * @notice adds Pana to the pool\\n     * @param _pana uint256 - amount of pana to add\\n     */\\n    function add(uint256 _pana) external override supplyControlCallerOnly {\\n        prev_timestamp = block.timestamp;\\n\\n        PANA.approve(router, _pana);\\n\\n        address[] memory _path = new address[](2);\\n        _path[0] = address(PANA);\\n        _path[1] = address(TOKEN);\\n\\n        // Pana gets added but token gets withdrawn\\n        (uint[] memory _amounts_1) = IUniswapV2Router02(router).swapExactTokensForTokens(\\n            _pana / 2, \\n            0, \\n            _path,\\n            address(this), \\n            type(uint256).max\\n        );\\n\\n        TOKEN.approve(router, _amounts_1[1]);\\n\\n        uint256 _tokForAdd = _amounts_1[1];\\n        uint256 _panaForAdd = _pana - _amounts_1[0];\\n\\n        PANA.approve(router, _panaForAdd);\\n\\n        // Add the other half token amount back to the pool alongwith Pana\\n        (uint _panaAdded, uint _tokenAdded, uint _slp) = IUniswapV2Router02(router).addLiquidity(\\n            address(PANA),\\n            address(TOKEN),\\n            _panaForAdd,\\n            _tokForAdd,\\n            0,\\n            0,\\n            address(this),\\n            type(uint256).max\\n        );\\n\\n        uint256 _netPanaAddedToPool = _amounts_1[0] + _panaAdded;\\n\\n        // Residual amounts need to be transferred to treasury\\n        uint256 _panaResidue = _panaForAdd - _panaAdded;\\n        uint256 _tokenResidue = _tokForAdd - _tokenAdded;\\n\\n        // Transfer SLP to treasury\\n        IUniswapV2Pair(pair).transfer(msg.sender, _slp);\\n\\n        PANA.safeTransfer(msg.sender, _panaResidue);\\n        TOKEN.safeTransfer(msg.sender, _tokenResidue);\\n\\n        emit Supplied(PANA.totalSupply(), getPanaReserves(), _slp, _netPanaAddedToPool, _panaResidue, _tokenResidue);\\n    }\\n\\n    function getPanaReserves() internal view virtual returns(uint256 _reserve) {\\n        (uint256 _reserve0, uint256 _reserve1, ) = IUniswapV2Pair(pair).getReserves();\\n        _reserve = (IUniswapV2Pair(pair).token0() == address(PANA)) ? _reserve0 : _reserve1;\\n    }\\n}\",\"keccak256\":\"0x971a16f7065626a42c84ee39b2b3de73270b56888e6c60673670a465d4775ff3\",\"license\":\"AGPL-3.0\"},\"contracts/treasury/ProportionalSupplyController.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.10;\\n\\nimport \\\"./BaseSupplyController.sol\\\";\\n\\ncontract ProportionalSupplyController is BaseSupplyController {   \\n    event PCoefficientSet(int256 kp, int256 oldKp);\\n\\n    // Proportional gain, 4 decimals\\n    int256 public kp;\\n\\n    constructor(\\n        int256 _kp,\\n        address _PANA,\\n        address _pair, \\n        address _router, \\n        address _supplyControlCaller,\\n        address _authority\\n    ) BaseSupplyController(_PANA, _pair, _router, _supplyControlCaller, _authority) {\\n        kp = _kp;\\n    }\\n\\n    function setPCoefficient(int256 _kp) external onlyPolicy {\\n        require(_kp <= 10000, \\\"Proportional coefficient cannot be more than 1\\\");\\n       \\n        int256 oldKp = kp;\\n        kp = _kp;\\n\\n        emit PCoefficientSet(kp, oldKp);\\n    }\\n\\n    function computePana(uint256 _targetSupply, uint256 _panaInPool, uint256 _dt) internal override view returns (int256) {\\n        return (int256(_targetSupply) - int256(_panaInPool)) * kp / 10**4;\\n    }\\n}\",\"keccak256\":\"0x42c0ade9ef43bddfd0ffda5a9c88e4e06716253f9445359dde9fb2869b4682c6\",\"license\":\"AGPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x610100604052600c60c08190526b15539055551213d49256915160a21b60e090815262000030916000919062000425565b503480156200003e57600080fd5b506040516200293f3803806200293f8339810160408190526200006191620004e8565b600180546001600160a01b0319166001600160a01b0383169081179091556040518691869186918691869182917f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a2506001600160a01b038516620001065760405162461bcd60e51b81526020600482015260126024820152715a65726f20616464726573733a2050414e4160701b60448201526064015b60405180910390fd5b6001600160a01b038416620001535760405162461bcd60e51b81526020600482015260126024820152712d32b9379030b2323932b9b99d102820a4a960711b6044820152606401620000fd565b6001600160a01b038316620001ab5760405162461bcd60e51b815260206004820152601460248201527f5a65726f20616464726573733a20524f555445520000000000000000000000006044820152606401620000fd565b6001600160a01b038216620002035760405162461bcd60e51b815260206004820152601460248201527f5a65726f20616464726573733a2043414c4c45520000000000000000000000006044820152606401620000fd565b6001600160a01b0381166200025b5760405162461bcd60e51b815260206004820152601760248201527f5a65726f20616464726573733a20415554484f524954590000000000000000006044820152606401620000fd565b846001600160a01b03166080816001600160a01b0316815250506080516001600160a01b0316846001600160a01b0316630dfe16816040518163ffffffff1660e01b8152600401602060405180830381865afa158015620002c0573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620002e6919062000560565b6001600160a01b0316146200036057836001600160a01b0316630dfe16816040518163ffffffff1660e01b8152600401602060405180830381865afa15801562000334573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906200035a919062000560565b620003c5565b836001600160a01b031663d21220a76040518163ffffffff1660e01b8152600401602060405180830381865afa1580156200039f573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190620003c5919062000560565b6001600160a01b0390811660a052600280549582166001600160a01b031996871617905560038054948216949095169390931790935560048054600161ff0160a01b03191691909216179055505050600a9490945550620005c292505050565b828054620004339062000585565b90600052602060002090601f016020900481019282620004575760008555620004a2565b82601f106200047257805160ff1916838001178555620004a2565b82800160010185558215620004a2579182015b82811115620004a257825182559160200191906001019062000485565b50620004b0929150620004b4565b5090565b5b80821115620004b05760008155600101620004b5565b80516001600160a01b0381168114620004e357600080fd5b919050565b60008060008060008060c087890312156200050257600080fd5b865195506200051460208801620004cb565b94506200052460408801620004cb565b93506200053460608801620004cb565b92506200054460808801620004cb565b91506200055460a08801620004cb565b90509295509295509295565b6000602082840312156200057357600080fd5b6200057e82620004cb565b9392505050565b600181811c908216806200059a57607f821691505b60208210811415620005bc57634e487b7160e01b600052602260045260246000fd5b50919050565b60805160a0516122d96200066660003960008181610525015281816105f6015281816107eb01528181610995015281816111cf0152818161129a0152818161132b01526114e101526000818161043e015281816104d10152818161073c015281816107c301528181610961015281816109df01528181610c96015281816111a70152818161137f015281816114a70152818161152b0152611c5f01526122d96000f3fe608060405234801561001057600080fd5b506004361061016c5760003560e01c806376ad5a4d116100cd578063a2cdd47111610081578063bf7e214f11610066578063bf7e214f146102b3578063f16dde6c146102c6578063f887ea40146102d957600080fd5b8063a2cdd47114610297578063a8aa1b31146102a057600080fd5b806391f07014116100b257806391f07014146102725780639384ea421461027a578063a0d7db8e1461028357600080fd5b806376ad5a4d1461023b5780637a9e5e4b1461025f57600080fd5b80631c455fa81161012457806342966c681161010957806342966c681461021657806360535b431461022957806364a70e161461023257600080fd5b80631c455fa8146101fa578063214cc7d91461020357600080fd5b80631003e2d2116101555780631003e2d2146101b857806318836854146101cd5780631a43c338146101d557600080fd5b806303d834b114610171578063097548e3146101a1575b600080fd5b600454610184906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101aa60055481565b604051908152602001610198565b6101cb6101c6366004611d4b565b6102ec565b005b6101cb610aa8565b6101dd610bdc565b604080519384526020840192909252151590820152606001610198565b6101aa60095481565b6101cb610211366004611d4b565b610e86565b6101cb610224366004611d4b565b610fef565b6101aa60065481565b6101aa600a5481565b60045461024f90600160a01b900460ff1681565b6040519015158152602001610198565b6101cb61026d366004611d7c565b6115e9565b6101cb6116f7565b6101aa60085481565b60045461024f90600160a81b900460ff1681565b6101aa60075481565b600254610184906001600160a01b031681565b600154610184906001600160a01b031681565b6101cb6102d4366004611da0565b6118a7565b600354610184906001600160a01b031681565b6004546001600160a01b031633148061038c5750600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015610353573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103779190611dd2565b6001600160a01b0316336001600160a01b0316145b6104115760405162461bcd60e51b8152602060048201526044602482018190527f434f4e54524f4c3a204f6e6c7920696e766f6b61626c6520627920706f6c6963908201527f79206f72206120636f6e747261637420617574686f72697a6564206173206361606482015263363632b960e11b608482015260a4015b60405180910390fd5b4260095560035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390527f00000000000000000000000000000000000000000000000000000000000000009091169063095ea7b3906044016020604051808303816000875af1158015610489573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ad9190611def565b506040805160028082526060820183526000926020830190803683370190505090507f00000000000000000000000000000000000000000000000000000000000000008160008151811061050357610503611e27565b60200260200101906001600160a01b031690816001600160a01b0316815250507f00000000000000000000000000000000000000000000000000000000000000008160018151811061055757610557611e27565b6001600160a01b039283166020918202929092010152600354600091166338ed1739610584600286611e69565b600085306000196040518663ffffffff1660e01b81526004016105ab959493929190611e7d565b6000604051808303816000875af11580156105ca573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526105f29190810190611eee565b90507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663095ea7b3600360009054906101000a90046001600160a01b03168360018151811061064c5761064c611e27565b60200260200101516040518363ffffffff1660e01b81526004016106859291906001600160a01b03929092168252602082015260400190565b6020604051808303816000875af11580156106a4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c89190611def565b506000816001815181106106de576106de611e27565b602002602001015190506000826000815181106106fd576106fd611e27565b6020026020010151856107109190611fac565b60035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390529192507f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af1158015610785573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107a99190611def565b5060035460405162e8e33760e81b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000811660048301527f000000000000000000000000000000000000000000000000000000000000000081166024830152604482018490526064820185905260006084830181905260a483018190523060c484015260001960e484015292839283929091169063e8e3370090610104016060604051808303816000875af115801561086f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108939190611fc3565b925092509250600083876000815181106108af576108af611e27565b60200260200101516108c19190611ff1565b905060006108cf8587611fac565b905060006108dd8589611fac565b60025460405163a9059cbb60e01b8152336004820152602481018790529192506001600160a01b03169063a9059cbb906044016020604051808303816000875af115801561092f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109539190611def565b506109886001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163384611a8c565b6109bc6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383611a8c565b7f3a31a3381a9917cf1d268782744eefbbc2d0467f1bd37ea377168f655a2242fd7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610a3b573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a5f9190612009565b610a67611bbc565b6040805192835260208301919091528101869052606081018590526080810184905260a0810183905260c00160405180910390a15050505050505050505050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa158015610afb573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b1f9190611dd2565b6001600160a01b0316336001600160a01b031614600090610b535760405162461bcd60e51b81526004016104089190612022565b50600454600160a01b900460ff161515600114610bb25760405162461bcd60e51b815260206004820152601f60248201527f434f4e54524f4c3a204e6f20636f6e74726f6c20696e2070726f6772657373006044820152606401610408565b600480547fffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffff169055565b6000806000600460159054906101000a900460ff1615156001151514610c545760405162461bcd60e51b815260206004820152602760248201527f434f4e54524f4c3a20436f6e74726f6c20706172616d657465727320617265206044820152661b9bdd081cd95d60ca1b6064820152608401610408565b50506004546000915081908190600160a01b900460ff1615610e8157600060095442610c809190611fac565b9050600854811015610c925750909192565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610cf2573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d169190612009565b90506000610d22611bbc565b9050600061271083600554610d3791906120ca565b610d419190611e69565b9050600061271084600654600554610d599190611fac565b610d6391906120ca565b610d6d9190611e69565b9050600061271085600754600554610d859190611ff1565b610d8f91906120ca565b610d999190611e69565b905081841080610da857508084115b15610e7a576000610dba848689611d1b565b90506000811297508715610e7057610dd1816120e9565b9950610dde8560026120ca565b600260009054906101000a90046001600160a01b03166001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610e31573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e559190612009565b610e5f908c6120ca565b610e699190611e69565b9850610e78565b809950600098505b505b5050505050505b909192565b600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015610ed9573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610efd9190611dd2565b6001600160a01b0316336001600160a01b031614600090610f315760405162461bcd60e51b81526004016104089190612022565b50612710811315610faa5760405162461bcd60e51b815260206004820152602e60248201527f50726f706f7274696f6e616c20636f656666696369656e742063616e6e6f742060448201527f6265206d6f7265207468616e20310000000000000000000000000000000000006064820152608401610408565b600a80549082905560408051838152602081018390527f0310be784aa343c94614142f6a9649e9826549a58f3ea77d5c88dfa115d65852910160405180910390a15050565b6004546001600160a01b031633148061108f5750600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015611056573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061107a9190611dd2565b6001600160a01b0316336001600160a01b0316145b61110f5760405162461bcd60e51b8152602060048201526044602482018190527f434f4e54524f4c3a204f6e6c7920696e766f6b61626c6520627920706f6c6963908201527f79206f72206120636f6e747261637420617574686f72697a6564206173206361606482015263363632b960e11b608482015260a401610408565b4260095560025460035460405163095ea7b360e01b81526001600160a01b0391821660048201526024810184905291169063095ea7b3906044016020604051808303816000875af1158015611168573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061118c9190611def565b50600354604051635d5155ef60e11b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000811660048301527f00000000000000000000000000000000000000000000000000000000000000008116602483015260448201849052600060648301819052608483018190523060a484015260001960c484015292839291169063baa2abde9060e40160408051808303816000875af1158015611247573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061126b9190612106565b60035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390529294509092507f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af11580156112e3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906113079190611def565b506040805160028082526060820183526000926020830190803683370190505090507f00000000000000000000000000000000000000000000000000000000000000008160008151811061135d5761135d611e27565b60200260200101906001600160a01b031690816001600160a01b0316815250507f0000000000000000000000000000000000000000000000000000000000000000816001815181106113b1576113b1611e27565b6001600160a01b0392831660209182029290920101526003546040516338ed173960e01b815260009291909116906338ed1739906113fd90869085908790309060001990600401611e7d565b6000604051808303816000875af115801561141c573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526114449190810190611eee565b905060008160018151811061145b5761145b611e27565b60200260200101518561146e9190611ff1565b905060008260008151811061148557611485611e27565b6020026020010151856114989190611fac565b90506114ce6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163384611a8c565b8015611508576115086001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383611a8c565b7f8043cdbc2a7b6ae637b2543b2d373345ca3aa41439886f0cdd7439d8b553c21a7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015611587573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115ab9190612009565b6115b3611bbc565b6040805192835260208301919091528101899052606081018490526080810183905260a00160405180910390a150505050505050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa15801561163c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906116609190611dd2565b6001600160a01b0316336001600160a01b0316146000906116945760405162461bcd60e51b81526004016104089190612022565b50600180547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0383169081179091556040517f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a250565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa15801561174a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061176e9190611dd2565b6001600160a01b0316336001600160a01b0316146000906117a25760405162461bcd60e51b81526004016104089190612022565b50600454600160a01b900460ff16156118095760405162461bcd60e51b8152602060048201526024808201527f434f4e54524f4c3a20436f6e74726f6c20616c726561647920696e2070726f676044820152637265737360e01b6064820152608401610408565b600454600160a81b900460ff1615156001146118775760405162461bcd60e51b815260206004820152602760248201527f434f4e54524f4c3a20436f6e74726f6c20706172616d657465727320617265206044820152661b9bdd081cd95d60ca1b6064820152608401610408565b600480547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff16600160a01b179055565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa1580156118fa573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061191e9190611dd2565b6001600160a01b0316336001600160a01b0316146000906119525760405162461bcd60e51b81526004016104089190612022565b50600454600090600160a81b900460ff1661196e576000611972565b6005545b600454909150600090600160a81b900460ff16611990576000611994565b6006545b600454909150600090600160a81b900460ff166119b25760006119b6565b6007545b600454909150600090600160a81b900460ff166119d45760006119d8565b6008545b6005899055600688905560078790556008869055600480547fffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffffff16600160a81b179055604080518a8152602081018a9052908101889052606081018790526080810186905260a0810185905260c0810184905260e081018290529091507f2d27f139d65340fea0b0f790689e0285d80f699335b26576aafe5eb8b00bb1af906101000160405180910390a15050505050505050565b604080516001600160a01b038481166024830152604480830185905283518084039091018152606490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff1663a9059cbb60e01b1790529151600092839290871691611afd919061212a565b6000604051808303816000865af19150503d8060008114611b3a576040519150601f19603f3d011682016040523d82523d6000602084013e611b3f565b606091505b5091509150818015611b69575080511580611b69575080806020019051810190611b699190611def565b611bb55760405162461bcd60e51b815260206004820152600f60248201527f5452414e534645525f4641494c454400000000000000000000000000000000006044820152606401610408565b5050505050565b6000806000600260009054906101000a90046001600160a01b03166001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa158015611c14573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190611c389190612188565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff1691507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316600260009054906101000a90046001600160a01b03166001600160a01b0316630dfe16816040518163ffffffff1660e01b8152600401602060405180830381865afa158015611cda573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190611cfe9190611dd2565b6001600160a01b031614611d125780611d14565b815b9250505090565b6000612710600a548486611d2f91906121d8565b611d399190612217565b611d43919061229e565b949350505050565b600060208284031215611d5d57600080fd5b5035919050565b6001600160a01b0381168114611d7957600080fd5b50565b600060208284031215611d8e57600080fd5b8135611d9981611d64565b9392505050565b60008060008060808587031215611db657600080fd5b5050823594602084013594506040840135936060013592509050565b600060208284031215611de457600080fd5b8151611d9981611d64565b600060208284031215611e0157600080fd5b81518015158114611d9957600080fd5b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b600082611e7857611e78611e3d565b500490565b600060a082018783526020878185015260a0604085015281875180845260c086019150828901935060005b81811015611ecd5784516001600160a01b031683529383019391830191600101611ea8565b50506001600160a01b03969096166060850152505050608001529392505050565b60006020808385031215611f0157600080fd5b825167ffffffffffffffff80821115611f1957600080fd5b818501915085601f830112611f2d57600080fd5b815181811115611f3f57611f3f611e11565b8060051b604051601f19603f83011681018181108582111715611f6457611f64611e11565b604052918252848201925083810185019188831115611f8257600080fd5b938501935b82851015611fa057845184529385019392850192611f87565b98975050505050505050565b600082821015611fbe57611fbe611e53565b500390565b600080600060608486031215611fd857600080fd5b8351925060208401519150604084015190509250925092565b6000821982111561200457612004611e53565b500190565b60006020828403121561201b57600080fd5b5051919050565b600060208083526000845481600182811c91508083168061204457607f831692505b85831081141561206257634e487b7160e01b85526022600452602485fd5b87860183815260200181801561207f5760018114612090576120bb565b60ff198616825287820196506120bb565b60008b81526020902060005b868110156120b55781548482015290850190890161209c565b83019750505b50949998505050505050505050565b60008160001904831182151516156120e4576120e4611e53565b500290565b6000600160ff1b8214156120ff576120ff611e53565b5060000390565b6000806040838503121561211957600080fd5b505080516020909101519092909150565b6000825160005b8181101561214b5760208186018101518583015201612131565b8181111561215a576000828501525b509190910192915050565b80516dffffffffffffffffffffffffffff8116811461218357600080fd5b919050565b60008060006060848603121561219d57600080fd5b6121a684612165565b92506121b460208501612165565b9150604084015163ffffffff811681146121cd57600080fd5b809150509250925092565b60008083128015600160ff1b8501841216156121f6576121f6611e53565b836001600160ff1b0301831381161561221157612211611e53565b50500390565b60006001600160ff1b0360008413600084138583048511828216161561223f5761223f611e53565b600160ff1b600087128281168783058912161561225e5761225e611e53565b6000871292508782058712848416161561227a5761227a611e53565b8785058712818416161561229057612290611e53565b505050929093029392505050565b6000826122ad576122ad611e3d565b600160ff1b8214600019841416156122c7576122c7611e53565b50059056fea164736f6c634300080a000a",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061016c5760003560e01c806376ad5a4d116100cd578063a2cdd47111610081578063bf7e214f11610066578063bf7e214f146102b3578063f16dde6c146102c6578063f887ea40146102d957600080fd5b8063a2cdd47114610297578063a8aa1b31146102a057600080fd5b806391f07014116100b257806391f07014146102725780639384ea421461027a578063a0d7db8e1461028357600080fd5b806376ad5a4d1461023b5780637a9e5e4b1461025f57600080fd5b80631c455fa81161012457806342966c681161010957806342966c681461021657806360535b431461022957806364a70e161461023257600080fd5b80631c455fa8146101fa578063214cc7d91461020357600080fd5b80631003e2d2116101555780631003e2d2146101b857806318836854146101cd5780631a43c338146101d557600080fd5b806303d834b114610171578063097548e3146101a1575b600080fd5b600454610184906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6101aa60055481565b604051908152602001610198565b6101cb6101c6366004611d4b565b6102ec565b005b6101cb610aa8565b6101dd610bdc565b604080519384526020840192909252151590820152606001610198565b6101aa60095481565b6101cb610211366004611d4b565b610e86565b6101cb610224366004611d4b565b610fef565b6101aa60065481565b6101aa600a5481565b60045461024f90600160a01b900460ff1681565b6040519015158152602001610198565b6101cb61026d366004611d7c565b6115e9565b6101cb6116f7565b6101aa60085481565b60045461024f90600160a81b900460ff1681565b6101aa60075481565b600254610184906001600160a01b031681565b600154610184906001600160a01b031681565b6101cb6102d4366004611da0565b6118a7565b600354610184906001600160a01b031681565b6004546001600160a01b031633148061038c5750600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015610353573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906103779190611dd2565b6001600160a01b0316336001600160a01b0316145b6104115760405162461bcd60e51b8152602060048201526044602482018190527f434f4e54524f4c3a204f6e6c7920696e766f6b61626c6520627920706f6c6963908201527f79206f72206120636f6e747261637420617574686f72697a6564206173206361606482015263363632b960e11b608482015260a4015b60405180910390fd5b4260095560035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390527f00000000000000000000000000000000000000000000000000000000000000009091169063095ea7b3906044016020604051808303816000875af1158015610489573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ad9190611def565b506040805160028082526060820183526000926020830190803683370190505090507f00000000000000000000000000000000000000000000000000000000000000008160008151811061050357610503611e27565b60200260200101906001600160a01b031690816001600160a01b0316815250507f00000000000000000000000000000000000000000000000000000000000000008160018151811061055757610557611e27565b6001600160a01b039283166020918202929092010152600354600091166338ed1739610584600286611e69565b600085306000196040518663ffffffff1660e01b81526004016105ab959493929190611e7d565b6000604051808303816000875af11580156105ca573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526105f29190810190611eee565b90507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663095ea7b3600360009054906101000a90046001600160a01b03168360018151811061064c5761064c611e27565b60200260200101516040518363ffffffff1660e01b81526004016106859291906001600160a01b03929092168252602082015260400190565b6020604051808303816000875af11580156106a4573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106c89190611def565b506000816001815181106106de576106de611e27565b602002602001015190506000826000815181106106fd576106fd611e27565b6020026020010151856107109190611fac565b60035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390529192507f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af1158015610785573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906107a99190611def565b5060035460405162e8e33760e81b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000811660048301527f000000000000000000000000000000000000000000000000000000000000000081166024830152604482018490526064820185905260006084830181905260a483018190523060c484015260001960e484015292839283929091169063e8e3370090610104016060604051808303816000875af115801561086f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906108939190611fc3565b925092509250600083876000815181106108af576108af611e27565b60200260200101516108c19190611ff1565b905060006108cf8587611fac565b905060006108dd8589611fac565b60025460405163a9059cbb60e01b8152336004820152602481018790529192506001600160a01b03169063a9059cbb906044016020604051808303816000875af115801561092f573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109539190611def565b506109886001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163384611a8c565b6109bc6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383611a8c565b7f3a31a3381a9917cf1d268782744eefbbc2d0467f1bd37ea377168f655a2242fd7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610a3b573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610a5f9190612009565b610a67611bbc565b6040805192835260208301919091528101869052606081018590526080810184905260a0810183905260c00160405180910390a15050505050505050505050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa158015610afb573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b1f9190611dd2565b6001600160a01b0316336001600160a01b031614600090610b535760405162461bcd60e51b81526004016104089190612022565b50600454600160a01b900460ff161515600114610bb25760405162461bcd60e51b815260206004820152601f60248201527f434f4e54524f4c3a204e6f20636f6e74726f6c20696e2070726f6772657373006044820152606401610408565b600480547fffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffff169055565b6000806000600460159054906101000a900460ff1615156001151514610c545760405162461bcd60e51b815260206004820152602760248201527f434f4e54524f4c3a20436f6e74726f6c20706172616d657465727320617265206044820152661b9bdd081cd95d60ca1b6064820152608401610408565b50506004546000915081908190600160a01b900460ff1615610e8157600060095442610c809190611fac565b9050600854811015610c925750909192565b60007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610cf2573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610d169190612009565b90506000610d22611bbc565b9050600061271083600554610d3791906120ca565b610d419190611e69565b9050600061271084600654600554610d599190611fac565b610d6391906120ca565b610d6d9190611e69565b9050600061271085600754600554610d859190611ff1565b610d8f91906120ca565b610d999190611e69565b905081841080610da857508084115b15610e7a576000610dba848689611d1b565b90506000811297508715610e7057610dd1816120e9565b9950610dde8560026120ca565b600260009054906101000a90046001600160a01b03166001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610e31573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610e559190612009565b610e5f908c6120ca565b610e699190611e69565b9850610e78565b809950600098505b505b5050505050505b909192565b600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015610ed9573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610efd9190611dd2565b6001600160a01b0316336001600160a01b031614600090610f315760405162461bcd60e51b81526004016104089190612022565b50612710811315610faa5760405162461bcd60e51b815260206004820152602e60248201527f50726f706f7274696f6e616c20636f656666696369656e742063616e6e6f742060448201527f6265206d6f7265207468616e20310000000000000000000000000000000000006064820152608401610408565b600a80549082905560408051838152602081018390527f0310be784aa343c94614142f6a9649e9826549a58f3ea77d5c88dfa115d65852910160405180910390a15050565b6004546001600160a01b031633148061108f5750600160009054906101000a90046001600160a01b03166001600160a01b0316630505c8c96040518163ffffffff1660e01b8152600401602060405180830381865afa158015611056573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061107a9190611dd2565b6001600160a01b0316336001600160a01b0316145b61110f5760405162461bcd60e51b8152602060048201526044602482018190527f434f4e54524f4c3a204f6e6c7920696e766f6b61626c6520627920706f6c6963908201527f79206f72206120636f6e747261637420617574686f72697a6564206173206361606482015263363632b960e11b608482015260a401610408565b4260095560025460035460405163095ea7b360e01b81526001600160a01b0391821660048201526024810184905291169063095ea7b3906044016020604051808303816000875af1158015611168573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061118c9190611def565b50600354604051635d5155ef60e11b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000811660048301527f00000000000000000000000000000000000000000000000000000000000000008116602483015260448201849052600060648301819052608483018190523060a484015260001960c484015292839291169063baa2abde9060e40160408051808303816000875af1158015611247573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061126b9190612106565b60035460405163095ea7b360e01b81526001600160a01b039182166004820152602481018390529294509092507f0000000000000000000000000000000000000000000000000000000000000000169063095ea7b3906044016020604051808303816000875af11580156112e3573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906113079190611def565b506040805160028082526060820183526000926020830190803683370190505090507f00000000000000000000000000000000000000000000000000000000000000008160008151811061135d5761135d611e27565b60200260200101906001600160a01b031690816001600160a01b0316815250507f0000000000000000000000000000000000000000000000000000000000000000816001815181106113b1576113b1611e27565b6001600160a01b0392831660209182029290920101526003546040516338ed173960e01b815260009291909116906338ed1739906113fd90869085908790309060001990600401611e7d565b6000604051808303816000875af115801561141c573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526114449190810190611eee565b905060008160018151811061145b5761145b611e27565b60200260200101518561146e9190611ff1565b905060008260008151811061148557611485611e27565b6020026020010151856114989190611fac565b90506114ce6001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163384611a8c565b8015611508576115086001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000163383611a8c565b7f8043cdbc2a7b6ae637b2543b2d373345ca3aa41439886f0cdd7439d8b553c21a7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166318160ddd6040518163ffffffff1660e01b8152600401602060405180830381865afa158015611587573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906115ab9190612009565b6115b3611bbc565b6040805192835260208301919091528101899052606081018490526080810183905260a00160405180910390a150505050505050565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa15801561163c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906116609190611dd2565b6001600160a01b0316336001600160a01b0316146000906116945760405162461bcd60e51b81526004016104089190612022565b50600180547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0383169081179091556040517f2f658b440c35314f52658ea8a740e05b284cdc84dc9ae01e891f21b8933e7cad90600090a250565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa15801561174a573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061176e9190611dd2565b6001600160a01b0316336001600160a01b0316146000906117a25760405162461bcd60e51b81526004016104089190612022565b50600454600160a01b900460ff16156118095760405162461bcd60e51b8152602060048201526024808201527f434f4e54524f4c3a20436f6e74726f6c20616c726561647920696e2070726f676044820152637265737360e01b6064820152608401610408565b600454600160a81b900460ff1615156001146118775760405162461bcd60e51b815260206004820152602760248201527f434f4e54524f4c3a20436f6e74726f6c20706172616d657465727320617265206044820152661b9bdd081cd95d60ca1b6064820152608401610408565b600480547fffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff16600160a01b179055565b600160009054906101000a90046001600160a01b03166001600160a01b0316630c340a246040518163ffffffff1660e01b8152600401602060405180830381865afa1580156118fa573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061191e9190611dd2565b6001600160a01b0316336001600160a01b0316146000906119525760405162461bcd60e51b81526004016104089190612022565b50600454600090600160a81b900460ff1661196e576000611972565b6005545b600454909150600090600160a81b900460ff16611990576000611994565b6006545b600454909150600090600160a81b900460ff166119b25760006119b6565b6007545b600454909150600090600160a81b900460ff166119d45760006119d8565b6008545b6005899055600688905560078790556008869055600480547fffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffffff16600160a81b179055604080518a8152602081018a9052908101889052606081018790526080810186905260a0810185905260c0810184905260e081018290529091507f2d27f139d65340fea0b0f790689e0285d80f699335b26576aafe5eb8b00bb1af906101000160405180910390a15050505050505050565b604080516001600160a01b038481166024830152604480830185905283518084039091018152606490920183526020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff1663a9059cbb60e01b1790529151600092839290871691611afd919061212a565b6000604051808303816000865af19150503d8060008114611b3a576040519150601f19603f3d011682016040523d82523d6000602084013e611b3f565b606091505b5091509150818015611b69575080511580611b69575080806020019051810190611b699190611def565b611bb55760405162461bcd60e51b815260206004820152600f60248201527f5452414e534645525f4641494c454400000000000000000000000000000000006044820152606401610408565b5050505050565b6000806000600260009054906101000a90046001600160a01b03166001600160a01b0316630902f1ac6040518163ffffffff1660e01b8152600401606060405180830381865afa158015611c14573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190611c389190612188565b506dffffffffffffffffffffffffffff1691506dffffffffffffffffffffffffffff1691507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316600260009054906101000a90046001600160a01b03166001600160a01b0316630dfe16816040518163ffffffff1660e01b8152600401602060405180830381865afa158015611cda573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190611cfe9190611dd2565b6001600160a01b031614611d125780611d14565b815b9250505090565b6000612710600a548486611d2f91906121d8565b611d399190612217565b611d43919061229e565b949350505050565b600060208284031215611d5d57600080fd5b5035919050565b6001600160a01b0381168114611d7957600080fd5b50565b600060208284031215611d8e57600080fd5b8135611d9981611d64565b9392505050565b60008060008060808587031215611db657600080fd5b5050823594602084013594506040840135936060013592509050565b600060208284031215611de457600080fd5b8151611d9981611d64565b600060208284031215611e0157600080fd5b81518015158114611d9957600080fd5b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b600082611e7857611e78611e3d565b500490565b600060a082018783526020878185015260a0604085015281875180845260c086019150828901935060005b81811015611ecd5784516001600160a01b031683529383019391830191600101611ea8565b50506001600160a01b03969096166060850152505050608001529392505050565b60006020808385031215611f0157600080fd5b825167ffffffffffffffff80821115611f1957600080fd5b818501915085601f830112611f2d57600080fd5b815181811115611f3f57611f3f611e11565b8060051b604051601f19603f83011681018181108582111715611f6457611f64611e11565b604052918252848201925083810185019188831115611f8257600080fd5b938501935b82851015611fa057845184529385019392850192611f87565b98975050505050505050565b600082821015611fbe57611fbe611e53565b500390565b600080600060608486031215611fd857600080fd5b8351925060208401519150604084015190509250925092565b6000821982111561200457612004611e53565b500190565b60006020828403121561201b57600080fd5b5051919050565b600060208083526000845481600182811c91508083168061204457607f831692505b85831081141561206257634e487b7160e01b85526022600452602485fd5b87860183815260200181801561207f5760018114612090576120bb565b60ff198616825287820196506120bb565b60008b81526020902060005b868110156120b55781548482015290850190890161209c565b83019750505b50949998505050505050505050565b60008160001904831182151516156120e4576120e4611e53565b500290565b6000600160ff1b8214156120ff576120ff611e53565b5060000390565b6000806040838503121561211957600080fd5b505080516020909101519092909150565b6000825160005b8181101561214b5760208186018101518583015201612131565b8181111561215a576000828501525b509190910192915050565b80516dffffffffffffffffffffffffffff8116811461218357600080fd5b919050565b60008060006060848603121561219d57600080fd5b6121a684612165565b92506121b460208501612165565b9150604084015163ffffffff811681146121cd57600080fd5b809150509250925092565b60008083128015600160ff1b8501841216156121f6576121f6611e53565b836001600160ff1b0301831381161561221157612211611e53565b50500390565b60006001600160ff1b0360008413600084138583048511828216161561223f5761223f611e53565b600160ff1b600087128281168783058912161561225e5761225e611e53565b6000871292508782058712848416161561227a5761227a611e53565b8785058712818416161561229057612290611e53565b505050929093029392505050565b6000826122ad576122ad611e3d565b600160ff1b8214600019841416156122c7576122c7611e53565b50059056fea164736f6c634300080a000a",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "add(uint256)": {
+        "params": {
+          "_pana": "uint256 - amount of pana to add"
+        }
+      },
+      "burn(uint256)": {
+        "params": {
+          "_slp": "uint256 - amount of slp to burn"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "add(uint256)": {
+        "notice": "adds Pana to the pool"
+      },
+      "burn(uint256)": {
+        "notice": "burns Pana from the pool using SLP"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 315,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "UNAUTHORIZED",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 318,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "authority",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IPanaAuthority)4118"
+      },
+      {
+        "astId": 7025,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "pair",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      },
+      {
+        "astId": 7027,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "router",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      },
+      {
+        "astId": 7029,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "supplyControlCaller",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_address"
+      },
+      {
+        "astId": 7032,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "supplyControlEnabled",
+        "offset": 20,
+        "slot": "4",
+        "type": "t_bool"
+      },
+      {
+        "astId": 7035,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "paramsSet",
+        "offset": 21,
+        "slot": "4",
+        "type": "t_bool"
+      },
+      {
+        "astId": 7037,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "lossRatio",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 7039,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "cf",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 7041,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "cc",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 7043,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "samplingTime",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 7045,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "prev_timestamp",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 7877,
+        "contract": "contracts/treasury/ProportionalSupplyController.sol:ProportionalSupplyController",
+        "label": "kp",
+        "offset": 0,
+        "slot": "10",
+        "type": "t_int256"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(IPanaAuthority)4118": {
+        "encoding": "inplace",
+        "label": "contract IPanaAuthority",
+        "numberOfBytes": "20"
+      },
+      "t_int256": {
+        "encoding": "inplace",
+        "label": "int256",
+        "numberOfBytes": "32"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
   mapping(address => bool) public whitelisted; // whitelisted status for operators
 
   IERC20 internal immutable pana; // reward token
+  bool public allowUserRewards; //toggle user reward
 
   constructor(
     IPanaAuthority _authority, 
@@ -31,6 +32,13 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
     rewards[msg.sender] = 0;
     pana.transfer(msg.sender, reward);
   }
+  
+  /**
+  * @notice toggle user having reward, only by governer
+  */
+  function setUserRewards() external onlyGovernor {        
+      allowUserRewards = !allowUserRewards;
+  }
 
   /* ========= INTERNAL ========== */
 
@@ -47,7 +55,13 @@ abstract contract FrontEndRewarder is PanaAccessControlled {
 
     // and store them in our rewards mapping
     if (whitelisted[_referral]) {
-      rewards[_referral] += toRef;
+      if(allowUserRewards) {
+        rewards[msg.sender] += toRef / 2;
+        rewards[_referral] += toRef - (toRef/ 2);
+      }
+      else {
+        rewards[_referral] += toRef;
+      }
       rewards[authority.vault()] += toTreasury;
     } else { 
       // the Treasury receives both rewards if referrer is not whitelisted

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.10;
 
-import "../treasury/FrontEndRewarder.sol";
+import "../bond/FrontEndRewarder.sol";
 
 import "../interfaces/IKarsha.sol";
 import "../interfaces/IStaking.sol";
@@ -162,11 +162,29 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
   }
 
   /**
+   * @notice             checks whether the user has at least one unvested note
+   * @param _user        the user that the note belongs to
+   *@return              if the user has at least one unvested note
+   */
+  function hasNonMaturedNotes(address _user) public view override returns (bool) {
+    Note[] memory info = notes[_user];
+
+    for (uint256 i = 0; i < info.length; i++) {
+        if (info[i].redeemed == 0 && info[i].payout != 0 && info[i].matured > block.timestamp) {
+          return true;
+        } 
+    }
+
+    return false;
+  }
+
+  /**
    * @notice             calculate amount available for claim for a single note
    * @param _user        the user that the note belongs to
    * @param _index       the index of the note in the user's array
    * @return payout_     the payout due, in Karsha
    * @return matured_    if the payout can be redeemed
+
    */
   function pendingFor(address _user, uint256 _index) public view override returns (uint256 payout_, bool matured_) {
     Note memory note = notes[_user][_index];

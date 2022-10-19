@@ -4,7 +4,10 @@ export const CONTRACTS: Record<string, string> = {
     karsha: "Karsha",
     staking: "PanaStaking",
     distributor: "Distributor",
+    distributorV2: "DistributorV2",
     treasury: "PanaTreasury",
+    treasuryV2: "PanaTreasuryV2",
+    treasuryMigrator: "TreasuryMigrator",
     bondDepo: "PanaBondDepository",
     bondingCalculator: "PanaBondingCalculator",
     authority: "PanaAuthority",
@@ -12,7 +15,8 @@ export const CONTRACTS: Record<string, string> = {
     pPana: "PPanaERC20",
     pPanaRedeem: "PPanaRedeem",
     priceOracle: "SimpleUniswapOracle",
-    PanaSupplyController: "PanaSupplyController",
+    panaSupplyController: "PanaSupplyController",
+    proportionalSupplyController: "ProportionalSupplyController",
     stakingPools: "StakingPools"
 };
 
@@ -24,24 +28,25 @@ export const LARGE_APPROVAL = "100000000000000000000000000000000";
 export const EPOCH_LENGTH_IN_BLOCKS = "28800";
 export const FIRST_EPOCH_NUMBER = "0";
 export const FIRST_EPOCH_TIME = "1639430907";
-export const INITIAL_REWARD_RATE = "6329311";
+export const INITIAL_REWARD_RATE = "203804";
 export const FIXED_APY = true;
 export const INITIAL_INDEX = "1000000000000000000";
 export const INITIAL_MINT = "6000000000000000";
 export const BOUNTY_AMOUNT = "0";
 export const INITIAL_BASE_VALUE = "100000000000";
+export const KP = "180" // Propotional Gain for Supply Controller
 
 export const USDC_ADDRESS = {
     mainnet: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
     goerli: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
-    arbitrumTest: "0x91700A0a45bef3Ef488eC11792aE3b3199e0dC4e"
+    arbitrumTest: "0x327459343E34F4c2Cc3fE6678ea8cA3Cf22fBfC8"
 }
 
 export function getUSDCAddress(chainId: string) : string{
     switch (chainId) {
         case "5": //goerli
             return USDC_ADDRESS.goerli;
-        case "421611": //arbitrum test
+        case "421613": //arbitrum test
             return USDC_ADDRESS.arbitrumTest;
         default: //arbitrum
             return USDC_ADDRESS.mainnet
@@ -53,8 +58,8 @@ export function getDEXFactoryAddress(chainId: string) : string{
     switch (chainId) {
         case "5": //goerli
             return "0xc35DADB65012eC5796536bD9864eD8773aBc74C4";
-        case "421611": //arbitrum test
-            return "0x681c3836a5589b933062ACA4fd846c1287a2865F";
+        case "421613": //arbitrum test
+            return "0x64a0745EF9d3772d9739D9350873eD3703bE45eC";
         default: //arbitrum
             return "0xc35DADB65012eC5796536bD9864eD8773aBc74C4";
     }
@@ -65,8 +70,8 @@ export function getDEXRouterAddress(chainId: string) : string{
     switch (chainId) {
         case "5": //goerli
             return "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
-        case "421611": //arbitrum test
-            return "0xb5a35165047fed7440D3a75909c0949bf1943696";
+        case "421613": //arbitrum test
+            return "0xe82c4d8b993d613a28600b953e91a3a93ae69fd6";
         default: //arbitrum
             return "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
     }
@@ -77,8 +82,8 @@ export function getPANAUSDCLPToken(chainId: string) : string{
     switch (chainId) {
         case "5": //goerli
             return "0xE9aFf8206804AEA476432850e33B51cC1c3Ef6b0";
-        case "421611": //arbitrum test
-            return "0x91a2d26e987219E6a266784d5a816ceEf03cB3B8";
+        case "421613": //arbitrum test
+            return "0x466614D6B4249A24Be3E0B4d176Ee4BC6F795411";
         default: //arbitrum
             return "0x300fDD222687db8686EA51847Db43fa988b518E0";
     }

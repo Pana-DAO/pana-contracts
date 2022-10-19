@@ -3,28 +3,28 @@ import { ethers, deployments, getNamedAccounts, getUnnamedAccounts } from "hardh
 import { CONTRACTS, EPOCH_LENGTH_IN_BLOCKS, FIRST_EPOCH_NUMBER } from "./constants";
 const { BigNumber } = ethers;
 import {
-    PanaSupplyController__factory
+    ProportionalSupplyController__factory
 } from "../types";
 
 
 async function main() {
 
     const LOSS_RATIO = 2250;
-    const CF = 100;
-    const CC = 100;
-    const mSLP = "100000";
+    const CF = 50;
+    const CC = 50;
+    const SAMPLING_TIME = 3600;
     
     const { daoMultisig } = await getNamedAccounts();
     
-    const supplyControlDeployment = await deployments.get(CONTRACTS.PanaSupplyController);
+    const supplyControlDeployment = await deployments.get(CONTRACTS.proportionalSupplyController);
     const dao = await ethers.getSigner(daoMultisig);
 
-    let supplyController = PanaSupplyController__factory.connect(supplyControlDeployment.address, dao);
+    let supplyController = ProportionalSupplyController__factory.connect(supplyControlDeployment.address, dao);
 
     console.log("Supply Control Contract Address - " + supplyControlDeployment.address);
 
     const setupTx = await supplyController.setSupplyControlParams(
-        LOSS_RATIO, CF, CC, mSLP
+        LOSS_RATIO, CF, CC, SAMPLING_TIME
     );
     console.log("SupplyController - Set Params: " + setupTx.hash);
 

@@ -39,7 +39,7 @@ async function main() {
     console.log("Bond Depository Contract Address - " + bondDepoDeployment.address);
     
     let capacity = ethers.utils.parseUnits(CAPACITY.toString(), 18);
-    let price = "48000000000"; //ethers.utils.parseUnits(PRICE.toString(), 18);
+    let price = "51296300000"; //ethers.utils.parseUnits(PRICE.toString(), 18);
     let currentTimeStamp = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
     let conclusion = currentTimeStamp + CONCULSION_LENTH;
     console.log(conclusion);

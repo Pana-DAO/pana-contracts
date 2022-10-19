@@ -10,15 +10,15 @@ dotenvConfig({ path: resolve(__dirname, "./.env") });
 async function main() {
 
     /* SET THIS PARAMS TO RUN SCRIPT */
-    const CAPACITY = 200000; // Pana
-    const PRICE = '52322820877';
+    const CAPACITY = 1500000; // Pana
+    const PRICE = '47395154984';
     const DEBT_BUFFER = 100000; // 100%
     const CAPACITY_IN_QUOTE = false;
     const QUOTE_IS_RESERVED = true;
     const FIXED_TERM = true;
     const VESTING_TERM = 432000; // 5 Days
-    const CONCULSION_LENTH = 1728000; // 20 days
-    const DEPOSIT_INTERVAL = 172800; // 2 days
+    const CONCULSION_LENTH = 2592000; // 30 days
+    const DEPOSIT_INTERVAL = 86400; // 1 day
     const TUNE_INTERVAL = 86400; // 1 day
 
     const QUOTE_IS_LP = true;

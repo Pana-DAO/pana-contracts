@@ -41,6 +41,8 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
   // Queries
   mapping(address => uint256[]) public marketsForQuote; // market IDs for quote token
 
+  bool public concurrentBondsPermitted;
+
 /* ======== CONSTRUCTOR ======== */
 
   constructor(
@@ -85,6 +87,8 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
     uint256 expiry_,
     uint256 index_
   ) {
+    require(concurrentBondsPermitted || !hasNonMaturedNotes(_user), "Concurrent bonds are forbidden");
+
     Market storage market = markets[_id];
     Terms memory term = terms[_id];
     uint48 currentTime = uint48(block.timestamp);
@@ -451,6 +455,10 @@ contract PanaBondDepository is IBondDepository, NoteKeeper {
     terms[_id].conclusion = uint48(block.timestamp);
     markets[_id].capacity = 0;
     emit CloseMarket(_id);
+  }
+
+  function permitConcurrentBonds(bool permit) external onlyPolicy {
+    concurrentBondsPermitted = permit;
   }
 
   /**

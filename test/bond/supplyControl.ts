@@ -28,8 +28,8 @@ import {
     UniswapV2Pair__factory,
     UniswapV2Router02__factory,
     UniswapV2Router02,
-    PanaSupplyController,
-    PanaSupplyController__factory,
+    ProportionalSupplyController,
+    ProportionalSupplyController__factory,
     
 } from '../../types';
 
@@ -94,7 +94,7 @@ describe("Pana reserve Supply control", () => {
     let uniswapRouter : UniswapV2Router02;
     let USDCDeposited : BigNumber;
     let PanaDeposited : BigNumber;
-    let supplyControl : PanaSupplyController;
+    let supplyControl : ProportionalSupplyController;
     let USDCDecimals : number;
     let PANADecimals: number;
     let block: any;
@@ -134,8 +134,8 @@ describe("Pana reserve Supply control", () => {
         
         LP = await( new UniswapV2Pair__factory(deployer)).attach(await lpfactory.getPair(usdc.address, pana.address));
 
-        supplyControl = await new PanaSupplyController__factory(deployer)
-                            .deploy(pana.address, LP.address, uniswapRouter.address, treasury.address, authority.address);
+        supplyControl = await new ProportionalSupplyController__factory(deployer)
+                            .deploy(10000, pana.address, LP.address, uniswapRouter.address, treasury.address, authority.address);
         
         USDCDecimals = await usdc.decimals();
         PANADecimals = await pana.decimals();
@@ -195,6 +195,7 @@ describe("Pana reserve Supply control", () => {
             expect(await supplyControl.pair()).to.equal(LP.address);
             expect(await supplyControl.supplyControlCaller()).to.equal(treasury.address);
             expect(await supplyControl.paramsSet()).to.equal(false);
+            expect(await supplyControl.kp()).to.equal(10000);
         });
 
         it("Should set correct supply control parameters", async() => {
@@ -204,7 +205,23 @@ describe("Pana reserve Supply control", () => {
             expect(await supplyControl.lossRatio()).to.equal(2250);
             expect(await supplyControl.cc()).to.equal(100);
             expect(await supplyControl.cf()).to.equal(100);
-            expect(await supplyControl.mslp()).to.equal(500);
+            expect(await supplyControl.samplingTime()).to.equal(500);
+        });
+
+        it("Should set correct supply control coefficient", async() => {
+            expect(await supplyControl.kp()).to.equal(10000);
+            await supplyControl.connect(deployer).setPCoefficient(100);
+            expect(await supplyControl.kp()).to.equal(100);
+        });
+
+        it("Should allow only the policy owner to set supply control coefficient", async() => {
+            await expect(supplyControl.connect(user1).setPCoefficient(100))
+                    .to.be.revertedWith("UNAUTHORIZED");
+        });
+
+        it("Should not allow supply control coefficient to be greater than 10000", async() => {
+            await expect(supplyControl.connect(deployer).setPCoefficient(90000))
+                    .to.be.revertedWith("Proportional coefficient cannot be more than 1");
         });
 
         it("Should allow only the governor to set supply control parameters", async() => {
@@ -218,7 +235,7 @@ describe("Pana reserve Supply control", () => {
 
         it("Should not allow enablement of supply control if params are not set", async() => {
             await expect(supplyControl.connect(deployer).enableSupplyControl())
-                    .to.be.revertedWith("CONTROL: Control parameters are not set, please set control parameters");
+                    .to.be.revertedWith("CONTROL: Control parameters are not set");
         });
 
         it("Should allow enablement of supply control if params are set", async() => {
@@ -261,7 +278,7 @@ describe("Pana reserve Supply control", () => {
             await supplyControl.connect(deployer).enableSupplyControl();
             await supplyControl.connect(deployer).disableSupplyControl();
             await expect(supplyControl.connect(deployer).enableSupplyControl())
-                .to.be.revertedWith("CONTROL: Control parameters are not set, please set control parameters");
+                .to.be.revertedWith("CONTROL: Control parameters are not set");
         });
 
         it("Should initialize treasury with supply control", async()=>{
@@ -279,7 +296,7 @@ describe("Pana reserve Supply control", () => {
         let tune = 60*60*4; // 4 hours
         let buffer = 100e5;
         let conclusion:number;
-        let depositUSDC = decimalRepresentation("1", 6); // using a small amount in 6 decimals
+        let depositUSDC = decimalRepresentation("40", 6); // using a small amount in 6 decimals
         let depositLP = decimalRepresentation("20", 11 );  // using a small lp amount in 11 decimals
         
         const getPanaReserve = async ()=>{
@@ -293,19 +310,11 @@ describe("Pana reserve Supply control", () => {
             return reserve.mul(10000).div(totalSupply);
         };
 
-        const getLossRatio = async (prevPanaInPool : any, prevTotalSupply : any)=>{
-            let CurrentPanaInPool = await getPanaReserve();
-            let CurrentTotalSupply = await pana.totalSupply();
-            let numerator = prevPanaInPool > CurrentPanaInPool? prevPanaInPool.sub(CurrentPanaInPool) : CurrentPanaInPool.sub(prevPanaInPool);
-            let denominator = prevTotalSupply > CurrentTotalSupply ? prevTotalSupply.sub(CurrentTotalSupply) : CurrentTotalSupply.sub(prevTotalSupply);
-            return numerator.mul(10000).div(denominator);
-        };
-
         describe("Reserve control by add/burn pana",() => {
 
             let lossratio = bigNumberRepresentation("4000");
-            let cf = bigNumberRepresentation("100");
-            let cc = bigNumberRepresentation("100");
+            let cf = bigNumberRepresentation("2");
+            let cc = bigNumberRepresentation("2");
             let ratiorUpperBound = 4001;
             let ratiorLowerBound = 3999;
 
@@ -342,6 +351,7 @@ describe("Pana reserve Supply control", () => {
                 let totalLPbalance = await LP.balanceOf(deployer.address);
                 // transfering 1/4th of total LP tokens acquired from adding liquidity by deployer
                 await LP.connect(deployer).transfer(treasury.address, totalLPbalance.mul(1).div(4));
+                // transferring pre-minted pana to treasury and user
                 await pana.connect(deployer).transfer(treasury.address, decimalRepresentation("150000",PANADecimals));
                 await pana.connect(deployer).transfer(user1.address, decimalRepresentation("1500000",PANADecimals));
 
@@ -350,7 +360,7 @@ describe("Pana reserve Supply control", () => {
                 await slidingWindow.initialize(LP.address);
                 moveTimestamp(1800)
 
-                await supplyControl.connect(deployer).setSupplyControlParams(4000, 100, 100, decimalRepresentation("200000"));
+                await supplyControl.connect(deployer).setSupplyControlParams(4000, 2, 2, 3600);
                 
                 await bondDepository.connect(deployer).create(
                     LP.address,
@@ -375,47 +385,72 @@ describe("Pana reserve Supply control", () => {
                 expect(balanceAfter).to.equal(balanceBefore.sub(depositLP));
             });
             
-            it("Should return correct target supply", async() => {
-                let lastTotalSupply = await pana.totalSupply();
-                let lastPanaPool = await getPanaReserve();
-                await bondDepository.connect(deployer)
-                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
-                let newTotalSupply = await pana.totalSupply();
-                let target = lastPanaPool.add(lossratio.mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
-                expect(target).to.equal(await supplyControl.getTargetSupply());            
+            it("Should return target supply if within range", async() => {
+                
+                let preSupplyRatio = await getSupplyRatio();
+                await bondDepository.connect(user1)
+                        .deposit(1, depositUSDC, decimalRepresentation(1), user1.address, user1.address);
+                let newSupplyRatio = await getSupplyRatio();
+                
+                expect(Number(newSupplyRatio)).to.be.lessThan(Number(lossratio.sub(cf))); 
+                expect(Number(newSupplyRatio)).to.be.lessThan(Number(preSupplyRatio)); 
+
+                await supplyControl.connect(deployer).enableSupplyControl();
+
+                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.compute();
+                expect(expectedPanaSupply).to.be.not.equal(0);     
+
+            });
+
+            it("Should return correct target supply with different coefficient", async() => {
+            
+                await supplyControl.setPCoefficient(500);
+                let preSupplyRatio = await getSupplyRatio();
+                await bondDepository.connect(user1)
+                        .deposit(1, depositUSDC, decimalRepresentation(1), user1.address, user1.address);
+                let newSupplyRatio = await getSupplyRatio();
+            
+                expect(Number(newSupplyRatio)).to.be.lessThan(Number(lossratio.sub(cf))); 
+                expect(Number(newSupplyRatio)).to.be.lessThan(Number(preSupplyRatio)); 
+
+                await supplyControl.connect(deployer).enableSupplyControl();
+                let targetSupply = (await pana.totalSupply()).mul(lossratio).div(10000)
+
+                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.compute();
+                expect(expectedPanaSupply).to.be.not.equal((await getPanaReserve()).sub(targetSupply).mul(500).div(10000));     
+
             });
             
-            it("Should return correct supply floor", async() => {
-                let lastPanaPool = await getPanaReserve();
-                let lastTotalSupply = await pana.totalSupply();
-                await bondDepository.connect(deployer)
-                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
-                let newTotalSupply = await pana.totalSupply();            
-                let target = lastPanaPool.add((lossratio.sub(cf)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
-                expect(target).to.equal(await supplyControl.getSupplyFloor());
-            });
-            
-            it("Should return correct supply ceiling", async() => { 
-                let lastPanaPool = await getPanaReserve();            
-                let lastTotalSupply = await pana.totalSupply();
-                await bondDepository.connect(deployer)
-                        .deposit(0, depositLP, decimalRepresentation(1), deployer.address, user1.address);
-                let newTotalSupply = await pana.totalSupply();
-                let target = lastPanaPool.add((lossratio.add(cc)).mul(newTotalSupply.sub(lastTotalSupply)).div(10000));
-                expect(target).to.equal(await supplyControl.getSupplyCeiling());
+            it("Should not return target supply if not within range", async() => {
+ 
+                let preSupplyRatio = await getSupplyRatio();
+
+                await bondDepository.connect(user1)
+                        .deposit(1, '100000', decimalRepresentation(1), user1.address, user1.address);
+                let newSupplyRatio = await getSupplyRatio();
+                expect(Number(newSupplyRatio)).to.be.greaterThan(Number(lossratio.sub(cf))); 
+                expect(Number(newSupplyRatio)).to.be.lessThan(Number(preSupplyRatio)); 
+
+                await supplyControl.connect(deployer).enableSupplyControl();
+                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.compute();
+
+                expect(expectedPanaSupply).to.be.equal(0);
+                expect(expectedSLP).to.be.equal(0);
+                expect(burn).to.be.equal(false);
             });
 
             it("Should return correct supply control amount on addition", async() => {
                 // total supply is increased -> pana add into pool
                 let panaInPool = await getPanaReserve();
 
-                await bondDepository.connect(deployer)
-                        .deposit(0,depositLP, decimalRepresentation(1), deployer.address, user1.address);
+                await bondDepository.connect(user1)
+                        .deposit(1,depositUSDC, decimalRepresentation(1), user1.address, user1.address);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
-                let targetSupply = await supplyControl.getTargetSupply();
-                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.getSupplyControlAmount();
+                let targetSupply = (await pana.totalSupply()).mul(lossratio).div(10000);
+
+                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.compute();
 
                 expect(expectedPanaSupply).to.equal(targetSupply.sub(panaInPool));
                 expect(expectedSLP).to.equal("0");
@@ -426,20 +461,40 @@ describe("Pana reserve Supply control", () => {
             it("Should return correct supply control amount on burning", async() => {
                 // reserve supply is increased -> pana burn from pool
                 await uniswapRouter.connect(deployer)
-                        .swapExactTokensForTokens(decimalRepresentation("100"), 0, [pana.address, usdc.address], deployer.address, conclusion);
+                        .swapExactTokensForTokens(decimalRepresentation("2000"), 0, [pana.address, usdc.address], deployer.address, conclusion);
 
                 await supplyControl.connect(deployer).enableSupplyControl();
 
                 let panaInPool = await getPanaReserve();
                 let lptotalSupply = await LP.totalSupply();
 
-                let targetSupply = await supplyControl.getTargetSupply();
+                let targetSupply = (await pana.totalSupply()).mul(lossratio).div(10000);
                 let slpToBurn = ((panaInPool.sub(targetSupply)).mul(lptotalSupply)).div(panaInPool.mul(2));
-                let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.getSupplyControlAmount();
+                let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.compute();
 
                 expect(expectedPanaSupply).to.equal(panaInPool.sub(targetSupply));
                 expect(expectedSLP).to.equal(slpToBurn);
                 expect(burn).to.equal(true);
+
+            });
+
+            it("Should not trigger supply control if consecutive control lies within time frame ", async() => {
+                // total supply is increased -> pana add into pool
+                // let panaInPool = await getPanaReserve();
+                await supplyControl.setPCoefficient(100);
+                await bondDepository.connect(user1)
+                        .deposit(1,depositUSDC, decimalRepresentation(1), user1.address, user1.address);
+
+                await supplyControl.connect(deployer).enableSupplyControl();
+
+                await treasury.updateSupplyRatio(LP.address);
+                await treasury.updateSupplyRatio(LP.address);
+
+                let [expectedPanaSupply, expectedSLP, burn ] = await supplyControl.compute();
+
+                expect(expectedPanaSupply).to.equal(0);
+                expect(expectedSLP).to.equal("0");
+                expect(burn).to.equal(false);
 
             });
 
@@ -467,7 +522,7 @@ describe("Pana reserve Supply control", () => {
                     // Increase in total supply leads to decrease in loss ratio
                     // Thus,Treasury should add pana to pool
                     let ratioAfterBond = await getSupplyRatio();
-                    expect(Number( ratioAfterBond )).to.lessThan(Number(startingRatio));
+                    expect(Number( ratioAfterBond )).to.lessThan(Number(startingRatio.sub(cf)));
                     
                     // bond with LP token to trigger addition of pana to Supply
                     await bondDepository.connect(deployer)
@@ -494,7 +549,7 @@ describe("Pana reserve Supply control", () => {
                     // Decrease of pana in reserve leads to decrease in loss ratio
                     // Thus, Treasury should add pana to pool
                     let ratioAfterSwap = await getSupplyRatio();
-                    expect(Number(ratioAfterSwap)).to.lessThan(Number(startingRatio));
+                    expect(Number(ratioAfterSwap)).to.lessThan(Number(startingRatio.sub(cf)));
 
                     // bond with LP token to trigger addition of pana to Supply
                     // NOTE: since this is the first bonding, rebase happens which is not calculated into supply control
@@ -535,8 +590,7 @@ describe("Pana reserve Supply control", () => {
                     // such that loss ratio decreases and goes out of channel
                     // Thus, Treasury should add pana to pool
                     let ratioAfterBond = await getSupplyRatio();
-                    expect(Number(ratioAfterBond)).to.lessThan(Number(startingRatio));
-                    expect(Number(await getLossRatio(panaInpool, ts))).to.be.lessThan(Number(lossratio.sub(cf)));
+                    expect(Number(ratioAfterBond)).to.lessThan(Number(startingRatio.sub(cf)));
 
                     // bond with LP token to trigger addition of pana to Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
@@ -558,11 +612,12 @@ describe("Pana reserve Supply control", () => {
                             .deposit(1, decimalRepresentation("4000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
 
                     let ratioAfterBond = await getSupplyRatio();
-                    let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.getSupplyControlAmount();
+                    let [expectedPanaSupply, expectedSLP, burn] = await supplyControl.compute();
 
                     // the treasury should not have enough pana to supply
                     expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(expectedPanaSupply));
                     // Increase in total supply leads to decrease in loss ratio
+                    expect(Number(ratioAfterBond)).to.lessThan(Number(startingRatio.sub(cf)));
                     // Thus,Treasury should add pana to pool 
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
@@ -573,11 +628,50 @@ describe("Pana reserve Supply control", () => {
 
                 });
 
+                it("Should check if correct amount is added to pool with different coefficient", async() => {
+
+                    // setting different coefficient
+                    await supplyControl.setPCoefficient(9000);
+                    // bond with usdc token
+                    // increase in Total supply
+                    let startingRatio = await getSupplyRatio();
+                    await bondDepository.connect(user1)
+                            .deposit(1, decimalRepresentation("1000",USDCDecimals), decimalRepresentation(1), user1.address, user2.address);
+
+                    // Increase in total supply leads to decrease in loss ratio
+                    // Thus,Treasury should add pana to pool
+                    let ratioAfterBond = await getSupplyRatio();
+                    expect(Number( ratioAfterBond )).to.lessThan(Number(startingRatio.sub(cf)));
+
+                    
+                    // bond with LP token to trigger addition of pana to Supply
+                    // 1st bond to control 90% of supply
+                    await bondDepository.connect(deployer)
+                            .deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
+
+                    expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(ratioAfterBond)); 
+                    expect(Number(await getSupplyRatio())).to.be.lessThan(Number(lossratio)); 
+
+
+                    await moveTimestamp(3600);                   
+                    // 2nd bond to control another 90% of supply
+
+                    await bondDepository.connect(deployer)
+                            .deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
+
+                    expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(ratioAfterBond));
+                    expect(Number(await getSupplyRatio())).to.be.lessThanOrEqual(ratiorUpperBound);
+                    expect(Number(await getSupplyRatio())).to.be.greaterThanOrEqual(ratiorLowerBound);
+                    expect(Number(await pana.balanceOf(treasury.address))).to.be.lessThan(Number(panaBalance));
+                    expect(Number(await LP.balanceOf(treasury.address))).to.be.greaterThan(Number(lpBalance));
+                    
+                });
+
             });
 
             describe("Reserve control burning of pana in supply", () => {
 
-                let startingRatio : Number;
+                let startingRatio : any ;
                 let panaInPool : Number;
                 let totalSupplyBefore : any;
                 let lpBalance : Number;
@@ -613,7 +707,7 @@ describe("Pana reserve Supply control", () => {
                     let ratioAfterBond = await getSupplyRatio();
 
                     expect(Number(ratioAfterBond)).to.greaterThan(Number(startingRatio));
-                    expect(Number(await getLossRatio(panaInPool, totalSupplyBefore))).to.be.greaterThan(Number(lossratio.add(cc)));
+                    expect(Number(await getSupplyRatio())).to.be.greaterThan(Number(lossratio.add(cc)));
                     
                     // bond with LP token to trigger burning of pana from Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
@@ -639,7 +733,7 @@ describe("Pana reserve Supply control", () => {
                             );
                     
                     let ratioAfterBond = await getSupplyRatio();
-                    expect(Number( ratioAfterBond )).to.greaterThan(Number(startingRatio));
+                    expect(Number( ratioAfterBond )).to.greaterThan(Number(startingRatio.add(cc)));
 
                     // bond with LP token to trigger addition of pana to Supply
                     // NOTE: since this is the first bonding, rebase happens which is not calculated into supply control
@@ -655,7 +749,7 @@ describe("Pana reserve Supply control", () => {
                 it("Should check if correct amount is burnt on adding liquidity", async() => {
 
                     let ratioAfterBond = await getSupplyRatio();
-                    expect(Number( ratioAfterBond )).to.greaterThan(Number(startingRatio));
+                    expect(Number( ratioAfterBond )).to.greaterThan(Number(startingRatio.add(cc)));
 
                     // bond with LP token to trigger burn of pana from Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
@@ -695,7 +789,10 @@ describe("Pana reserve Supply control", () => {
             describe("Reserve control change within channel",()=>{
                 let lpBalance : any;
                 let panaBalance : any;
+                let channelFloor = bigNumberRepresentation(10);
+                let channelCeil = bigNumberRepresentation(10);
                 beforeEach( async() => {
+                    await supplyControl.connect(deployer).setSupplyControlParams(4000, 10, 10, 600); // increasing channel floor and ceiling
 
                     await supplyControl.connect(deployer).enableSupplyControl();
                     lpBalance = await LP.balanceOf(treasury.address);
@@ -704,8 +801,6 @@ describe("Pana reserve Supply control", () => {
                 });
                 it("Should not trigger add/burn if the loss ratio is within range", async() => {
 
-                    let panaInpool = await getPanaReserve();
-                    let ts = await pana.totalSupply();
                     // bonding with usdc to increase total supply = 2500 Pana  
                     await bondDepository.connect(user1)
                             .deposit(1, decimalRepresentation("25",USDCDecimals), decimalRepresentation(1), user1.address, user1.address);
@@ -728,15 +823,15 @@ describe("Pana reserve Supply control", () => {
                     // such that loss ratio is nullified and stays within channel 1000/2500 = 4.00%
                     // Thus, Treasury should not trigger burn
                     let ratioAfterBond = await getSupplyRatio();
-                    let lossratioAfter = await getLossRatio(panaInpool,ts);
-                    expect(Number(lossratioAfter)).to.greaterThan(Number(lossratio.sub(cf)));
-                    expect(Number(lossratioAfter)).to.lessThan(Number(lossratio.add(cc)));
+                    expect(Number(ratioAfterBond)).to.greaterThan(Number(lossratio.sub(channelFloor))); 
+                    expect(Number(ratioAfterBond)).to.lessThan(Number(lossratio.add(channelCeil)));
 
                     // bond with LP token to check triggering of burn/add of pana to Supply
                     await bondDepository.connect(deployer).deposit(0, 1, decimalRepresentation(1), deployer.address, user1.address);
 
                     expect(Number(await getSupplyRatio())).to.be.equal(Number(ratioAfterBond));
                     expect(Number(await pana.balanceOf(treasury.address))).to.equal(Number(panaBalance));
+                    expect(Number(await LP.balanceOf(treasury.address))).to.equal(Number(lpBalance));
 
                 });
 

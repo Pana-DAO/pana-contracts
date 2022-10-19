@@ -14,7 +14,7 @@ import "../interfaces/ISupplyContoller.sol";
 
 import "../access/PanaAccessControlled.sol";
 
-contract PanaTreasury is PanaAccessControlled, ITreasury {
+contract PanaTreasuryV2 is PanaAccessControlled, ITreasury {
     /* ========== DEPENDENCIES ========== */
 
     using SafeMath for uint256;
@@ -26,6 +26,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     event DepositForRedemption(address indexed token, uint256 amount, uint256 send);
     event Managed(address indexed token, uint256 amount);
     event Minted(address indexed caller, address indexed recipient, uint256 amount);
+    event TreasuryPanaUsed(address indexed caller, address indexed recipient, uint256 amount);
     event PermissionQueued(STATUS indexed status, address queued);
     event Permissioned(address addr, STATUS indexed status, bool result);
     event MintedForNFTTreasury(uint256 amount, address treasury);
@@ -75,6 +76,10 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     // Percentage specified to 4 precision digits. 100 = 1% = 0.01
     uint256 public redemptionLimit;
 
+    /* boolean variable use to drive if Treasury fund (Pana) should be used 
+        before minting new Pana at various actions in Protocol life cycle. */
+    bool public useTreasuryPana;
+
     string internal notAccepted = "Treasury: not accepted";
     string internal notApproved = "Treasury: not approved";
     string internal invalidToken = "Treasury: invalid token";
@@ -118,7 +123,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         }
 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        PANA.mint(msg.sender, _payout);
+        _doMinting(msg.sender, _payout);
 
         emit Deposit(_token, _amount, _payout);
 
@@ -189,6 +194,27 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     }
 
     /**
+     * @notice  internal minting function of Pana based upon useTreasuryPana variable.
+     */
+    function _doMinting(address _recipient, uint256 _amount) internal {
+        if (useTreasuryPana) {
+            uint256 availablePana = PANA.balanceOf(address(this));
+            if (availablePana >= _amount) {
+                // Use Treasury fund to pay Pana
+                IERC20(PANA).safeTransfer(_recipient, _amount);
+                emit TreasuryPanaUsed(msg.sender, _recipient, _amount);
+            } else {
+                // if fund is not available in Treasury, Mint fresh Pana.
+                PANA.mint(_recipient, _amount);
+                emit Minted(msg.sender, _recipient, _amount);
+            }
+        } else {
+            PANA.mint(_recipient, _amount);
+            emit Minted(msg.sender, _recipient, _amount);
+        }
+    }
+
+    /**
      * @notice  externally called version of _updateSupplyRatio
      * @dev     performs additional configuration checks and reverts if any condition fails
      * @param   _lpToken a target liquidity token
@@ -208,7 +234,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
      */
     function mintForNFTTreasury(uint256 _amount) external {
         require(permissions[STATUS.NFTTREASURY][msg.sender], notApproved);
-        PANA.mint(msg.sender, _amount);
+        _doMinting(msg.sender, _amount);
         emit MintedForNFTTreasury(_amount, msg.sender);
     }
 
@@ -228,6 +254,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
         emit Managed(_token, _amount);
     }
 
+    
     /**
      * @notice mint new PANA
      * @param _recipient address
@@ -235,8 +262,7 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
      */
     function mint(address _recipient, uint256 _amount) external override {
         require(permissions[STATUS.REWARDMANAGER][msg.sender], notApproved);
-        PANA.mint(_recipient, _amount);
-        emit Minted(msg.sender, _recipient, _amount);
+        _doMinting(_recipient, _amount);
     }
 
     /**
@@ -246,6 +272,14 @@ contract PanaTreasury is PanaAccessControlled, ITreasury {
     function setRedemptionLimit(uint256 _limit) external onlyGovernor {
         require(_limit <= 10000, "Limit cannot exceed 100 percent");
         redemptionLimit = _limit;
+    }
+
+    /**
+     * @notice sets variable that drive decision to use Treasury funds before minting new Pana.
+     * @param _useTreasuryPana boolean value
+     */
+    function setTreasuryPanaUsageFlag(bool _useTreasuryPana) external onlyGovernor {
+        useTreasuryPana = _useTreasuryPana;
     }
 
     /**
